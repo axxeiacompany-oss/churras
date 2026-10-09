@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useChurras } from '../../context/ChurrasContext';
-import { OrderType } from '../../types';
-import { X, Bike, ShoppingBag, MapPin, Phone, User, DollarSign } from 'lucide-react';
+import { X, Bike, ShoppingBag, User, Phone, MapPin, DollarSign, Plus } from 'lucide-react';
 
 interface DeliveryModalProps {
   onClose: () => void;
@@ -9,110 +8,110 @@ interface DeliveryModalProps {
 }
 
 export const DeliveryModal: React.FC<DeliveryModalProps> = ({ onClose, onCreated }) => {
-  const { openDeliveryComanda, currentUser } = useChurras();
+  const { openDeliveryComanda } = useChurras();
 
-  const [orderType, setOrderType] = useState<OrderType>('DELIVERY');
+  const [orderType, setOrderType] = useState<'DELIVERY' | 'BALCAO'>('DELIVERY');
   const [customerName, setCustomerName] = useState<string>('');
-  const [customerPhone, setCustomerPhone] = useState<string>('');
-  const [deliveryAddress, setDeliveryAddress] = useState<string>('');
-  const [deliveryFee, setDeliveryFee] = useState<number>(15.0);
+  const [phone, setPhone] = useState<string>('');
+  const [address, setAddress] = useState<string>('');
+  const [deliveryFee, setDeliveryFee] = useState<string>('12.00');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!customerName.trim()) return;
 
-    const newCmd = openDeliveryComanda({
+    const newId = openDeliveryComanda({
       customerName: customerName.trim(),
-      customerPhone: customerPhone.trim(),
-      deliveryAddress: orderType === 'DELIVERY' ? deliveryAddress.trim() : undefined,
-      deliveryFee: orderType === 'DELIVERY' ? deliveryFee : 0,
+      customerPhone: phone.trim() || undefined,
+      deliveryAddress: orderType === 'DELIVERY' ? address.trim() : undefined,
+      deliveryFee: orderType === 'DELIVERY' ? parseFloat(deliveryFee) || 0 : 0,
       orderType,
-      waiterId: currentUser?.id,
     });
 
-    onCreated(newCmd.id);
+    onCreated(newId);
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-4">
-      <div className="bg-stone-900 border border-stone-700 rounded-2xl max-w-md w-full p-5 shadow-2xl">
-        <div className="flex items-center justify-between pb-3 border-b border-stone-800">
-          <div>
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <Bike className="w-5 h-5 text-amber-500" />
-              Novo Pedido · Delivery ou Balcão
-            </h3>
-            <p className="text-xs text-stone-400">
-              Venda externa ou retirada direta no balcão da churrascaria
-            </p>
+    <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 overflow-y-auto">
+      <div className="bg-stone-900 border border-stone-700 rounded-2xl max-w-md w-full shadow-2xl overflow-hidden my-8">
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 bg-stone-950 border-b border-stone-800">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-sm">
+              {orderType === 'DELIVERY' ? <Bike className="w-4 h-4" /> : <ShoppingBag className="w-4 h-4" />}
+            </div>
+            <div>
+              <h3 className="font-bold text-stone-100 text-sm">Novo Pedido Externo</h3>
+              <p className="text-xs text-stone-400">Delivery em domicílio ou retirada rápida no balcão</p>
+            </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-stone-400 hover:text-white"
+            className="p-1 rounded-lg text-stone-400 hover:text-white hover:bg-stone-800 transition"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-4 space-y-3.5 text-xs">
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="p-5 space-y-4">
           {/* Order Type Toggle */}
-          <div className="grid grid-cols-2 p-1 bg-stone-950 rounded-xl border border-stone-800 gap-1">
+          <div className="grid grid-cols-2 gap-2 bg-stone-950 p-1 rounded-xl border border-stone-800">
             <button
               type="button"
               onClick={() => setOrderType('DELIVERY')}
-              className={`flex items-center justify-center gap-1.5 py-2 rounded-lg font-bold transition-all ${
+              className={`py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer ${
                 orderType === 'DELIVERY'
-                  ? 'bg-amber-600 text-white shadow-sm'
-                  : 'text-stone-400 hover:text-white'
+                  ? 'bg-amber-600 text-white shadow-md'
+                  : 'text-stone-400 hover:text-stone-200'
               }`}
             >
               <Bike className="w-4 h-4" />
-              <span>Entrega (Delivery)</span>
+              Delivery (Entrega)
             </button>
             <button
               type="button"
-              onClick={() => setOrderType('RETIRADA')}
-              className={`flex items-center justify-center gap-1.5 py-2 rounded-lg font-bold transition-all ${
-                orderType === 'RETIRADA'
-                  ? 'bg-amber-600 text-white shadow-sm'
-                  : 'text-stone-400 hover:text-white'
+              onClick={() => setOrderType('BALCAO')}
+              className={`py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer ${
+                orderType === 'BALCAO'
+                  ? 'bg-amber-600 text-white shadow-md'
+                  : 'text-stone-400 hover:text-stone-200'
               }`}
             >
               <ShoppingBag className="w-4 h-4" />
-              <span>Retirada Balcão</span>
+              Retirada Balcão
             </button>
           </div>
 
           <div>
-            <label className="block font-semibold text-stone-300 mb-1">
-              Nome do Cliente:
+            <label className="block text-xs font-medium text-stone-300 mb-1">
+              Nome do Cliente *
             </label>
             <div className="relative">
               <User className="w-4 h-4 text-stone-500 absolute left-3 top-2.5" />
               <input
                 type="text"
                 required
-                placeholder="Ex: Mariana Lima"
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
-                className="w-full bg-stone-950 border border-stone-700 rounded-xl pl-9 pr-3 py-2 text-white placeholder-stone-500 focus:outline-none focus:border-amber-500"
+                placeholder="Ex: Amanda Ferreira"
+                className="w-full bg-stone-950 border border-stone-700 rounded-xl pl-9 pr-3 py-2 text-sm text-stone-100 placeholder-stone-600 focus:outline-none focus:border-amber-500"
               />
             </div>
           </div>
 
           <div>
-            <label className="block font-semibold text-stone-300 mb-1">
-              Telefone / WhatsApp:
+            <label className="block text-xs font-medium text-stone-300 mb-1">
+              Telefone / WhatsApp
             </label>
             <div className="relative">
               <Phone className="w-4 h-4 text-stone-500 absolute left-3 top-2.5" />
               <input
                 type="text"
-                required
-                placeholder="(11) 98877-6655"
-                value={customerPhone}
-                onChange={(e) => setCustomerPhone(e.target.value)}
-                className="w-full bg-stone-950 border border-stone-700 rounded-xl pl-9 pr-3 py-2 text-white placeholder-stone-500 focus:outline-none focus:border-amber-500"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="(11) 98765-4321"
+                className="w-full bg-stone-950 border border-stone-700 rounded-xl pl-9 pr-3 py-2 text-sm text-stone-100 placeholder-stone-600 focus:outline-none focus:border-amber-500"
               />
             </div>
           </div>
@@ -120,53 +119,55 @@ export const DeliveryModal: React.FC<DeliveryModalProps> = ({ onClose, onCreated
           {orderType === 'DELIVERY' && (
             <>
               <div>
-                <label className="block font-semibold text-stone-300 mb-1">
-                  Endereço de Entrega Completo:
+                <label className="block text-xs font-medium text-stone-300 mb-1">
+                  Endereço Completo de Entrega *
                 </label>
                 <div className="relative">
                   <MapPin className="w-4 h-4 text-stone-500 absolute left-3 top-2.5" />
                   <input
                     type="text"
                     required
-                    placeholder="Rua, número, apto, bairro..."
-                    value={deliveryAddress}
-                    onChange={(e) => setDeliveryAddress(e.target.value)}
-                    className="w-full bg-stone-950 border border-stone-700 rounded-xl pl-9 pr-3 py-2 text-white placeholder-stone-500 focus:outline-none focus:border-amber-500"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    placeholder="Rua, número, complemento, bairro"
+                    className="w-full bg-stone-950 border border-stone-700 rounded-xl pl-9 pr-3 py-2 text-sm text-stone-100 placeholder-stone-600 focus:outline-none focus:border-amber-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-semibold text-stone-300 mb-1">
-                  Taxa de Entrega (R$):
+                <label className="block text-xs font-medium text-stone-300 mb-1">
+                  Taxa de Entrega (R$)
                 </label>
                 <div className="relative">
                   <DollarSign className="w-4 h-4 text-stone-500 absolute left-3 top-2.5" />
                   <input
                     type="number"
-                    step="0.01"
+                    step="0.50"
+                    min="0"
                     value={deliveryFee}
-                    onChange={(e) => setDeliveryFee(parseFloat(e.target.value) || 0)}
-                    className="w-full bg-stone-950 border border-stone-700 rounded-xl pl-9 pr-3 py-2 text-white font-mono focus:outline-none focus:border-amber-500"
+                    onChange={(e) => setDeliveryFee(e.target.value)}
+                    className="w-full bg-stone-950 border border-stone-700 rounded-xl pl-9 pr-3 py-2 text-sm text-stone-100 focus:outline-none focus:border-amber-500"
                   />
                 </div>
               </div>
             </>
           )}
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-stone-800">
+          <div className="pt-3 border-t border-stone-800 flex gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-stone-800 text-stone-300 font-semibold"
+              className="flex-1 py-2.5 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-xl font-medium text-sm transition"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold shadow-md"
+              className="flex-1 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-950/40 transition"
             >
-              Abrir Comanda {orderType === 'DELIVERY' ? 'Delivery' : 'Balcão'}
+              <Plus className="w-4 h-4" />
+              Criar Pedido
             </button>
           </div>
         </form>

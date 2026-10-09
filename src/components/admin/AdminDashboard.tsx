@@ -42,11 +42,17 @@ import {
   UserCheck,
   Package,
   AlertTriangle,
+  Zap,
   Image as ImageIcon,
+  FileSpreadsheet,
 } from 'lucide-react';
 import { EmployeeHistoryModal } from './EmployeeHistoryModal';
 import { ReceiptModal } from '../modals/ReceiptModal';
 import { InventoryTab } from './InventoryTab';
+import { DailyMonitoringTab } from './DailyMonitoringTab';
+import { CashFlowTab } from './CashFlowTab';
+import { AutomationsTab } from './AutomationsTab';
+import { ReportsTab } from './ReportsTab';
 
 export const AdminDashboard: React.FC = () => {
   const {
@@ -66,12 +72,19 @@ export const AdminDashboard: React.FC = () => {
     updateSettings,
     ingredients,
     lowStockIngredients,
+    bills,
     showToast,
   } = useChurras();
 
   const [activeTab, setActiveTab] = useState<
-    'OVERVIEW' | 'EMPLOYEES' | 'MENU' | 'INVENTORY' | 'TABLES' | 'CASH_FLOW' | 'SETTINGS'
+    'OVERVIEW' | 'EMPLOYEES' | 'MENU' | 'INVENTORY' | 'TABLES' | 'CASH_FLOW' | 'AUTOMATIONS' | 'REPORTS' | 'SETTINGS'
   >('OVERVIEW');
+
+  const alertsCount =
+    lowStockIngredients.length +
+    (bills || []).filter(
+      (b) => b.status !== 'PAGO' && b.dueDate <= new Date().toISOString().split('T')[0]
+    ).length;
 
   // Employee modal form state
   const [showEmployeeModal, setShowEmployeeModal] = useState<boolean>(false);
@@ -433,6 +446,52 @@ export const AdminDashboard: React.FC = () => {
           </button>
 
           <button
+            onClick={() => setActiveTab('INVENTORY')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl whitespace-nowrap transition-all ${
+              activeTab === 'INVENTORY'
+                ? 'bg-amber-600 text-white shadow-md'
+                : 'text-stone-400 hover:text-white hover:bg-stone-800'
+            }`}
+          >
+            <Package className="w-4 h-4" />
+            <span>Estoque & Insumos</span>
+            {lowStockIngredients.length > 0 && (
+              <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/40">
+                {lowStockIngredients.length}
+              </span>
+            )}
+          </button>
+
+          <button
+            onClick={() => setActiveTab('AUTOMATIONS')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl whitespace-nowrap transition-all ${
+              activeTab === 'AUTOMATIONS'
+                ? 'bg-amber-600 text-white shadow-md'
+                : 'text-stone-400 hover:text-white hover:bg-stone-800'
+            }`}
+          >
+            <Zap className="w-4 h-4 text-amber-400" />
+            <span>Automações & Alertas</span>
+            {alertsCount > 0 && (
+              <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-red-500/20 text-red-400 border border-red-500/40">
+                {alertsCount}
+              </span>
+            )}
+          </button>
+
+          <button
+            onClick={() => setActiveTab('REPORTS')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl whitespace-nowrap transition-all ${
+              activeTab === 'REPORTS'
+                ? 'bg-amber-600 text-white shadow-md'
+                : 'text-stone-400 hover:text-white hover:bg-stone-800'
+            }`}
+          >
+            <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
+            <span>Relatórios & BI</span>
+          </button>
+
+          <button
             onClick={() => setActiveTab('SETTINGS')}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-xl whitespace-nowrap transition-all ${
               activeTab === 'SETTINGS'
@@ -447,185 +506,7 @@ export const AdminDashboard: React.FC = () => {
       </div>
 
       {/* TAB 1: OVERVIEW */}
-      {activeTab === 'OVERVIEW' && (
-        <div className="space-y-6">
-          {/* Top KPI Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="p-4 rounded-2xl bg-stone-900 border border-stone-800 shadow-md">
-              <div className="text-[11px] font-bold text-stone-400 uppercase tracking-wider">
-                Faturamento Fechado
-              </div>
-              <div className="text-2xl font-black text-amber-400 font-mono mt-1">
-                {formatCurrency(totalSalesRevenue)}
-              </div>
-              <div className="text-[11px] text-stone-500 mt-1">
-                +{formatCurrency(activeComandasRevenue)} em comandas abertas
-              </div>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-stone-900 border border-stone-800 shadow-md">
-              <div className="text-[11px] font-bold text-stone-400 uppercase tracking-wider">
-                Ticket Médio
-              </div>
-              <div className="text-2xl font-black text-white font-mono mt-1">
-                {formatCurrency(avgTicket)}
-              </div>
-              <div className="text-[11px] text-stone-500 mt-1">
-                {totalComandasCount} comandas pagas
-              </div>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-stone-900 border border-stone-800 shadow-md">
-              <div className="text-[11px] font-bold text-stone-400 uppercase tracking-wider">
-                Ocupação Salão
-              </div>
-              <div className="text-2xl font-black text-emerald-400 font-mono mt-1">
-                {tables.filter((t) => t.status === 'OCUPADA' || t.status === 'CONTA_SOLICITADA').length} / {tables.length}
-              </div>
-              <div className="text-[11px] text-stone-500 mt-1">
-                {totalPeopleServed} clientes atendidos hoje
-              </div>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-stone-900 border border-stone-800 shadow-md">
-              <div className="text-[11px] font-bold text-stone-400 uppercase tracking-wider">
-                Taxa de Serviço (10%)
-              </div>
-              <div className="text-2xl font-black text-purple-400 font-mono mt-1">
-                {formatCurrency(totalServiceFee)}
-              </div>
-              <div className="text-[11px] text-stone-500 mt-1">
-                Destinado à equipe de salão
-              </div>
-            </div>
-          </div>
-
-          {/* Charts & Breakdowns */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            
-            {/* Payment Methods Breakdown */}
-            <div className="bg-stone-900 border border-stone-800 rounded-2xl p-5 shadow-lg space-y-4">
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                <CreditCard className="w-4 h-4 text-amber-500" />
-                Vendas por Forma de Pagamento
-              </h3>
-
-              <div className="space-y-3">
-                {(
-                  [
-                    { method: 'PIX' as PaymentMethod, color: 'bg-teal-500', text: 'text-teal-400' },
-                    { method: 'CREDITO' as PaymentMethod, color: 'bg-blue-500', text: 'text-blue-400' },
-                    { method: 'DEBITO' as PaymentMethod, color: 'bg-indigo-500', text: 'text-indigo-400' },
-                    { method: 'DINHEIRO' as PaymentMethod, color: 'bg-emerald-500', text: 'text-emerald-400' },
-                    { method: 'VR_VA' as PaymentMethod, color: 'bg-purple-500', text: 'text-purple-400' },
-                  ] as const
-                ).map((row) => {
-                  const val = paymentsByMethod[row.method] || 0;
-                  const total = Object.values(paymentsByMethod).reduce((a, b) => a + b, 0) || 1;
-                  const pct = Math.round((val / total) * 100);
-
-                  return (
-                    <div key={row.method} className="space-y-1">
-                      <div className="flex justify-between text-xs font-semibold">
-                        <span className="text-stone-300">{getPaymentMethodLabel(row.method)}</span>
-                        <div className="flex items-center gap-2 font-mono">
-                          <span className={row.text}>{formatCurrency(val)}</span>
-                          <span className="text-[10px] text-stone-500">({pct}%)</span>
-                        </div>
-                      </div>
-                      <div className="w-full h-2 rounded-full bg-stone-950 overflow-hidden">
-                        <div
-                          className={`h-full ${row.color} rounded-full transition-all duration-500`}
-                          style={{ width: `${pct}%` }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Top Selling Items & Meats */}
-            <div className="bg-stone-900 border border-stone-800 rounded-2xl p-5 shadow-lg space-y-4">
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                <Flame className="w-4 h-4 text-orange-500" />
-                Cortes e Itens Mais Vendidos
-              </h3>
-
-              <div className="space-y-2.5">
-                {topSellingItems.length === 0 ? (
-                  <div className="text-xs text-stone-500 py-6 text-center">
-                    Nenhum item vendido ainda.
-                  </div>
-                ) : (
-                  topSellingItems.map((item, idx) => (
-                    <div
-                      key={item.name}
-                      className="p-2.5 rounded-xl bg-stone-950 border border-stone-800 flex items-center justify-between text-xs"
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <span className="w-5 h-5 rounded-md bg-stone-800 text-stone-300 font-bold flex items-center justify-center text-[10px]">
-                          #{idx + 1}
-                        </span>
-                        <div>
-                          <div className="font-bold text-white">{item.name}</div>
-                          <div className="text-[10px] text-stone-500">{item.qty} pedidos realizados</div>
-                        </div>
-                      </div>
-
-                      <div className="text-right font-mono">
-                        <div className="font-bold text-amber-400">
-                          {formatCurrency(item.revenue)}
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Waiter Team Performance */}
-          <div className="bg-stone-900 border border-stone-800 rounded-2xl p-5 shadow-lg space-y-4">
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-              <Users className="w-4 h-4 text-amber-500" />
-              Desempenho da Brigada de Garçons
-            </h3>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {waiterStats.map((waiter) => (
-                <div
-                  key={waiter.id}
-                  className="p-4 rounded-xl bg-stone-950 border border-stone-800 flex items-center justify-between"
-                >
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={waiter.avatar}
-                      alt={waiter.name}
-                      className="w-10 h-10 rounded-xl object-cover border border-stone-700"
-                    />
-                    <div>
-                      <div className="text-xs font-bold text-white">{waiter.name}</div>
-                      <div className="text-[10px] text-stone-500">
-                        {waiter.ordersCount} comandas atendidas
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="text-right font-mono">
-                    <div className="text-xs font-extrabold text-amber-400">
-                      {formatCurrency(waiter.sales)}
-                    </div>
-                    <div className="text-[10px] text-emerald-400">
-                      Gorjeta: {formatCurrency(waiter.commission)}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+      {activeTab === 'OVERVIEW' && <DailyMonitoringTab />}
 
       {/* TAB 2: EMPLOYEES */}
       {activeTab === 'EMPLOYEES' && (() => {
@@ -1148,65 +1029,18 @@ export const AdminDashboard: React.FC = () => {
       )}
 
       {/* TAB 5: CASH FLOW & AUDIT */}
-      {activeTab === 'CASH_FLOW' && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-base font-bold text-white">Fluxo de Caixa Automatizado</h3>
-              <p className="text-xs text-stone-400">
-                Auditoria em tempo real de entradas, saídas, sangrias e suprimentos do turno.
-              </p>
-            </div>
-          </div>
+      {activeTab === 'CASH_FLOW' && <CashFlowTab />}
 
-          <div className="bg-stone-900 border border-stone-800 rounded-2xl p-5 shadow-lg space-y-3">
-            <h4 className="text-xs font-bold text-stone-300 uppercase tracking-wider">
-              Movimentações do Caixa Atual ({cashSession.movements.length})
-            </h4>
+      {/* TAB 6: INVENTORY & SUPPLIES */}
+      {activeTab === 'INVENTORY' && <InventoryTab />}
 
-            <div className="divide-y divide-stone-800/80">
-              {cashSession.movements.map((m) => {
-                const isPositive = m.type === 'VENDA' || m.type === 'SUPRIMENTO';
+      {/* TAB 7: AUTOMATIONS & ALERTS */}
+      {activeTab === 'AUTOMATIONS' && <AutomationsTab />}
 
-                return (
-                  <div key={m.id} className="py-2.5 flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-3">
-                      <span
-                        className={`text-[9px] font-bold px-2 py-0.5 rounded ${
-                          m.type === 'VENDA'
-                            ? 'bg-emerald-950 text-emerald-400'
-                            : m.type === 'SUPRIMENTO'
-                            ? 'bg-blue-950 text-blue-400'
-                            : 'bg-amber-950 text-amber-400'
-                        }`}
-                      >
-                        {m.type}
-                      </span>
-                      <div>
-                        <div className="font-semibold text-white">{m.description}</div>
-                        <div className="text-[10px] text-stone-500">
-                          {formatTime(m.timestamp)} · Operador: {m.operatorName}{' '}
-                          {m.paymentMethod && `· Método: ${m.paymentMethod}`}
-                        </div>
-                      </div>
-                    </div>
+      {/* TAB 8: RELATÓRIOS & BI */}
+      {activeTab === 'REPORTS' && <ReportsTab />}
 
-                    <div
-                      className={`font-mono font-bold text-sm ${
-                        isPositive ? 'text-emerald-400' : 'text-red-400'
-                      }`}
-                    >
-                      {isPositive ? '+' : '-'} {formatCurrency(m.amount)}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 6: RESTAURANT SETTINGS */}
+      {/* TAB 9: RESTAURANT SETTINGS */}
       {activeTab === 'SETTINGS' && (
         <div className="bg-stone-900 border border-stone-800 rounded-2xl p-6 shadow-lg max-w-2xl space-y-4">
           <div>

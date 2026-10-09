@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Table } from '../../types';
 import { useChurras } from '../../context/ChurrasContext';
-import { X, Calendar, Phone, User, Clock, CheckCircle2, Trash2 } from 'lucide-react';
+import { X, Calendar, Clock, User, Phone, FileText, CheckCircle2, Trash2, UtensilsCrossed } from 'lucide-react';
 
 interface ReserveTableModalProps {
   table: Table;
   onClose: () => void;
-  onStartAttendance?: (table: Table) => void;
+  onStartAttendance: (table: Table) => void;
 }
 
 export const ReserveTableModal: React.FC<ReserveTableModalProps> = ({
@@ -16,159 +16,199 @@ export const ReserveTableModal: React.FC<ReserveTableModalProps> = ({
 }) => {
   const { reserveTable, cancelReservation } = useChurras();
 
-  const isAlreadyReserved = table.status === 'RESERVADA';
+  const isReserved = table.status === 'RESERVADA';
 
   const [customerName, setCustomerName] = useState<string>(
     table.reservationCustomerName || table.customerName || ''
   );
   const [phone, setPhone] = useState<string>(table.reservationPhone || '');
   const [time, setTime] = useState<string>(table.reservationTime || '20:00');
+  const [peopleCount, setPeopleCount] = useState<number>(table.peopleCount || table.capacity || 4);
+  const [notes, setNotes] = useState<string>(table.reservationNotes || '');
 
-  const handleSaveReservation = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!customerName.trim()) return;
 
-    reserveTable(table.id, customerName.trim(), phone.trim() || undefined, time.trim() || undefined);
+    reserveTable(table.id, {
+      customerName: customerName.trim(),
+      phone: phone.trim() || undefined,
+      time,
+      peopleCount,
+      notes: notes.trim() || undefined,
+    });
     onClose();
   };
 
-  const handleCancel = () => {
-    cancelReservation(table.id);
-    onClose();
+  const handleCancelReservation = () => {
+    if (confirm(`Deseja realmente cancelar a reserva da ${table.label}?`)) {
+      cancelReservation(table.id);
+      onClose();
+    }
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-4">
-      <div className="bg-stone-900 border border-stone-700 rounded-2xl max-w-md w-full p-5 shadow-2xl">
-        <div className="flex items-center justify-between pb-3 border-b border-stone-800">
-          <div>
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-amber-500" />
-              {isAlreadyReserved ? `Reserva da ${table.label}` : `Reservar ${table.label}`}
-            </h3>
-            <p className="text-xs text-stone-400">
-              Capacidade: {table.capacity} lugares
-            </p>
+    <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 overflow-y-auto">
+      <div className="bg-stone-900 border border-stone-700 rounded-2xl max-w-md w-full shadow-2xl overflow-hidden my-8">
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 bg-stone-950 border-b border-stone-800">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-sm">
+              <Calendar className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="font-bold text-stone-100 text-sm">
+                {isReserved ? `Reserva: ${table.label}` : `Nova Reserva: ${table.label}`}
+              </h3>
+              <p className="text-xs text-stone-400">Capacidade: {table.capacity} pessoas</p>
+            </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-stone-400 hover:text-white"
+            className="p-1 rounded-lg text-stone-400 hover:text-white hover:bg-stone-800 transition"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {isAlreadyReserved ? (
-          <div className="mt-4 space-y-4 text-xs">
-            <div className="bg-stone-950 p-4 rounded-xl border border-stone-800 space-y-2">
-              <div className="flex justify-between">
-                <span className="text-stone-400">Cliente da Reserva:</span>
-                <strong className="text-white font-bold">{table.reservationCustomerName || table.customerName}</strong>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-stone-400">Telefone / Contato:</span>
-                <span className="text-stone-200">{table.reservationPhone || 'Não informado'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-stone-400">Horário Previsto:</span>
-                <span className="text-amber-400 font-bold">{table.reservationTime || 'A definir'}</span>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-2 pt-2">
-              {onStartAttendance && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    onClose();
-                    onStartAttendance(table);
-                  }}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold shadow-md"
-                >
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Clientes Chegaram (Iniciar Atendimento)</span>
-                </button>
-              )}
-
-              <button
-                type="button"
-                onClick={handleCancel}
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-stone-800 hover:bg-red-950/60 hover:text-red-400 text-stone-300 font-semibold border border-stone-700 transition-colors"
-              >
-                <Trash2 className="w-4 h-4" />
-                <span>Cancelar Reserva (Liberar Mesa)</span>
-              </button>
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+          <div>
+            <label className="block text-xs font-medium text-stone-300 mb-1">
+              Nome do Responsável *
+            </label>
+            <div className="relative">
+              <User className="w-4 h-4 text-stone-500 absolute left-3 top-2.5" />
+              <input
+                type="text"
+                required
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                placeholder="Ex: Família Silveira"
+                className="w-full bg-stone-950 border border-stone-700 rounded-xl pl-9 pr-3 py-2 text-sm text-stone-100 placeholder-stone-600 focus:outline-none focus:border-amber-500"
+              />
             </div>
           </div>
-        ) : (
-          <form onSubmit={handleSaveReservation} className="mt-4 space-y-3.5 text-xs">
+
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block font-semibold text-stone-300 mb-1">
-                Nome do Cliente para a Reserva:
+              <label className="block text-xs font-medium text-stone-300 mb-1">
+                Telefone / WhatsApp
               </label>
               <div className="relative">
-                <User className="w-4 h-4 text-stone-500 absolute left-3 top-2.5" />
+                <Phone className="w-4 h-4 text-stone-500 absolute left-3 top-2.5" />
                 <input
                   type="text"
-                  required
-                  placeholder="Ex: Família Becker ou Dr. Fernando"
-                  value={customerName}
-                  onChange={(e) => setCustomerName(e.target.value)}
-                  className="w-full bg-stone-950 border border-stone-700 rounded-xl pl-9 pr-3 py-2 text-white placeholder-stone-500 focus:outline-none focus:border-amber-500"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="(11) 9..."
+                  className="w-full bg-stone-950 border border-stone-700 rounded-xl pl-9 pr-3 py-2 text-sm text-stone-100 placeholder-stone-600 focus:outline-none focus:border-amber-500"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block font-semibold text-stone-300 mb-1">
-                  Telefone / WhatsApp:
-                </label>
-                <div className="relative">
-                  <Phone className="w-4 h-4 text-stone-500 absolute left-3 top-2.5" />
-                  <input
-                    type="text"
-                    placeholder="(11) 98765-4321"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="w-full bg-stone-950 border border-stone-700 rounded-xl pl-9 pr-3 py-2 text-white placeholder-stone-500 focus:outline-none focus:border-amber-500"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block font-semibold text-stone-300 mb-1">
-                  Horário Previsto:
-                </label>
-                <div className="relative">
-                  <Clock className="w-4 h-4 text-stone-500 absolute left-3 top-2.5" />
-                  <input
-                    type="time"
-                    value={time}
-                    onChange={(e) => setTime(e.target.value)}
-                    className="w-full bg-stone-950 border border-stone-700 rounded-xl pl-9 pr-3 py-2 text-white focus:outline-none focus:border-amber-500"
-                  />
-                </div>
+            <div>
+              <label className="block text-xs font-medium text-stone-300 mb-1">
+                Horário Previsto *
+              </label>
+              <div className="relative">
+                <Clock className="w-4 h-4 text-stone-500 absolute left-3 top-2.5" />
+                <input
+                  type="time"
+                  required
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                  className="w-full bg-stone-950 border border-stone-700 rounded-xl pl-9 pr-3 py-2 text-sm text-stone-100 focus:outline-none focus:border-amber-500"
+                />
               </div>
             </div>
+          </div>
 
-            <div className="flex justify-end gap-2 pt-3 border-t border-stone-800">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2 rounded-xl bg-stone-800 text-stone-300 font-semibold"
-              >
-                Cancelar
-              </button>
-              <button
-                type="submit"
-                className="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold shadow-md"
-              >
-                Confirmar Reserva
-              </button>
+          <div>
+            <label className="block text-xs font-medium text-stone-300 mb-1">
+              Quantidade de Pessoas
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                min="1"
+                max={table.capacity + 4}
+                value={peopleCount}
+                onChange={(e) => setPeopleCount(parseInt(e.target.value) || 1)}
+                className="w-24 bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-sm text-stone-100 focus:outline-none focus:border-amber-500"
+              />
+              <span className="text-xs text-stone-400">
+                (Máximo sugerido: {table.capacity + 2} pessoas)
+              </span>
             </div>
-          </form>
-        )}
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-stone-300 mb-1">
+              Observações / Comemoração
+            </label>
+            <div className="relative">
+              <FileText className="w-4 h-4 text-stone-500 absolute left-3 top-2.5" />
+              <input
+                type="text"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Ex: Aniversário, prefere mesa perto da varanda"
+                className="w-full bg-stone-950 border border-stone-700 rounded-xl pl-9 pr-3 py-2 text-sm text-stone-100 placeholder-stone-600 focus:outline-none focus:border-amber-500"
+              />
+            </div>
+          </div>
+
+          {/* Action buttons */}
+          <div className="pt-3 border-t border-stone-800 space-y-2">
+            {isReserved ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => onStartAttendance(table)}
+                  className="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/40 transition cursor-pointer"
+                >
+                  <UtensilsCrossed className="w-4 h-4" />
+                  Iniciar Atendimento Agora
+                </button>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="submit"
+                    className="py-2 bg-stone-800 hover:bg-stone-700 text-stone-200 rounded-xl font-medium text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5 text-amber-500" />
+                    Atualizar Dados
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCancelReservation}
+                    className="py-2 bg-red-950/40 hover:bg-red-900/60 border border-red-800 text-red-300 rounded-xl font-medium text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    Cancelar Reserva
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="flex-1 py-2.5 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-xl font-medium text-sm transition"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-950/40 transition"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  Salvar Reserva
+                </button>
+              </div>
+            )}
+          </div>
+        </form>
       </div>
     </div>
   );

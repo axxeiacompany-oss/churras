@@ -1,21 +1,26 @@
-import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
+import { formatCurrency } from '../utils/format';
 import {
   Employee,
   MenuItem,
   Table,
   Comanda,
-  OrderItem,
-  OrderItemStatus,
+  ComandaItem,
   CashRegisterSession,
-  PaymentTransaction,
-  MeatDoneness,
+  CashMovementType,
+  PaymentMethod,
+  Payment,
   RestaurantSettings,
-  CashMovement,
-  OrderType,
   Ingredient,
   WasteRecord,
   StockMovement,
-  WasteReason,
+  OrderItemStatus,
+  MeatDoneness,
+  ExpenseBill,
+  CashClosingRecord,
+  AuditLogEntry,
+  AuditActionType,
+  UserRole,
 } from '../types';
 import {
   INITIAL_SETTINGS,
@@ -27,72 +32,75 @@ import {
   INITIAL_INGREDIENTS,
   INITIAL_WASTE_RECORDS,
   INITIAL_STOCK_MOVEMENTS,
+  INITIAL_EXPENSE_BILLS,
+  INITIAL_CASH_CLOSINGS,
+  INITIAL_AUDIT_LOGS,
 } from '../data/initialData';
-import { soundManager } from '../utils/audio';
+
+export interface ToastMessage {
+  id: string;
+  message: string;
+  type: 'success' | 'warning' | 'error' | 'info';
+}
 
 interface ChurrasContextType {
   currentUser: Employee | null;
-  isAuthenticated: boolean;
-  loginWithEmail: (email: string, password: string) => { success: boolean; error?: string };
+  employees: Employee[];
+  menuItems: MenuItem[];
+  tables: Table[];
+  comandas: Comanda[];
+  cashSession: CashRegisterSession;
+  settings: RestaurantSettings;
+  ingredients: Ingredient[];
+  wasteRecords: WasteRecord[];
+  stockMovements: StockMovement[];
+  lowStockIngredients: Ingredient[];
+  bills: ExpenseBill[];
+  cashClosings: CashClosingRecord[];
+  auditLogs: AuditLogEntry[];
+  toasts: ToastMessage[];
+
+  // Auth
+  loginWithEmail: (email: string, pass: string) => { success: boolean; error?: string };
   loginWithPin: (pin: string) => { success: boolean; error?: string };
   logout: () => void;
-  resetCredentials: (employeeId: string, newPassword?: string, newPin?: string) => void;
   switchUser: (employeeId: string) => void;
-  employees: Employee[];
+
+  // Employees
   addEmployee: (emp: Omit<Employee, 'id'>) => { success: boolean; error?: string };
   updateEmployee: (id: string, updates: Partial<Employee>) => void;
   deleteEmployee: (id: string) => void;
+  resetCredentials: (id: string, newPin: string, newPassword?: string) => void;
 
-  tables: Table[];
-  menuItems: MenuItem[];
+  // Menu
   addMenuItem: (item: Omit<MenuItem, 'id'>) => void;
   updateMenuItem: (id: string, updates: Partial<MenuItem>) => void;
   toggleMenuItemAvailability: (id: string) => void;
+  deleteMenuItem: (id: string) => void;
 
-  // 5. Cardápio e Estoque de Insumos
-  ingredients: Ingredient[];
-  addIngredient: (item: Omit<Ingredient, 'id'>) => void;
-  updateIngredient: (id: string, updates: Partial<Ingredient>) => void;
-  deleteIngredient: (id: string) => void;
-  restockIngredient: (
-    id: string,
-    quantity: number,
-    costPerUnit?: number,
-    supplier?: string
-  ) => void;
-  wasteRecords: WasteRecord[];
-  registerWaste: (record: Omit<WasteRecord, 'id' | 'date'>) => void;
-  stockMovements: StockMovement[];
-  lowStockIngredients: Ingredient[];
-
-  comandas: Comanda[];
+  // Tables & Comandas
   openComanda: (
     tableId: number,
     waiterId: string,
     details: {
-      customerName?: string;
+      customerName: string;
       peopleCount: number;
       hasRodizio: boolean;
       rodizioAdultCount: number;
       rodizioChildCount: number;
-      rodizioSeniorCount?: number;
-      orderType?: OrderType;
-      customerPhone?: string;
-      deliveryAddress?: string;
-      deliveryFee?: number;
+      rodizioSeniorCount: number;
     }
-  ) => Comanda;
-  openDeliveryComanda: (data: {
+  ) => string;
+  openDeliveryComanda: (details: {
     customerName: string;
-    customerPhone: string;
+    customerPhone?: string;
     deliveryAddress?: string;
     deliveryFee?: number;
-    orderType: OrderType;
-    waiterId?: string;
-  }) => Comanda;
+    orderType?: 'DELIVERY' | 'BALCAO';
+  }) => string;
   addItemsToComanda: (
     comandaId: string,
-    newItems: Array<{
+    items: Array<{
       menuItemId: string;
       quantity: number;
       doneness?: MeatDoneness;
@@ -100,615 +108,493 @@ interface ChurrasContextType {
       weightInKg?: number;
     }>
   ) => void;
-  updateOrderItemStatus: (itemId: string, newStatus: OrderItemStatus) => void;
   requestBill: (comandaId: string) => void;
   toggleServiceFee: (comandaId: string) => void;
   transferComanda: (sourceTableId: number, targetTableId: number) => { success: boolean; error?: string };
   transferItems: (
     sourceComandaId: string,
-    targetComandaId: string,
+    targetComandaId: string | null,
     itemIds: string[]
   ) => { success: boolean; error?: string };
   mergeComandas: (sourceTableId: number, targetTableId: number) => { success: boolean; error?: string };
-  reserveTable: (tableId: number, customerName: string, phone?: string, time?: string) => void;
-  cancelReservation: (tableId: number) => void;
-  processPayment: (
-    comandaId: string,
-    payments: PaymentTransaction[],
-    discount?: number,
-    includeService?: boolean
+  reserveTable: (
+    tableId: number,
+    details: {
+      customerName: string;
+      phone?: string;
+      time: string;
+      peopleCount: number;
+      notes?: string;
+    }
   ) => void;
+  cancelReservation: (tableId: number) => void;
+  updateOrderItemStatus: (itemId: string, status: OrderItemStatus) => void;
+  payComanda: (comandaId: string, payments: Payment[], discountAmount?: number) => void;
   cancelComanda: (comandaId: string) => void;
 
-  cashSession: CashRegisterSession;
-  openCashSession: (operatorId: string, initialCash: number) => void;
-  closeCashSession: (countedCash: number, closingNotes?: string) => void;
-  addCashMovement: (type: 'SANGRIA' | 'SUPRIMENTO', amount: number, description: string) => void;
+  // Cash Register & Financial
+  openCashSession: (initialCash: number) => void;
+  closeCashSession: () => void;
+  addCashMovement: (
+    type: CashMovementType,
+    amount: number,
+    paymentMethod: PaymentMethod,
+    description: string,
+    comandaCode?: string
+  ) => void;
+  refundComanda: (comandaId: string, reason: string) => void;
+  addExpenseBill: (bill: Omit<ExpenseBill, 'id' | 'createdAt'>) => void;
+  payExpenseBill: (id: string, paymentMethod: PaymentMethod) => void;
+  deleteExpenseBill: (id: string) => void;
+  closeShiftCash: (data: {
+    type: 'TURNO' | 'MENSAL';
+    periodLabel: string;
+    countedCash: number;
+    notes?: string;
+  }) => CashClosingRecord;
+  releaseTipsDistribution: (amount: number, description: string) => void;
+  processMonthlyCommissions: (monthYear: string) => void;
 
-  settings: RestaurantSettings;
+  // Stock
+  addIngredient: (ingredient: Omit<Ingredient, 'id'>) => void;
+  updateIngredient: (id: string, updates: Partial<Ingredient>) => void;
+  deleteIngredient: (id: string) => void;
+  restockIngredient: (id: string, quantity: number, cost?: number, supplier?: string) => void;
+  registerWaste: (record: Omit<WasteRecord, 'id' | 'date'>) => void;
+
+  // Settings
   updateSettings: (updates: Partial<RestaurantSettings>) => void;
-  resetDemoData: () => void;
 
-  toast: { message: string; type: 'success' | 'info' | 'warning' } | null;
-  showToast: (message: string, type?: 'success' | 'info' | 'warning') => void;
+  // Audit
+  addAuditLog: (
+    log: Omit<AuditLogEntry, 'id' | 'timestamp' | 'actorId' | 'actorName' | 'actorRole'> & {
+      actorId?: string;
+      actorName?: string;
+      actorRole?: UserRole;
+    }
+  ) => void;
+
+  // Toast
+  showToast: (message: string, type?: 'success' | 'warning' | 'error' | 'info') => void;
+  removeToast: (id: string) => void;
 }
-
-const STORAGE_KEY_PREFIX = 'churrasgestao_v1_';
 
 const ChurrasContext = createContext<ChurrasContextType | undefined>(undefined);
 
-export const ChurrasProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Safe LocalStorage helpers
-  const loadStorage = <T,>(key: string, fallback: T): T => {
-    try {
-      const data = localStorage.getItem(STORAGE_KEY_PREFIX + key);
-      return data ? JSON.parse(data) : fallback;
-    } catch {
-      return fallback;
-    }
-  };
-
-  const [settings, setSettings] = useState<RestaurantSettings>(() =>
-    loadStorage('settings', INITIAL_SETTINGS)
-  );
-
-  const [employees, setEmployees] = useState<Employee[]>(() =>
-    loadStorage('employees', INITIAL_EMPLOYEES)
-  );
-
-  const [currentUserId, setCurrentUserId] = useState<string | null>(() => {
-    return loadStorage<string | null>('current_user_id', INITIAL_EMPLOYEES[0].id);
+export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [settings, setSettings] = useState<RestaurantSettings>(() => {
+    const saved = localStorage.getItem('churras_settings');
+    return saved ? JSON.parse(saved) : INITIAL_SETTINGS;
   });
 
-  const [tables, setTables] = useState<Table[]>(() =>
-    loadStorage('tables', INITIAL_TABLES)
-  );
+  const [employees, setEmployees] = useState<Employee[]>(() => {
+    const saved = localStorage.getItem('churras_employees');
+    return saved ? JSON.parse(saved) : INITIAL_EMPLOYEES;
+  });
 
-  const [menuItems, setMenuItems] = useState<MenuItem[]>(() =>
-    loadStorage('menu_items', INITIAL_MENU_ITEMS)
-  );
-
-  const [comandas, setComandas] = useState<Comanda[]>(() =>
-    loadStorage('comandas', INITIAL_COMANDAS)
-  );
-
-  const [cashSession, setCashSession] = useState<CashRegisterSession>(() =>
-    loadStorage('cash_session', INITIAL_CASH_SESSION)
-  );
-
-  // 5. Insumos e Estoque State
-  const [ingredients, setIngredients] = useState<Ingredient[]>(() =>
-    loadStorage('ingredients', INITIAL_INGREDIENTS)
-  );
-
-  const [wasteRecords, setWasteRecords] = useState<WasteRecord[]>(() =>
-    loadStorage('waste_records', INITIAL_WASTE_RECORDS)
-  );
-
-  const [stockMovements, setStockMovements] = useState<StockMovement[]>(() =>
-    loadStorage('stock_movements', INITIAL_STOCK_MOVEMENTS)
-  );
-
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' | 'warning' } | null>(null);
-
-  const showToast = useCallback((message: string, type: 'success' | 'info' | 'warning' = 'info') => {
-    setToast({ message, type });
-    setTimeout(() => {
-      setToast((prev) => (prev?.message === message ? null : prev));
-    }, 3800);
-  }, []);
-
-  // Sync to local storage
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY_PREFIX + 'settings', JSON.stringify(settings));
-    } catch {}
-  }, [settings]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY_PREFIX + 'employees', JSON.stringify(employees));
-    } catch {}
-  }, [employees]);
-
-  useEffect(() => {
-    try {
-      if (currentUserId) {
-        localStorage.setItem(STORAGE_KEY_PREFIX + 'current_user_id', JSON.stringify(currentUserId));
-      } else {
-        localStorage.removeItem(STORAGE_KEY_PREFIX + 'current_user_id');
+  const [currentUser, setCurrentUser] = useState<Employee | null>(() => {
+    const saved = localStorage.getItem('churras_current_user');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return INITIAL_EMPLOYEES[0];
       }
-    } catch {}
-  }, [currentUserId]);
+    }
+    return INITIAL_EMPLOYEES[0]; // Default to Admin for testing
+  });
 
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY_PREFIX + 'tables', JSON.stringify(tables));
-    } catch {}
-  }, [tables]);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>(() => {
+    const saved = localStorage.getItem('churras_menu_items');
+    return saved ? JSON.parse(saved) : INITIAL_MENU_ITEMS;
+  });
 
+  const [tables, setTables] = useState<Table[]>(() => {
+    const saved = localStorage.getItem('churras_tables');
+    return saved ? JSON.parse(saved) : INITIAL_TABLES;
+  });
+
+  const [comandas, setComandas] = useState<Comanda[]>(() => {
+    const saved = localStorage.getItem('churras_comandas');
+    return saved ? JSON.parse(saved) : INITIAL_COMANDAS;
+  });
+
+  const [cashSession, setCashSession] = useState<CashRegisterSession>(() => {
+    const saved = localStorage.getItem('churras_cash_session');
+    return saved ? JSON.parse(saved) : INITIAL_CASH_SESSION;
+  });
+
+  const [ingredients, setIngredients] = useState<Ingredient[]>(() => {
+    const saved = localStorage.getItem('churras_ingredients');
+    return saved ? JSON.parse(saved) : INITIAL_INGREDIENTS;
+  });
+
+  const [wasteRecords, setWasteRecords] = useState<WasteRecord[]>(() => {
+    const saved = localStorage.getItem('churras_waste');
+    return saved ? JSON.parse(saved) : INITIAL_WASTE_RECORDS;
+  });
+
+  const [stockMovements, setStockMovements] = useState<StockMovement[]>(() => {
+    const saved = localStorage.getItem('churras_movements');
+    return saved ? JSON.parse(saved) : INITIAL_STOCK_MOVEMENTS;
+  });
+
+  const [bills, setBills] = useState<ExpenseBill[]>(() => {
+    const saved = localStorage.getItem('churras_bills');
+    return saved ? JSON.parse(saved) : INITIAL_EXPENSE_BILLS;
+  });
+
+  const [cashClosings, setCashClosings] = useState<CashClosingRecord[]>(() => {
+    const saved = localStorage.getItem('churras_cash_closings');
+    return saved ? JSON.parse(saved) : INITIAL_CASH_CLOSINGS;
+  });
+
+  const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>(() => {
+    const saved = localStorage.getItem('churras_audit_logs');
+    return saved ? JSON.parse(saved) : INITIAL_AUDIT_LOGS;
+  });
+
+  const [toasts, setToasts] = useState<ToastMessage[]>([]);
+
+  // Persist state updates to localStorage
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY_PREFIX + 'menu_items', JSON.stringify(menuItems));
-    } catch {}
+    localStorage.setItem('churras_settings', JSON.stringify(settings));
+  }, [settings]);
+  useEffect(() => {
+    localStorage.setItem('churras_employees', JSON.stringify(employees));
+  }, [employees]);
+  useEffect(() => {
+    localStorage.setItem('churras_current_user', JSON.stringify(currentUser));
+  }, [currentUser]);
+  useEffect(() => {
+    localStorage.setItem('churras_menu_items', JSON.stringify(menuItems));
   }, [menuItems]);
-
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY_PREFIX + 'comandas', JSON.stringify(comandas));
-    } catch {}
+    localStorage.setItem('churras_tables', JSON.stringify(tables));
+  }, [tables]);
+  useEffect(() => {
+    localStorage.setItem('churras_comandas', JSON.stringify(comandas));
   }, [comandas]);
-
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY_PREFIX + 'cash_session', JSON.stringify(cashSession));
-    } catch {}
+    localStorage.setItem('churras_cash_session', JSON.stringify(cashSession));
   }, [cashSession]);
-
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY_PREFIX + 'ingredients', JSON.stringify(ingredients));
-    } catch {}
+    localStorage.setItem('churras_ingredients', JSON.stringify(ingredients));
+  }, [ingredients]);
+  useEffect(() => {
+    localStorage.setItem('churras_waste', JSON.stringify(wasteRecords));
+  }, [wasteRecords]);
+  useEffect(() => {
+    localStorage.setItem('churras_movements', JSON.stringify(stockMovements));
+  }, [stockMovements]);
+  useEffect(() => {
+    localStorage.setItem('churras_bills', JSON.stringify(bills));
+  }, [bills]);
+  useEffect(() => {
+    localStorage.setItem('churras_cash_closings', JSON.stringify(cashClosings));
+  }, [cashClosings]);
+  useEffect(() => {
+    localStorage.setItem('churras_audit_logs', JSON.stringify(auditLogs));
+  }, [auditLogs]);
+
+  const addAuditLog = (
+    log: Omit<AuditLogEntry, 'id' | 'timestamp' | 'actorId' | 'actorName' | 'actorRole'> & {
+      actorId?: string;
+      actorName?: string;
+      actorRole?: UserRole;
+    }
+  ) => {
+    const newEntry: AuditLogEntry = {
+      id: `aud-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      timestamp: new Date().toISOString(),
+      actionType: log.actionType,
+      actorId: log.actorId || currentUser?.id || 'emp-admin',
+      actorName: log.actorName || currentUser?.name || 'Administrador',
+      actorRole: log.actorRole || currentUser?.role || 'ADMIN',
+      targetType: log.targetType,
+      targetReference: log.targetReference,
+      details: log.details,
+      reason: log.reason,
+      amountImpact: log.amountImpact,
+    };
+    setAuditLogs((prev) => [newEntry, ...prev]);
+  };
+
+  const showToast = (message: string, type: 'success' | 'warning' | 'error' | 'info' = 'info') => {
+    const id = Math.random().toString(36).substring(2, 9);
+    setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 4000);
+  };
+
+  const removeToast = (id: string) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  const lowStockIngredients = useMemo(() => {
+    return ingredients.filter((ing) => ing.currentStock <= ing.minStock);
   }, [ingredients]);
 
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY_PREFIX + 'waste_records', JSON.stringify(wasteRecords));
-    } catch {}
-  }, [wasteRecords]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY_PREFIX + 'stock_movements', JSON.stringify(stockMovements));
-    } catch {}
-  }, [stockMovements]);
-
-  useEffect(() => {
-    soundManager.setEnabled(settings.enableSoundAlerts);
-  }, [settings.enableSoundAlerts]);
-
-  const currentUser = useMemo(() => {
-    if (!currentUserId) return null;
-    return employees.find((e) => e.id === currentUserId) || null;
-  }, [employees, currentUserId]);
-
-  const isAuthenticated = Boolean(currentUser);
-
-  // Authentication methods
-  const loginWithEmail = (email: string, password: string): { success: boolean; error?: string } => {
-    const cleanEmail = email.trim().toLowerCase();
-    const cleanPass = password.trim();
-
-    const emp = employees.find((e) => e.email.toLowerCase() === cleanEmail);
-
-    if (!emp) {
-      return { success: false, error: 'E-mail não encontrado no sistema.' };
+  // Auth handlers
+  const loginWithEmail = (email: string, pass: string) => {
+    const found = employees.find(
+      (e) => e.email.toLowerCase() === email.toLowerCase().trim() && e.password === pass
+    );
+    if (!found) {
+      return { success: false, error: 'E-mail ou senha incorretos.' };
     }
-
-    if (emp.password && emp.password !== cleanPass) {
-      return { success: false, error: 'Senha incorreta. Tente novamente.' };
+    if (!found.active) {
+      return { success: false, error: 'Usuário inativo. Contate o administrador.' };
     }
-
-    if (!emp.active) {
-      return { success: false, error: 'Esta conta foi desativada pelo administrador.' };
-    }
-
-    setCurrentUserId(emp.id);
-    showToast(`Bem-vindo(a), ${emp.name}! Acesso autorizado como ${emp.role}.`, 'success');
+    setCurrentUser(found);
+    showToast(`Bem-vindo(a), ${found.name}!`, 'success');
     return { success: true };
   };
 
-  const loginWithPin = (pin: string): { success: boolean; error?: string } => {
-    const cleanPin = pin.trim();
-
-    const emp = employees.find((e) => e.pin === cleanPin);
-
-    if (!emp) {
-      return { success: false, error: 'PIN numérico não reconhecido. Digite os 4 dígitos corretos.' };
+  const loginWithPin = (pin: string) => {
+    const found = employees.find((e) => e.pin === pin);
+    if (!found) {
+      return { success: false, error: 'PIN não encontrado.' };
     }
-
-    if (!emp.active) {
-      return { success: false, error: 'Esta conta foi desativada pelo administrador.' };
+    if (!found.active) {
+      return { success: false, error: 'Usuário inativo. Contate o administrador.' };
     }
-
-    setCurrentUserId(emp.id);
-    showToast(`Acesso rápido autenticado: ${emp.name} (${emp.role}).`, 'success');
+    setCurrentUser(found);
+    showToast(`Olá, ${found.name}! Acesso liberado.`, 'success');
     return { success: true };
   };
 
   const logout = () => {
-    setCurrentUserId(null);
+    setCurrentUser(null);
     showToast('Sessão encerrada com sucesso.', 'info');
   };
 
-  const resetCredentials = (employeeId: string, newPassword?: string, newPin?: string) => {
-    setEmployees((prev) =>
-      prev.map((emp) => {
-        if (emp.id === employeeId) {
-          return {
-            ...emp,
-            password: newPassword !== undefined && newPassword.trim() !== '' ? newPassword.trim() : emp.password,
-            pin: newPin !== undefined && newPin.trim() !== '' ? newPin.trim() : emp.pin,
-          };
-        }
-        return emp;
-      })
-    );
-    showToast('Credenciais redefinidas com sucesso pela gerência.', 'success');
-  };
-
   const switchUser = (employeeId: string) => {
-    const emp = employees.find((e) => e.id === employeeId);
-    if (emp) {
-      if (!emp.active) {
-        showToast('Não é possível alternar para uma conta inativa.', 'warning');
-        return;
-      }
-      setCurrentUserId(employeeId);
-      showToast(`Perfil alterado para ${emp.name} (${emp.role})`, 'info');
+    const found = employees.find((e) => e.id === employeeId);
+    if (found) {
+      setCurrentUser(found);
+      showToast(`Perfil alterado para ${found.name} (${found.role}).`, 'info');
     }
   };
 
-  // Staff management (Admin-only)
-  const addEmployee = (empData: Omit<Employee, 'id'>): { success: boolean; error?: string } => {
-    const cleanEmail = empData.email.trim().toLowerCase();
-
-    // Check if email already exists
-    if (employees.some((e) => e.email.toLowerCase() === cleanEmail)) {
-      return { success: false, error: 'Já existe um funcionário cadastrado com este e-mail.' };
+  // Employee management
+  const addEmployee = (empData: Omit<Employee, 'id'>) => {
+    const emailExists = employees.some(
+      (e) => e.email.toLowerCase() === empData.email.toLowerCase().trim()
+    );
+    if (emailExists) {
+      return { success: false, error: 'Este e-mail já está cadastrado para outro funcionário.' };
     }
-
-    // Check if PIN already used
-    if (employees.some((e) => e.pin === empData.pin.trim())) {
-      return { success: false, error: 'Este PIN numérico já está em uso por outro funcionário. Escolha outro.' };
+    const pinExists = employees.some((e) => e.pin === empData.pin);
+    if (pinExists) {
+      return { success: false, error: 'Este PIN de 4 dígitos já está em uso.' };
     }
 
     const newEmp: Employee = {
       ...empData,
-      id: `emp-${Date.now()}`,
-      email: cleanEmail,
-      pin: empData.pin.trim(),
-      password: empData.password || '123456',
+      id: `emp-${Date.now().toString(36)}`,
     };
     setEmployees((prev) => [...prev, newEmp]);
-    showToast(`Conta de ${newEmp.name} criada com sucesso!`, 'success');
+    showToast(`Colaborador ${newEmp.name} cadastrado com sucesso!`, 'success');
     return { success: true };
   };
 
   const updateEmployee = (id: string, updates: Partial<Employee>) => {
     setEmployees((prev) =>
-      prev.map((emp) => (emp.id === id ? { ...emp, ...updates } : emp))
+      prev.map((e) => (e.id === id ? { ...e, ...updates } : e))
     );
-    showToast('Cadastro de funcionário atualizado.', 'success');
+    if (currentUser && currentUser.id === id) {
+      setCurrentUser((prev) => (prev ? { ...prev, ...updates } : null));
+    }
+    showToast('Dados do colaborador atualizados.', 'success');
   };
 
   const deleteEmployee = (id: string) => {
-    setEmployees((prev) => prev.filter((emp) => emp.id !== id));
-    showToast('Funcionário removido.', 'warning');
+    setEmployees((prev) => prev.filter((e) => e.id !== id));
+    showToast('Colaborador removido da equipe.', 'info');
   };
 
-  // Menu items management
+  const resetCredentials = (id: string, newPin: string, newPassword?: string) => {
+    setEmployees((prev) =>
+      prev.map((e) => {
+        if (e.id === id) {
+          return {
+            ...e,
+            pin: newPin,
+            password: newPassword !== undefined ? newPassword : e.password,
+          };
+        }
+        return e;
+      })
+    );
+    showToast('Credenciais redefinidas com sucesso.', 'success');
+  };
+
+  // Menu management
   const addMenuItem = (itemData: Omit<MenuItem, 'id'>) => {
     const newItem: MenuItem = {
       ...itemData,
-      id: `menu-${Date.now()}`,
+      id: `menu-${Date.now().toString(36)}`,
     };
     setMenuItems((prev) => [...prev, newItem]);
-    showToast(`Item "${newItem.name}" adicionado ao cardápio!`, 'success');
+    showToast(`Item "${newItem.name}" adicionado ao cardápio.`, 'success');
   };
 
   const updateMenuItem = (id: string, updates: Partial<MenuItem>) => {
     setMenuItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, ...updates } : item))
+      prev.map((m) => (m.id === id ? { ...m, ...updates } : m))
     );
     showToast('Item do cardápio atualizado.', 'success');
   };
 
   const toggleMenuItemAvailability = (id: string) => {
     setMenuItems((prev) =>
-      prev.map((item) => {
-        if (item.id === id) {
-          const updated = !item.available;
-          showToast(`Item "${item.name}" ${updated ? 'disponível' : 'pausado / esgotado'}.`, updated ? 'success' : 'warning');
-          return { ...item, available: updated };
+      prev.map((m) => {
+        if (m.id === id) {
+          const next = !m.available;
+          showToast(`Item ${m.name} marcado como ${next ? 'DISPONÍVEL' : 'ESGOTADO'}.`, 'info');
+          return { ...m, available: next };
         }
-        return item;
+        return m;
       })
     );
   };
 
-  // 5. Insumos e Controle de Estoque
-  const lowStockIngredients = useMemo(() => {
-    return ingredients.filter((ing) => ing.currentStock <= ing.minStock);
-  }, [ingredients]);
-
-  const addIngredient = (itemData: Omit<Ingredient, 'id'>) => {
-    const newIng: Ingredient = {
-      ...itemData,
-      id: `ing-${Date.now()}`,
-      lastRestockedAt: new Date().toISOString(),
-    };
-    setIngredients((prev) => [...prev, newIng]);
-    showToast(`Insumo "${newIng.name}" cadastrado com sucesso!`, 'success');
+  const deleteMenuItem = (id: string) => {
+    setMenuItems((prev) => prev.filter((m) => m.id !== id));
+    showToast('Item removido do cardápio.', 'info');
   };
 
-  const updateIngredient = (id: string, updates: Partial<Ingredient>) => {
-    setIngredients((prev) =>
-      prev.map((ing) => (ing.id === id ? { ...ing, ...updates } : ing))
-    );
-    showToast('Insumo atualizado.', 'success');
+  // Settings
+  const updateSettings = (updates: Partial<RestaurantSettings>) => {
+    setSettings((prev) => ({ ...prev, ...updates }));
+    showToast('Configurações salvas.', 'success');
   };
 
-  const deleteIngredient = (id: string) => {
-    setIngredients((prev) => prev.filter((ing) => ing.id !== id));
-    showToast('Insumo removido do estoque.', 'warning');
-  };
-
-  const restockIngredient = (
-    id: string,
-    quantity: number,
-    costPerUnit?: number,
-    supplier?: string
+  // Tables & Comandas
+  const recalculateComandaTotals = (
+    items: ComandaItem[],
+    includeService: boolean,
+    discountAmount: number,
+    deliveryFee: number = 0
   ) => {
-    const target = ingredients.find((i) => i.id === id);
-    if (!target) return;
+    const subtotal = items
+      .filter((i) => i.status !== 'CANCELADO')
+      .reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-    const now = new Date().toISOString();
-    setIngredients((prev) =>
-      prev.map((ing) => {
-        if (ing.id === id) {
-          return {
-            ...ing,
-            currentStock: Math.round((ing.currentStock + quantity) * 1000) / 1000,
-            costPerUnit: costPerUnit !== undefined ? costPerUnit : ing.costPerUnit,
-            supplier: supplier !== undefined ? supplier : ing.supplier,
-            lastRestockedAt: now,
-          };
-        }
-        return ing;
-      })
-    );
+    const serviceFee = includeService
+      ? Math.round(subtotal * (settings.serviceTaxPercentage / 100) * 100) / 100
+      : 0;
 
-    const movement: StockMovement = {
-      id: `sm-${Date.now()}`,
-      ingredientId: target.id,
-      ingredientName: target.name,
-      type: 'ENTRADA',
-      quantity,
-      unit: target.unit,
-      date: now,
-      reference: supplier ? `Entrada Fornecedor: ${supplier}` : 'Entrada / Reposição de Estoque',
-      registeredBy: currentUser?.name || 'Gestor de Estoque',
-    };
+    const total = Math.max(0, Math.round((subtotal + serviceFee + deliveryFee - discountAmount) * 100) / 100);
 
-    setStockMovements((prev) => [movement, ...prev]);
-    showToast(
-      `Reposição de ${quantity} ${target.unit} de "${target.name}" registrada com sucesso!`,
-      'success'
-    );
+    return { subtotal, serviceFee, total };
   };
 
-  const registerWaste = (recordData: Omit<WasteRecord, 'id' | 'date'>) => {
-    const target = ingredients.find((i) => i.id === recordData.ingredientId);
-    if (!target) return;
-
-    const now = new Date().toISOString();
-    const wasteRecord: WasteRecord = {
-      ...recordData,
-      id: `waste-${Date.now()}`,
-      date: now,
-    };
-
-    // Deduct from stock
-    setIngredients((prev) =>
-      prev.map((ing) => {
-        if (ing.id === recordData.ingredientId) {
-          const newQty = Math.max(0, ing.currentStock - recordData.quantity);
-          return {
-            ...ing,
-            currentStock: Math.round(newQty * 1000) / 1000,
-          };
-        }
-        return ing;
-      })
-    );
-
-    setWasteRecords((prev) => [wasteRecord, ...prev]);
-
-    const movement: StockMovement = {
-      id: `sm-${Date.now()}`,
-      ingredientId: target.id,
-      ingredientName: target.name,
-      type: 'PERDA',
-      quantity: recordData.quantity,
-      unit: target.unit,
-      date: now,
-      reference: `Perda: ${recordData.reason} (${recordData.notes || 'Sem observações'})`,
-      registeredBy: recordData.registeredBy,
-    };
-
-    setStockMovements((prev) => [movement, ...prev]);
-    showToast(
-      `Registro de perda de ${recordData.quantity} ${target.unit} de "${target.name}" salvo.`,
-      'warning'
-    );
-  };
-
-  // Baixa automática no estoque ao vender (ficha técnica simples)
-  const deductStockForItems = (
-    itemsToDeduct: Array<{ menuItemId: string; quantity: number }>,
-    comandaCode: string
-  ) => {
-    setIngredients((prevIngredients) => {
-      const updated = [...prevIngredients];
-      const movementsToAdd: StockMovement[] = [];
-      const lowStockAlerts: string[] = [];
-      const now = new Date().toISOString();
-
-      itemsToDeduct.forEach((item) => {
-        const menuItem = menuItems.find((m) => m.id === item.menuItemId);
-        if (!menuItem?.recipe || menuItem.recipe.length === 0) return;
-
-        menuItem.recipe.forEach((r) => {
-          const ingIndex = updated.findIndex((i) => i.id === r.ingredientId);
-          if (ingIndex !== -1) {
-            const ing = updated[ingIndex];
-            const consumedQty = r.quantity * item.quantity;
-            const newStock = Math.max(0, ing.currentStock - consumedQty);
-
-            updated[ingIndex] = {
-              ...ing,
-              currentStock: Math.round(newStock * 1000) / 1000,
-            };
-
-            movementsToAdd.push({
-              id: `sm-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-              ingredientId: ing.id,
-              ingredientName: ing.name,
-              type: 'BAIXA_VENDA',
-              quantity: Math.round(consumedQty * 1000) / 1000,
-              unit: ing.unit,
-              date: now,
-              reference: `Venda ${comandaCode} (${menuItem.name})`,
-              registeredBy: currentUser?.name || 'Ficha Técnica Automática',
-            });
-
-            // Alert trigger if drops to or below minStock
-            if (newStock <= ing.minStock && ing.currentStock > ing.minStock) {
-              lowStockAlerts.push(`${ing.name} (${newStock.toFixed(1)} ${ing.unit})`);
-            }
-          }
-        });
-      });
-
-      if (movementsToAdd.length > 0) {
-        setStockMovements((prevMov) => [...movementsToAdd, ...prevMov]);
-      }
-
-      if (lowStockAlerts.length > 0) {
-        showToast(
-          `⚠️ Alerta de Estoque Mínimo atingido: ${lowStockAlerts.join(', ')}`,
-          'warning'
-        );
-      }
-
-      return updated;
-    });
-  };
-
-  // Table & Comanda logic
   const openComanda = (
     tableId: number,
     waiterId: string,
     details: {
-      customerName?: string;
+      customerName: string;
       peopleCount: number;
       hasRodizio: boolean;
       rodizioAdultCount: number;
       rodizioChildCount: number;
-      rodizioSeniorCount?: number;
-      orderType?: OrderType;
-      customerPhone?: string;
-      deliveryAddress?: string;
-      deliveryFee?: number;
+      rodizioSeniorCount: number;
     }
-  ): Comanda => {
+  ): string => {
     const table = tables.find((t) => t.id === tableId);
-    const waiter = employees.find((e) => e.id === waiterId) || currentUser || employees[0];
-    const orderType: OrderType = details.orderType || (tableId > 0 ? 'MESA' : 'DELIVERY');
-    const code = orderType === 'DELIVERY'
-      ? `DEL-${Math.floor(100 + Math.random() * 900)}`
-      : orderType === 'RETIRADA'
-      ? `RET-${Math.floor(100 + Math.random() * 900)}`
-      : `CMD-${Math.floor(100 + Math.random() * 900)}`;
-    const comandaId = `cmd-${Date.now()}`;
-    const now = new Date().toISOString();
-    const tableLabel = tableId > 0 ? (table?.label || `Mesa ${tableId}`) : (orderType === 'DELIVERY' ? 'Delivery' : 'Balcão / Retirada');
+    const waiter = employees.find((e) => e.id === waiterId) || currentUser;
+    const comandaId = `cmd-${Date.now().toString(36)}`;
+    const comandaCode = `CMD-${tableId < 10 ? '0' + tableId : tableId}-${Math.floor(100 + Math.random() * 900)}`;
 
-    const items: OrderItem[] = [];
+    const initialItems: ComandaItem[] = [];
 
-    // Auto-add rodizios if selected
+    // Auto-add Rodizio items if enabled
     if (details.hasRodizio) {
       if (details.rodizioAdultCount > 0) {
-        items.push({
-          id: `ord-${Date.now()}-1`,
-          menuItemId: 'menu-rod-adult',
-          name: 'Rodízio Completo Prime (Adulto)',
-          price: settings.rodizioAdultPrice,
-          quantity: details.rodizioAdultCount,
-          prepStation: 'GRELHA',
-          status: 'PENDENTE',
-          createdAt: now,
-          tableId,
-          tableLabel,
-          comandaCode: code,
-          waiterId: waiter.id,
-          waiterName: waiter.name,
-        });
+        const adultItem = menuItems.find((m) => m.id === 'menu-rod-adult');
+        if (adultItem) {
+          initialItems.push({
+            id: `ord-${Date.now()}-1`,
+            menuItemId: adultItem.id,
+            name: adultItem.name,
+            price: settings.rodizioAdultPrice,
+            quantity: details.rodizioAdultCount,
+            prepStation: adultItem.prepStation,
+            status: 'EM_PREPARO',
+            createdAt: new Date().toISOString(),
+            tableId,
+            tableLabel: table?.label || `Mesa ${tableId}`,
+            comandaCode,
+            waiterId: waiter?.id || '',
+            waiterName: waiter?.name || 'Garçom',
+          });
+        }
       }
       if (details.rodizioChildCount > 0) {
-        items.push({
-          id: `ord-${Date.now()}-2`,
-          menuItemId: 'menu-rod-child',
-          name: 'Rodízio Infantil (6 a 10 anos)',
-          price: settings.rodizioChildPrice,
-          quantity: details.rodizioChildCount,
-          prepStation: 'GRELHA',
-          status: 'PENDENTE',
-          createdAt: now,
-          tableId,
-          tableLabel,
-          comandaCode: code,
-          waiterId: waiter.id,
-          waiterName: waiter.name,
-        });
+        const childItem = menuItems.find((m) => m.id === 'menu-rod-child');
+        if (childItem) {
+          initialItems.push({
+            id: `ord-${Date.now()}-2`,
+            menuItemId: childItem.id,
+            name: childItem.name,
+            price: settings.rodizioChildPrice,
+            quantity: details.rodizioChildCount,
+            prepStation: childItem.prepStation,
+            status: 'EM_PREPARO',
+            createdAt: new Date().toISOString(),
+            tableId,
+            tableLabel: table?.label || `Mesa ${tableId}`,
+            comandaCode,
+            waiterId: waiter?.id || '',
+            waiterName: waiter?.name || 'Garçom',
+          });
+        }
       }
-      if ((details.rodizioSeniorCount || 0) > 0) {
-        items.push({
-          id: `ord-${Date.now()}-3`,
-          menuItemId: 'menu-rod-senior',
-          name: 'Rodízio Melhor Idade / Sênior (60+ anos)',
-          price: settings.rodizioSeniorPrice,
-          quantity: details.rodizioSeniorCount!,
-          prepStation: 'GRELHA',
-          status: 'PENDENTE',
-          createdAt: now,
-          tableId,
-          tableLabel,
-          comandaCode: code,
-          waiterId: waiter.id,
-          waiterName: waiter.name,
-        });
+      if (details.rodizioSeniorCount > 0) {
+        const seniorItem = menuItems.find((m) => m.id === 'menu-rod-senior');
+        if (seniorItem) {
+          initialItems.push({
+            id: `ord-${Date.now()}-3`,
+            menuItemId: seniorItem.id,
+            name: seniorItem.name,
+            price: settings.rodizioSeniorPrice,
+            quantity: details.rodizioSeniorCount,
+            prepStation: seniorItem.prepStation,
+            status: 'EM_PREPARO',
+            createdAt: new Date().toISOString(),
+            tableId,
+            tableLabel: table?.label || `Mesa ${tableId}`,
+            comandaCode,
+            waiterId: waiter?.id || '',
+            waiterName: waiter?.name || 'Garçom',
+          });
+        }
       }
     }
 
-    const subtotal = items.reduce((acc, it) => acc + it.price * it.quantity, 0);
-    const includeService = orderType === 'MESA'; // Mesas incluem 10% por padrão, delivery não
-    const serviceFee = includeService ? subtotal * (settings.serviceTaxPercentage / 100) : 0;
-    const deliveryFee = details.deliveryFee || 0;
-    const total = subtotal + serviceFee + deliveryFee;
+    const { subtotal, serviceFee, total } = recalculateComandaTotals(initialItems, true, 0, 0);
 
     const newComanda: Comanda = {
       id: comandaId,
-      code,
-      orderType,
+      code: comandaCode,
+      orderType: 'MESA',
       tableId,
-      tableLabel,
-      waiterId: waiter.id,
-      waiterName: waiter.name,
-      customerName: details.customerName || (tableId > 0 ? `Cliente ${tableLabel}` : 'Cliente Delivery'),
-      customerPhone: details.customerPhone,
-      deliveryAddress: details.deliveryAddress,
-      deliveryFee,
+      tableLabel: table?.label || `Mesa ${tableId}`,
+      waiterId: waiter?.id || '',
+      waiterName: waiter?.name || 'Garçom',
+      customerName: details.customerName,
       peopleCount: details.peopleCount,
       hasRodizio: details.hasRodizio,
       rodizioAdultCount: details.rodizioAdultCount,
       rodizioChildCount: details.rodizioChildCount,
-      rodizioSeniorCount: details.rodizioSeniorCount || 0,
-      items,
+      rodizioSeniorCount: details.rodizioSeniorCount,
+      items: initialItems,
       status: 'ABERTA',
-      openedAt: now,
-      includeService,
+      openedAt: new Date().toISOString(),
+      includeService: true,
       discountAmount: 0,
       subtotal,
       serviceFee,
@@ -718,61 +604,78 @@ export const ChurrasProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     setComandas((prev) => [newComanda, ...prev]);
 
-    // Update table status if tableId > 0
-    if (tableId > 0) {
-      setTables((prev) =>
-        prev.map((t) =>
-          t.id === tableId
-            ? {
-                ...t,
-                status: 'OCUPADA',
-                currentComandaId: comandaId,
-                assignedWaiterId: waiter.id,
-                customerName: newComanda.customerName,
-                peopleCount: details.peopleCount,
-                openedAt: now,
-              }
-            : t
-        )
-      );
-    }
+    // Update table
+    setTables((prev) =>
+      prev.map((t) =>
+        t.id === tableId
+          ? {
+              ...t,
+              status: 'OCUPADA',
+              currentComandaId: comandaId,
+              assignedWaiterId: waiter?.id,
+              customerName: details.customerName,
+              peopleCount: details.peopleCount,
+              openedAt: new Date().toISOString(),
+              reservationCustomerName: undefined,
+              reservationPhone: undefined,
+              reservationTime: undefined,
+              reservationNotes: undefined,
+            }
+          : t
+      )
+    );
 
-    if (items.length > 0) {
-      soundManager.playNewOrderAlert();
-      deductStockForItems(
-        items.map((it) => ({ menuItemId: it.menuItemId, quantity: it.quantity })),
-        code
-      );
-    }
-    showToast(`Comanda ${code} aberta para ${tableLabel} com sucesso!`, 'success');
-    return newComanda;
+    showToast(`Comanda ${comandaCode} aberta para ${table?.label}!`, 'success');
+    return comandaId;
   };
 
-  const openDeliveryComanda = (data: {
+  const openDeliveryComanda = (details: {
     customerName: string;
-    customerPhone: string;
+    customerPhone?: string;
     deliveryAddress?: string;
     deliveryFee?: number;
-    orderType: OrderType;
-    waiterId?: string;
-  }): Comanda => {
-    return openComanda(0, data.waiterId || currentUser?.id || employees[0]?.id || 'emp-caixa', {
-      customerName: data.customerName,
-      customerPhone: data.customerPhone,
-      deliveryAddress: data.deliveryAddress,
-      deliveryFee: data.deliveryFee || (data.orderType === 'DELIVERY' ? 15 : 0),
-      orderType: data.orderType,
+    orderType?: 'DELIVERY' | 'BALCAO';
+  }): string => {
+    const comandaId = `cmd-deliv-${Date.now().toString(36)}`;
+    const comandaCode = `DEL-${Math.floor(100 + Math.random() * 900)}`;
+    const deliveryFee = details.deliveryFee || 0;
+
+    const newComanda: Comanda = {
+      id: comandaId,
+      code: comandaCode,
+      orderType: details.orderType || 'DELIVERY',
+      tableId: 0,
+      tableLabel: details.orderType === 'BALCAO' ? 'Balcão / Retirada' : `Delivery (${details.customerName})`,
+      waiterId: currentUser?.id || 'emp-caixa',
+      waiterName: currentUser?.name || 'Atendente',
+      customerName: details.customerName,
+      customerPhone: details.customerPhone,
+      deliveryAddress: details.deliveryAddress,
+      deliveryFee,
       peopleCount: 1,
       hasRodizio: false,
       rodizioAdultCount: 0,
       rodizioChildCount: 0,
       rodizioSeniorCount: 0,
-    });
+      items: [],
+      status: 'ABERTA',
+      openedAt: new Date().toISOString(),
+      includeService: false,
+      discountAmount: 0,
+      subtotal: 0,
+      serviceFee: 0,
+      total: deliveryFee,
+      payments: [],
+    };
+
+    setComandas((prev) => [newComanda, ...prev]);
+    showToast(`Pedido Delivery ${comandaCode} criado!`, 'success');
+    return comandaId;
   };
 
   const addItemsToComanda = (
     comandaId: string,
-    newItems: Array<{
+    itemsToAdd: Array<{
       menuItemId: string;
       quantity: number;
       doneness?: MeatDoneness;
@@ -783,80 +686,126 @@ export const ChurrasProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const comanda = comandas.find((c) => c.id === comandaId);
     if (!comanda) return;
 
-    const now = new Date().toISOString();
-    const createdOrderItems: OrderItem[] = newItems.map((it, idx) => {
-      const menuItem = menuItems.find((m) => m.id === it.menuItemId);
-      const isWeighed = menuItem?.isWeighed || false;
-      const weightInKg = it.weightInKg;
-      // If weighed item, calculate price = pricePerKg * weightInKg
-      const calculatedPrice = isWeighed && weightInKg
-        ? menuItem?.price ? menuItem.price * weightInKg : 0
-        : (menuItem?.price || 0);
-
-      const itemName = isWeighed && weightInKg
-        ? `${menuItem?.name || 'Item'} (${weightInKg.toFixed(3)} kg)`
-        : (menuItem?.name || 'Item do Cardápio');
+    const newItems: ComandaItem[] = itemsToAdd.map((entry) => {
+      const menuItem = menuItems.find((m) => m.id === entry.menuItemId);
+      const isKg = menuItem?.isWeighed && entry.weightInKg;
+      const unitPrice = menuItem ? (isKg ? menuItem.price * (entry.weightInKg || 1) : menuItem.price) : 0;
 
       return {
-        id: `ord-${Date.now()}-${idx}`,
-        menuItemId: it.menuItemId,
-        name: itemName,
-        price: calculatedPrice,
-        quantity: it.quantity,
-        weightInKg,
-        isWeighed,
-        doneness: it.doneness,
-        notes: it.notes,
+        id: `ord-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+        menuItemId: entry.menuItemId,
+        name: menuItem ? menuItem.name : 'Item',
+        price: unitPrice,
+        quantity: entry.quantity,
+        doneness: entry.doneness,
+        notes: entry.notes,
+        weightInKg: entry.weightInKg,
         prepStation: menuItem?.prepStation || 'COZINHA',
         status: 'PENDENTE',
-        createdAt: now,
+        createdAt: new Date().toISOString(),
         tableId: comanda.tableId,
         tableLabel: comanda.tableLabel,
         comandaCode: comanda.code,
-        waiterId: currentUser?.id || comanda.waiterId,
-        waiterName: currentUser?.name || comanda.waiterName,
+        waiterId: comanda.waiterId,
+        waiterName: comanda.waiterName,
       };
     });
 
-    setComandas((prev) =>
-      prev.map((c) => {
-        if (c.id === comandaId) {
-          const updatedItems = [...c.items, ...createdOrderItems];
-          const subtotal = updatedItems.reduce((acc, it) => acc + it.price * it.quantity, 0);
-          const serviceFee = c.includeService ? subtotal * (settings.serviceTaxPercentage / 100) : 0;
-          const total = Math.max(0, subtotal + serviceFee + (c.deliveryFee || 0) - c.discountAmount);
-          return {
-            ...c,
-            items: updatedItems,
-            subtotal,
-            serviceFee,
-            total,
-          };
-        }
-        return c;
-      })
+    const updatedItems = [...comanda.items, ...newItems];
+    const { subtotal, serviceFee, total } = recalculateComandaTotals(
+      updatedItems,
+      comanda.includeService,
+      comanda.discountAmount,
+      comanda.deliveryFee
     );
 
-    soundManager.playNewOrderAlert();
-    deductStockForItems(
-      newItems.map((it) => ({ menuItemId: it.menuItemId, quantity: it.quantity })),
-      comanda.code
+    setComandas((prev) =>
+      prev.map((c) =>
+        c.id === comandaId
+          ? {
+              ...c,
+              items: updatedItems,
+              subtotal,
+              serviceFee,
+              total,
+            }
+          : c
+      )
     );
-    showToast(`${createdOrderItems.length} novo(s) item(ns) enviado(s) para a cozinha/churrasqueira em tempo real!`, 'success');
+
+    // Stock deduction for recipes
+    itemsToAdd.forEach((entry) => {
+      const menuItem = menuItems.find((m) => m.id === entry.menuItemId);
+      if (menuItem?.recipe && menuItem.recipe.length > 0) {
+        menuItem.recipe.forEach((rec) => {
+          const usedQty = Math.round(rec.quantity * entry.quantity * 100) / 100;
+          setIngredients((prev) =>
+            prev.map((ing) =>
+              ing.id === rec.ingredientId
+                ? { ...ing, currentStock: Math.max(0, Math.round((ing.currentStock - usedQty) * 100) / 100) }
+                : ing
+            )
+          );
+          setStockMovements((prev) => [
+            {
+              id: `sm-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+              ingredientId: rec.ingredientId,
+              ingredientName: ingredients.find((i) => i.id === rec.ingredientId)?.name || 'Insumo',
+              type: 'BAIXA_VENDA',
+              quantity: usedQty,
+              unit: ingredients.find((i) => i.id === rec.ingredientId)?.unit || 'KG',
+              date: new Date().toISOString(),
+              reference: `Venda ${comanda.code}`,
+              registeredBy: 'Ficha Técnica Automática',
+            },
+            ...prev,
+          ]);
+        });
+      }
+    });
+
+    showToast(`${newItems.length} item(ns) lançado(s) com sucesso na ${comanda.tableLabel}!`, 'success');
+  };
+
+  const requestBill = (comandaId: string) => {
+    const comanda = comandas.find((c) => c.id === comandaId);
+    if (!comanda) return;
+
+    setComandas((prev) =>
+      prev.map((c) => (c.id === comandaId ? { ...c, status: 'CONTA_SOLICITADA' } : c))
+    );
+
+    if (comanda.tableId > 0) {
+      setTables((prev) =>
+        prev.map((t) =>
+          t.id === comanda.tableId ? { ...t, status: 'CONTA_SOLICITADA' } : t
+        )
+      );
+    }
+    showToast(`Conta solicitada para ${comanda.tableLabel}! Notificação enviada ao Caixa.`, 'info');
   };
 
   const toggleServiceFee = (comandaId: string) => {
     setComandas((prev) =>
       prev.map((c) => {
         if (c.id === comandaId) {
-          const newInclude = !c.includeService;
-          const subtotal = c.items.reduce((acc, it) => acc + it.price * it.quantity, 0);
-          const serviceFee = newInclude ? subtotal * (settings.serviceTaxPercentage / 100) : 0;
-          const total = Math.max(0, subtotal + serviceFee + (c.deliveryFee || 0) - c.discountAmount);
-          showToast(newInclude ? 'Taxa de serviço (10%) adicionada.' : 'Taxa de serviço (10%) removida.', 'info');
+          const nextInclude = !c.includeService;
+          const { subtotal, serviceFee, total } = recalculateComandaTotals(
+            c.items,
+            nextInclude,
+            c.discountAmount,
+            c.deliveryFee
+          );
+          showToast(
+            nextInclude
+              ? 'Taxa de serviço (10%) adicionada à comanda.'
+              : 'Taxa de serviço isentada da comanda.',
+            'info'
+          );
           return {
             ...c,
-            includeService: newInclude,
+            includeService: nextInclude,
+            subtotal,
             serviceFee,
             total,
           };
@@ -866,50 +815,41 @@ export const ChurrasProvider: React.FC<{ children: React.ReactNode }> = ({ child
     );
   };
 
-  const transferComanda = (
-    sourceTableId: number,
-    targetTableId: number
-  ): { success: boolean; error?: string } => {
+  const transferComanda = (sourceTableId: number, targetTableId: number) => {
     const sourceTable = tables.find((t) => t.id === sourceTableId);
     const targetTable = tables.find((t) => t.id === targetTableId);
 
     if (!sourceTable || !sourceTable.currentComandaId) {
-      return { success: false, error: 'Mesa de origem não possui comanda aberta.' };
+      return { success: false, error: 'Mesa de origem sem comanda ativa.' };
     }
     if (!targetTable) {
       return { success: false, error: 'Mesa de destino não encontrada.' };
     }
     if (targetTable.status !== 'LIVRE') {
-      return {
-        success: false,
-        error: `A ${targetTable.label} não está livre. Para unificar contas, utilize a opção "Juntar Mesas".`,
-      };
+      return { success: false, error: 'Mesa de destino já está ocupada ou reservada.' };
     }
 
     const comandaId = sourceTable.currentComandaId;
-    const now = new Date().toISOString();
 
-    // Update comanda
+    // Update comanda label & tableId
     setComandas((prev) =>
-      prev.map((c) => {
-        if (c.id === comandaId) {
-          const updatedItems = c.items.map((it) => ({
-            ...it,
-            tableId: targetTable.id,
-            tableLabel: targetTable.label,
-          }));
-          return {
-            ...c,
-            tableId: targetTable.id,
-            tableLabel: targetTable.label,
-            items: updatedItems,
-          };
-        }
-        return c;
-      })
+      prev.map((c) =>
+        c.id === comandaId
+          ? {
+              ...c,
+              tableId: targetTable.id,
+              tableLabel: targetTable.label,
+              items: c.items.map((it) => ({
+                ...it,
+                tableId: targetTable.id,
+                tableLabel: targetTable.label,
+              })),
+            }
+          : c
+      )
     );
 
-    // Free source table, occupy target table
+    // Update tables
     setTables((prev) =>
       prev.map((t) => {
         if (t.id === sourceTableId) {
@@ -926,177 +866,180 @@ export const ChurrasProvider: React.FC<{ children: React.ReactNode }> = ({ child
         if (t.id === targetTableId) {
           return {
             ...t,
-            status: 'OCUPADA',
+            status: sourceTable.status,
             currentComandaId: comandaId,
             assignedWaiterId: sourceTable.assignedWaiterId,
             customerName: sourceTable.customerName,
             peopleCount: sourceTable.peopleCount,
-            openedAt: sourceTable.openedAt || now,
+            openedAt: sourceTable.openedAt,
           };
         }
         return t;
       })
     );
 
-    soundManager.playNewOrderAlert();
-    showToast(`Comanda transferida da ${sourceTable.label} para a ${targetTable.label}!`, 'success');
+    showToast(`Comanda transferida da ${sourceTable.label} para ${targetTable.label}!`, 'success');
     return { success: true };
   };
 
   const transferItems = (
     sourceComandaId: string,
-    targetComandaId: string,
+    targetComandaId: string | null,
     itemIds: string[]
-  ): { success: boolean; error?: string } => {
+  ) => {
     const source = comandas.find((c) => c.id === sourceComandaId);
+    if (!source) return { success: false, error: 'Comanda de origem não encontrada.' };
+    if (!targetComandaId) return { success: false, error: 'Selecione a comanda de destino.' };
     const target = comandas.find((c) => c.id === targetComandaId);
+    if (!target) return { success: false, error: 'Comanda de destino não encontrada.' };
 
-    if (!source || !target) {
-      return { success: false, error: 'Comandas de origem ou destino não encontradas.' };
-    }
-    if (itemIds.length === 0) {
-      return { success: false, error: 'Selecione ao menos um item para transferir.' };
-    }
-
-    const itemsToMove = source.items.filter((it) => itemIds.includes(it.id));
-    const itemsRemainingInSource = source.items.filter((it) => !itemIds.includes(it.id));
-
-    const movedItemsForTarget = itemsToMove.map((it) => ({
-      ...it,
+    const movingItems = source.items.filter((i) => itemIds.includes(i.id)).map((i) => ({
+      ...i,
       tableId: target.tableId,
       tableLabel: target.tableLabel,
       comandaCode: target.code,
     }));
 
+    const remainingItems = source.items.filter((i) => !itemIds.includes(i.id));
+
+    const sourceTotals = recalculateComandaTotals(
+      remainingItems,
+      source.includeService,
+      source.discountAmount,
+      source.deliveryFee
+    );
+
+    const targetUpdatedItems = [...target.items, ...movingItems];
+    const targetTotals = recalculateComandaTotals(
+      targetUpdatedItems,
+      target.includeService,
+      target.discountAmount,
+      target.deliveryFee
+    );
+
     setComandas((prev) =>
       prev.map((c) => {
         if (c.id === sourceComandaId) {
-          const subtotal = itemsRemainingInSource.reduce((acc, it) => acc + it.price * it.quantity, 0);
-          const serviceFee = c.includeService ? subtotal * (settings.serviceTaxPercentage / 100) : 0;
-          const total = Math.max(0, subtotal + serviceFee + (c.deliveryFee || 0) - c.discountAmount);
           return {
             ...c,
-            items: itemsRemainingInSource,
-            subtotal,
-            serviceFee,
-            total,
+            items: remainingItems,
+            ...sourceTotals,
           };
         }
         if (c.id === targetComandaId) {
-          const newItems = [...c.items, ...movedItemsForTarget];
-          const subtotal = newItems.reduce((acc, it) => acc + it.price * it.quantity, 0);
-          const serviceFee = c.includeService ? subtotal * (settings.serviceTaxPercentage / 100) : 0;
-          const total = Math.max(0, subtotal + serviceFee + (c.deliveryFee || 0) - c.discountAmount);
           return {
             ...c,
-            items: newItems,
-            subtotal,
-            serviceFee,
-            total,
+            items: targetUpdatedItems,
+            ...targetTotals,
           };
         }
         return c;
       })
     );
 
-    showToast(`${itemIds.length} item(ns) transferido(s) de ${source.tableLabel} para ${target.tableLabel}!`, 'success');
+    showToast(`${movingItems.length} item(ns) transferido(s) para ${target.tableLabel}!`, 'success');
     return { success: true };
   };
 
-  const mergeComandas = (
-    sourceTableId: number,
-    targetTableId: number
-  ): { success: boolean; error?: string } => {
+  const mergeComandas = (sourceTableId: number, targetTableId: number) => {
     const sourceTable = tables.find((t) => t.id === sourceTableId);
     const targetTable = tables.find((t) => t.id === targetTableId);
-
     if (!sourceTable?.currentComandaId || !targetTable?.currentComandaId) {
-      return { success: false, error: 'Ambas as mesas devem possuir comandas ativas para unificar a conta.' };
+      return { success: false, error: 'Ambas as mesas precisam ter comandas ativas.' };
     }
 
     const sourceComanda = comandas.find((c) => c.id === sourceTable.currentComandaId);
     const targetComanda = comandas.find((c) => c.id === targetTable.currentComandaId);
-
     if (!sourceComanda || !targetComanda) {
       return { success: false, error: 'Comandas não localizadas.' };
     }
 
-    const movedItems = sourceComanda.items.map((it) => ({
-      ...it,
+    // Merge items into target comanda
+    const transferredItems = sourceComanda.items.map((i) => ({
+      ...i,
       tableId: targetTable.id,
       tableLabel: targetTable.label,
       comandaCode: targetComanda.code,
     }));
 
+    const mergedItems = [...targetComanda.items, ...transferredItems];
+    const { subtotal, serviceFee, total } = recalculateComandaTotals(
+      mergedItems,
+      targetComanda.includeService,
+      targetComanda.discountAmount + sourceComanda.discountAmount,
+      targetComanda.deliveryFee
+    );
+
     setComandas((prev) =>
       prev
         .filter((c) => c.id !== sourceComanda.id)
-        .map((c) => {
-          if (c.id === targetComanda.id) {
-            const combinedItems = [...c.items, ...movedItems];
-            const subtotal = combinedItems.reduce((acc, it) => acc + it.price * it.quantity, 0);
-            const serviceFee = c.includeService ? subtotal * (settings.serviceTaxPercentage / 100) : 0;
-            const total = Math.max(0, subtotal + serviceFee + (c.deliveryFee || 0) - c.discountAmount);
-            return {
-              ...c,
-              items: combinedItems,
-              peopleCount: c.peopleCount + sourceComanda.peopleCount,
-              rodizioAdultCount: c.rodizioAdultCount + sourceComanda.rodizioAdultCount,
-              rodizioChildCount: c.rodizioChildCount + sourceComanda.rodizioChildCount,
-              rodizioSeniorCount: (c.rodizioSeniorCount || 0) + (sourceComanda.rodizioSeniorCount || 0),
-              subtotal,
-              serviceFee,
-              total,
-            };
-          }
-          return c;
-        })
+        .map((c) =>
+          c.id === targetComanda.id
+            ? {
+                ...c,
+                peopleCount: c.peopleCount + sourceComanda.peopleCount,
+                items: mergedItems,
+                subtotal,
+                serviceFee,
+                total,
+              }
+            : c
+        )
     );
 
+    // Free source table
     setTables((prev) =>
-      prev.map((t) => {
-        if (t.id === sourceTableId) {
-          return {
-            ...t,
-            status: 'LIVRE',
-            currentComandaId: undefined,
-            assignedWaiterId: undefined,
-            customerName: undefined,
-            peopleCount: 0,
-            openedAt: undefined,
-          };
-        }
-        if (t.id === targetTableId) {
-          return {
-            ...t,
-            peopleCount: t.peopleCount + sourceTable.peopleCount,
-          };
-        }
-        return t;
-      })
+      prev.map((t) =>
+        t.id === sourceTableId
+          ? {
+              ...t,
+              status: 'LIVRE',
+              currentComandaId: undefined,
+              assignedWaiterId: undefined,
+              customerName: undefined,
+              peopleCount: 0,
+              openedAt: undefined,
+            }
+          : t.id === targetTableId
+          ? {
+              ...t,
+              peopleCount: (t.peopleCount || 0) + (sourceTable.peopleCount || 0),
+            }
+          : t
+      )
     );
 
-    soundManager.playNewOrderAlert();
-    showToast(`Conta da ${sourceTable.label} juntada com sucesso na ${targetTable.label}!`, 'success');
+    showToast(`Mesas unificadas na ${targetTable.label}!`, 'success');
     return { success: true };
   };
 
-  const reserveTable = (tableId: number, customerName: string, phone?: string, time?: string) => {
+  const reserveTable = (
+    tableId: number,
+    details: {
+      customerName: string;
+      phone?: string;
+      time: string;
+      peopleCount: number;
+      notes?: string;
+    }
+  ) => {
     setTables((prev) =>
       prev.map((t) =>
         t.id === tableId
           ? {
               ...t,
               status: 'RESERVADA',
-              customerName,
-              reservationCustomerName: customerName,
-              reservationPhone: phone,
-              reservationTime: time || 'Horário reservado',
+              customerName: details.customerName,
+              reservationCustomerName: details.customerName,
+              reservationPhone: details.phone,
+              reservationTime: details.time,
+              reservationNotes: details.notes,
+              peopleCount: details.peopleCount,
             }
           : t
       )
     );
-    showToast(`Mesa ${tableId} reservada com sucesso para ${customerName}!`, 'success');
+    showToast(`Mesa ${tableId} reservada para ${details.customerName} às ${details.time}!`, 'success');
   };
 
   const cancelReservation = (tableId: number) => {
@@ -1110,98 +1053,86 @@ export const ChurrasProvider: React.FC<{ children: React.ReactNode }> = ({ child
               reservationCustomerName: undefined,
               reservationPhone: undefined,
               reservationTime: undefined,
+              reservationNotes: undefined,
               peopleCount: 0,
             }
           : t
       )
     );
-    showToast(`Reserva da Mesa ${tableId} cancelada. Mesa liberada!`, 'info');
+    showToast(`Reserva da Mesa ${tableId} cancelada.`, 'info');
   };
 
-  const updateOrderItemStatus = (itemId: string, newStatus: OrderItemStatus) => {
-    const now = new Date().toISOString();
-    let dishName = '';
-
-    setComandas((prev) =>
-      prev.map((comanda) => {
-        const itemIdx = comanda.items.findIndex((i) => i.id === itemId);
-        if (itemIdx === -1) return comanda;
-
-        const updatedItems = [...comanda.items];
-        const item = updatedItems[itemIdx];
-        dishName = item.name;
-
-        updatedItems[itemIdx] = {
-          ...item,
-          status: newStatus,
-          startedAt: newStatus === 'EM_PREPARO' ? (item.startedAt || now) : item.startedAt,
-          readyAt: newStatus === 'PRONTO' ? now : item.readyAt,
-        };
-
-        return { ...comanda, items: updatedItems };
-      })
-    );
-
-    if (newStatus === 'PRONTO') {
-      soundManager.playOrderReady();
-      showToast(`🔥 Pedido pronto: ${dishName}! Notificando garçom.`, 'success');
-    } else if (newStatus === 'EM_PREPARO') {
-      showToast(`🔪 ${dishName} entrou em preparo na grelha/cozinha.`, 'info');
-    } else if (newStatus === 'ENTREGUE') {
-      showToast(`✅ ${dishName} entregue ao cliente.`, 'info');
+  const updateOrderItemStatus = (itemId: string, status: OrderItemStatus) => {
+    if (status === 'CANCELADO') {
+      const itemToCancel = comandas.flatMap((c) => c.items).find((i) => i.id === itemId);
+      if (itemToCancel) {
+        addAuditLog({
+          actionType: 'CANCELAMENTO_ITEM',
+          targetType: 'ITEM',
+          targetReference: `${itemToCancel.tableLabel} - ${itemToCancel.name}`,
+          details: `Item ${itemToCancel.name} (qtd ${itemToCancel.quantity}) cancelado`,
+          reason: 'Cancelado pelo operador / salão',
+          amountImpact: itemToCancel.price * itemToCancel.quantity,
+        });
+      }
     }
-  };
 
-  const requestBill = (comandaId: string) => {
-    const comanda = comandas.find((c) => c.id === comandaId);
-    if (!comanda) return;
-
-    setComandas((prev) =>
-      prev.map((c) => (c.id === comandaId ? { ...c, status: 'CONTA_SOLICITADA' } : c))
-    );
-
-    setTables((prev) =>
-      prev.map((t) => (t.id === comanda.tableId ? { ...t, status: 'CONTA_SOLICITADA' } : t))
-    );
-
-    showToast(`Conta da ${comanda.tableLabel} solicitada ao Caixa!`, 'info');
-  };
-
-  const processPayment = (
-    comandaId: string,
-    payments: PaymentTransaction[],
-    discount: number = 0,
-    includeService: boolean = true
-  ) => {
-    const comanda = comandas.find((c) => c.id === comandaId);
-    if (!comanda) return;
-
-    const now = new Date().toISOString();
-    const subtotal = comanda.items.reduce((acc, it) => acc + it.price * it.quantity, 0);
-    const serviceFee = includeService ? subtotal * (settings.serviceTaxPercentage / 100) : 0;
-    const finalTotal = Math.max(0, subtotal + serviceFee + (comanda.deliveryFee || 0) - discount);
-
-    // Update comanda
     setComandas((prev) =>
       prev.map((c) => {
-        if (c.id === comandaId) {
-          return {
-            ...c,
-            status: 'PAGA',
-            closedAt: now,
-            discountAmount: discount,
-            includeService,
-            subtotal,
-            serviceFee,
-            total: finalTotal,
-            payments,
-          };
-        }
-        return c;
+        const hasItem = c.items.some((i) => i.id === itemId);
+        if (!hasItem) return c;
+
+        return {
+          ...c,
+          items: c.items.map((i) => (i.id === itemId ? { ...i, status } : i)),
+        };
       })
     );
+  };
 
-    // Free the table if it is a salon table
+  const payComanda = (comandaId: string, payments: Payment[], discountAmount: number = 0) => {
+    const comanda = comandas.find((c) => c.id === comandaId);
+    if (!comanda) return;
+
+    if (discountAmount > 0) {
+      addAuditLog({
+        actionType: 'DESCONTO_CONCEDIDO',
+        targetType: 'COMANDA',
+        targetReference: `${comanda.code} (${comanda.tableLabel})`,
+        details: `Desconto de R$ ${discountAmount.toFixed(2)} concedido no fechamento`,
+        reason: 'Desconto comercial aplicado no caixa',
+        amountImpact: discountAmount,
+      });
+    }
+
+    const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
+
+    // Register cash movements in cashier session
+    payments.forEach((p) => {
+      addCashMovement(
+        'VENDA',
+        p.amount,
+        p.method,
+        `Venda ${comanda.code} (${comanda.tableLabel})`,
+        comanda.code
+      );
+    });
+
+    setComandas((prev) =>
+      prev.map((c) =>
+        c.id === comandaId
+          ? {
+              ...c,
+              status: 'PAGA',
+              closedAt: new Date().toISOString(),
+              discountAmount,
+              payments: [...c.payments, ...payments],
+            }
+          : c
+      )
+    );
+
+    // Free table if associated
     if (comanda.tableId > 0) {
       setTables((prev) =>
         prev.map((t) =>
@@ -1220,34 +1151,36 @@ export const ChurrasProvider: React.FC<{ children: React.ReactNode }> = ({ child
       );
     }
 
-    // Register cash movements in the current cash session
-    const newMovements: CashMovement[] = payments.map((p, idx) => ({
-      id: `mov-${Date.now()}-${idx}`,
-      type: 'VENDA',
-      amount: p.amount,
-      paymentMethod: p.method,
-      description: `Pagamento ${comanda.code} (${comanda.tableLabel})`,
-      timestamp: now,
-      operatorName: currentUser?.name || 'Operador de Caixa',
-      comandaCode: comanda.code,
-    }));
-
-    setCashSession((prev) => ({
-      ...prev,
-      movements: [...prev.movements, ...newMovements],
-    }));
-
-    soundManager.playCashSuccess();
-    showToast(`Pagamento da ${comanda.code} registrado com sucesso! Mesa liberada.`, 'success');
+    showToast(`Comanda ${comanda.code} liquidada com sucesso! Total: R$ ${totalPaid.toFixed(2)}`, 'success');
   };
 
   const cancelComanda = (comandaId: string) => {
     const comanda = comandas.find((c) => c.id === comandaId);
     if (!comanda) return;
 
+    if (comanda.status === 'PAGA') {
+      const primaryMethod = comanda.payments[0]?.method || 'DINHEIRO';
+      addCashMovement(
+        'ESTORNO',
+        comanda.total,
+        primaryMethod,
+        `Estorno de Comanda ${comanda.code} (${comanda.tableLabel})`,
+        comanda.code
+      );
+    }
+
     setComandas((prev) =>
       prev.map((c) => (c.id === comandaId ? { ...c, status: 'CANCELADA' } : c))
     );
+
+    addAuditLog({
+      actionType: 'CANCELAMENTO_COMANDA',
+      targetType: 'COMANDA',
+      targetReference: `${comanda.code} (${comanda.tableLabel})`,
+      details: `Comanda ${comanda.code} cancelada integralmente`,
+      reason: 'Cancelamento efetuado no sistema',
+      amountImpact: comanda.total,
+    });
 
     if (comanda.tableId > 0) {
       setTables((prev) =>
@@ -1260,27 +1193,213 @@ export const ChurrasProvider: React.FC<{ children: React.ReactNode }> = ({ child
                 assignedWaiterId: undefined,
                 customerName: undefined,
                 peopleCount: 0,
+                openedAt: undefined,
               }
             : t
         )
       );
     }
 
-    showToast(`Comanda ${comanda.code} cancelada e mesa desocupada.`, 'warning');
+    showToast(`Comanda ${comanda.code} cancelada e valor estornado no caixa.`, 'warning');
   };
 
-  // Cash Session
-  const openCashSession = (operatorId: string, initialCash: number) => {
-    const operator = employees.find((e) => e.id === operatorId) || currentUser || employees[0];
-    const opId = operator?.id || 'emp-caixa';
-    const opName = operator?.name || 'Operador de Caixa';
-    const now = new Date().toISOString();
+  const refundComanda = (comandaId: string, reason: string) => {
+    const comanda = comandas.find((c) => c.id === comandaId);
+    if (!comanda) return;
 
+    const primaryMethod = comanda.payments[0]?.method || 'DINHEIRO';
+    addCashMovement(
+      'ESTORNO',
+      comanda.total,
+      primaryMethod,
+      `Estorno de Venda ${comanda.code} - Motivo: ${reason}`,
+      comanda.code
+    );
+
+    setComandas((prev) =>
+      prev.map((c) => (c.id === comandaId ? { ...c, status: 'CANCELADA' } : c))
+    );
+
+    addAuditLog({
+      actionType: 'ESTORNO_PAGAMENTO',
+      targetType: 'COMANDA',
+      targetReference: `${comanda.code} (${comanda.tableLabel})`,
+      details: `Estorno de venda no valor de R$ ${comanda.total.toFixed(2)}`,
+      reason: reason || 'Solicitação de estorno',
+      amountImpact: comanda.total,
+    });
+
+    showToast(`Comanda ${comanda.code} estornada com sucesso. Saída lançada no caixa.`, 'info');
+  };
+
+  // Bills and Expenses
+  const addExpenseBill = (billData: Omit<ExpenseBill, 'id' | 'createdAt'>) => {
+    const newBill: ExpenseBill = {
+      ...billData,
+      id: `exp-${Date.now().toString(36)}`,
+      createdAt: new Date().toISOString(),
+    };
+    setBills((prev) => [newBill, ...prev]);
+
+    // If marked as already paid, launch cash outflow movement immediately
+    if (newBill.status === 'PAGO') {
+      addCashMovement(
+        'DESPESA',
+        newBill.amount,
+        newBill.paymentMethod || 'PIX',
+        `Despesa [${newBill.category}]: ${newBill.description}`,
+        newBill.receiptNumber
+      );
+    }
+
+    showToast(`Despesa "${newBill.description}" cadastrada!`, 'success');
+  };
+
+  const payExpenseBill = (id: string, paymentMethod: PaymentMethod) => {
+    const bill = bills.find((b) => b.id === id);
+    if (!bill) return;
+
+    setBills((prev) =>
+      prev.map((b) =>
+        b.id === id
+          ? {
+              ...b,
+              status: 'PAGO',
+              paymentDate: new Date().toISOString().split('T')[0],
+              paymentMethod,
+            }
+          : b
+      )
+    );
+
+    // Launch cash outflow movement
+    addCashMovement(
+      'DESPESA',
+      bill.amount,
+      paymentMethod,
+      `Pagamento de Conta [${bill.category}]: ${bill.description}`,
+      bill.receiptNumber
+    );
+
+    showToast(`Conta "${bill.description}" baixada com sucesso no fluxo de caixa!`, 'success');
+  };
+
+  const deleteExpenseBill = (id: string) => {
+    setBills((prev) => prev.filter((b) => b.id !== id));
+    showToast('Conta a pagar removida.', 'info');
+  };
+
+  // Cash Closing with reconciliation
+  const closeShiftCash = (data: {
+    type: 'TURNO' | 'MENSAL';
+    periodLabel: string;
+    countedCash: number;
+    notes?: string;
+  }): CashClosingRecord => {
+    let entries = 0;
+    let exits = 0;
+    let cashInDrawerExpected = cashSession.initialCash || 0;
+
+    cashSession.movements.forEach((m) => {
+      if (m.type === 'VENDA' || m.type === 'SUPRIMENTO') {
+        entries += m.amount;
+        if (m.paymentMethod === 'DINHEIRO') {
+          cashInDrawerExpected += m.amount;
+        }
+      } else {
+        exits += m.amount;
+        if (m.paymentMethod === 'DINHEIRO') {
+          cashInDrawerExpected -= m.amount;
+        }
+      }
+    });
+
+    const discrepancy = Math.round((data.countedCash - cashInDrawerExpected) * 100) / 100;
+    const isMatched = Math.abs(discrepancy) < 0.05;
+
+    const newClosing: CashClosingRecord = {
+      id: `close-${Date.now().toString(36)}`,
+      type: data.type,
+      periodLabel: data.periodLabel,
+      date: new Date().toISOString(),
+      operatorName: currentUser?.name || 'Operador',
+      initialCash: cashSession.initialCash || 0,
+      totalEntries: Math.round(entries * 100) / 100,
+      totalExits: Math.round(exits * 100) / 100,
+      expectedCash: Math.round(cashInDrawerExpected * 100) / 100,
+      countedCash: Math.round(data.countedCash * 100) / 100,
+      discrepancy,
+      status: isMatched ? 'CONCILIADO' : 'DIVERGENTE',
+      notes: data.notes,
+    };
+
+    setCashClosings((prev) => [newClosing, ...prev]);
+
+    // Audit log for closing and discrepancy
+    addAuditLog({
+      actionType: isMatched ? 'FECHAMENTO_CAIXA' : 'DIVERGENCIA_CAIXA',
+      targetType: 'CAIXA',
+      targetReference: `Fechamento ${data.periodLabel}`,
+      amountImpact: discrepancy,
+      details: `Fechamento de caixa ${data.periodLabel} (${isMatched ? 'Conciliado' : 'Divergente'}). Esperado: ${formatCurrency(cashInDrawerExpected)}, Contado: ${formatCurrency(data.countedCash)}. Diferença: ${formatCurrency(discrepancy)}.`,
+      reason: data.notes || 'Fechamento de caixa de turno',
+    });
+
+    // Close session
+    closeCashSession();
+
+    showToast(
+      isMatched
+        ? `Fechamento ${data.periodLabel} concluído! Caixa 100% conciliado.`
+        : `Fechamento ${data.periodLabel} concluído com divergência de ${formatCurrency(discrepancy)}.`,
+      isMatched ? 'success' : 'warning'
+    );
+
+    return newClosing;
+  };
+
+  // Tips and Service Fee Account
+  const releaseTipsDistribution = (amount: number, description: string) => {
+    addCashMovement(
+      'REPASSE_GORJETA',
+      amount,
+      'PIX',
+      `Repasse de Taxa de Serviço/Gorjetas: ${description}`
+    );
+    showToast(`Repasse de ${formatCurrency(amount)} registrado com sucesso!`, 'success');
+  };
+
+  // Monthly Commissions Calculation & Posting
+  const processMonthlyCommissions = (monthYear: string) => {
+    const waiters = employees.filter((e) => e.role === 'GARCOM' && e.active);
+    let totalCommissions = 0;
+
+    waiters.forEach((waiter) => {
+      const waiterComandas = comandas.filter((c) => c.waiterId === waiter.id && c.status === 'PAGA');
+      const sales = waiterComandas.reduce((acc, c) => acc + c.total, 0);
+      const commission = sales * ((waiter.commissionRate || 10) / 100);
+
+      if (commission > 0) {
+        totalCommissions += commission;
+        addCashMovement(
+          'COMISSAO',
+          commission,
+          'PIX',
+          `Comissão Mensal (${monthYear}) - ${waiter.name} (${waiter.commissionRate}%)`
+        );
+      }
+    });
+
+    showToast(`Comissões de ${monthYear} apuradas e lançadas no caixa: ${formatCurrency(totalCommissions)}!`, 'success');
+  };
+
+  // Cash Register
+  const openCashSession = (initialCash: number) => {
     const newSession: CashRegisterSession = {
-      id: `session-${Date.now()}`,
-      operatorId: opId,
-      operatorName: opName,
-      openedAt: now,
+      id: `session-${Date.now().toString(36)}`,
+      operatorId: currentUser?.id || 'emp-caixa',
+      operatorName: currentUser?.name || 'Operador',
+      openedAt: new Date().toISOString(),
       initialCash,
       status: 'ABERTO',
       movements: [
@@ -1289,149 +1408,223 @@ export const ChurrasProvider: React.FC<{ children: React.ReactNode }> = ({ child
           type: 'SUPRIMENTO',
           amount: initialCash,
           paymentMethod: 'DINHEIRO',
-          description: 'Abertura de Caixa - Fundo de Troco',
-          timestamp: now,
-          operatorName: opName,
+          description: 'Fundo de troco inicial de abertura de caixa',
+          timestamp: new Date().toISOString(),
+          operatorName: currentUser?.name || 'Operador',
         },
       ],
     };
-
     setCashSession(newSession);
-    soundManager.playCashSuccess();
-    showToast(`Caixa aberto por ${opName} com fundo de R$ ${initialCash.toFixed(2)}`, 'success');
+    showToast('Caixa aberto com sucesso!', 'success');
   };
 
-  const closeCashSession = (countedCash: number, closingNotes?: string) => {
-    const now = new Date().toISOString();
-
-    // Calculate total cash expected
-    const cashTotal = cashSession.movements.reduce((acc, m) => {
-      if (m.paymentMethod === 'DINHEIRO') {
-        if (m.type === 'VENDA' || m.type === 'SUPRIMENTO') return acc + m.amount;
-        if (m.type === 'SANGRIA' || m.type === 'ESTORNO') return acc - m.amount;
-      }
-      return acc;
-    }, 0);
-
-    const discrepancy = countedCash - cashTotal;
-
+  const closeCashSession = () => {
     setCashSession((prev) => ({
       ...prev,
       status: 'FECHADO',
-      closedAt: now,
-      countedCash,
-      discrepancy,
-      closingNotes,
+      closedAt: new Date().toISOString(),
     }));
-
-    showToast(
-      `Caixa fechado com sucesso! Diferença apurada: R$ ${discrepancy.toFixed(2)}`,
-      Math.abs(discrepancy) < 0.05 ? 'success' : 'warning'
-    );
+    showToast('Caixa encerrado com sucesso!', 'info');
   };
 
-  const addCashMovement = (type: 'SANGRIA' | 'SUPRIMENTO', amount: number, description: string) => {
-    const now = new Date().toISOString();
-    const movement: CashMovement = {
-      id: `mov-${Date.now()}`,
+  const addCashMovement = (
+    type: CashMovementType,
+    amount: number,
+    paymentMethod: PaymentMethod,
+    description: string,
+    comandaCode?: string
+  ) => {
+    const newMov = {
+      id: `mov-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
       type,
       amount,
-      paymentMethod: 'DINHEIRO',
+      paymentMethod,
       description,
-      timestamp: now,
+      timestamp: new Date().toISOString(),
       operatorName: currentUser?.name || 'Operador',
+      comandaCode,
     };
 
     setCashSession((prev) => ({
       ...prev,
-      movements: [...prev.movements, movement],
+      movements: [newMov, ...prev.movements],
     }));
+  };
 
-    showToast(
-      `${type === 'SANGRIA' ? 'Sangria' : 'Suprimento'} de R$ ${amount.toFixed(2)} registrado!`,
-      type === 'SANGRIA' ? 'warning' : 'success'
+  // Stock
+  const addIngredient = (ingData: Omit<Ingredient, 'id'>) => {
+    const newIng: Ingredient = {
+      ...ingData,
+      id: `ing-${Date.now().toString(36)}`,
+    };
+    setIngredients((prev) => [...prev, newIng]);
+    showToast(`Insumo "${newIng.name}" adicionado ao estoque.`, 'success');
+  };
+
+  const updateIngredient = (id: string, updates: Partial<Ingredient>) => {
+    setIngredients((prev) =>
+      prev.map((i) => (i.id === id ? { ...i, ...updates } : i))
     );
+    showToast('Insumo atualizado.', 'success');
   };
 
-  const updateSettings = (updates: Partial<RestaurantSettings>) => {
-    setSettings((prev) => ({ ...prev, ...updates }));
-    showToast('Configurações atualizadas!', 'success');
+  const deleteIngredient = (id: string) => {
+    setIngredients((prev) => prev.filter((i) => i.id !== id));
+    showToast('Insumo removido do estoque.', 'info');
   };
 
-  const resetDemoData = () => {
-    localStorage.clear();
-    setSettings(INITIAL_SETTINGS);
-    setEmployees(INITIAL_EMPLOYEES);
-    setCurrentUserId(INITIAL_EMPLOYEES[0].id);
-    setTables(INITIAL_TABLES);
-    setMenuItems(INITIAL_MENU_ITEMS);
-    setComandas(INITIAL_COMANDAS);
-    setCashSession(INITIAL_CASH_SESSION);
-    setIngredients(INITIAL_INGREDIENTS);
-    setWasteRecords(INITIAL_WASTE_RECORDS);
-    setStockMovements(INITIAL_STOCK_MOVEMENTS);
-    showToast('Dados de demonstração restaurados com sucesso!', 'info');
+  const restockIngredient = (id: string, quantity: number, cost?: number, supplier?: string) => {
+    const ing = ingredients.find((i) => i.id === id);
+    if (!ing) return;
+
+    setIngredients((prev) =>
+      prev.map((i) =>
+        i.id === id
+          ? {
+              ...i,
+              currentStock: Math.round((i.currentStock + quantity) * 100) / 100,
+              costPerUnit: cost !== undefined ? cost : i.costPerUnit,
+              supplier: supplier || i.supplier,
+              lastRestockedAt: new Date().toISOString().split('T')[0],
+            }
+          : i
+      )
+    );
+
+    setStockMovements((prev) => [
+      {
+        id: `sm-${Date.now()}`,
+        ingredientId: id,
+        ingredientName: ing.name,
+        type: 'ENTRADA',
+        quantity,
+        unit: ing.unit,
+        date: new Date().toISOString(),
+        reference: supplier ? `Entrada - ${supplier}` : 'Entrada manual de estoque',
+        registeredBy: currentUser?.name || 'Administrador',
+      },
+      ...prev,
+    ]);
+
+    showToast(`Reposição de ${quantity} ${ing.unit} registrada para "${ing.name}"!`, 'success');
   };
 
-  return (
-    <ChurrasContext.Provider
-      value={{
-        currentUser,
-        isAuthenticated,
-        loginWithEmail,
-        loginWithPin,
-        logout,
-        resetCredentials,
-        switchUser,
-        employees,
-        addEmployee,
-        updateEmployee,
-        deleteEmployee,
-        tables,
-        menuItems,
-        addMenuItem,
-        updateMenuItem,
-        toggleMenuItemAvailability,
-        ingredients,
-        addIngredient,
-        updateIngredient,
-        deleteIngredient,
-        restockIngredient,
-        wasteRecords,
-        registerWaste,
-        stockMovements,
-        lowStockIngredients,
-        comandas,
-        openComanda,
-        openDeliveryComanda,
-        addItemsToComanda,
-        updateOrderItemStatus,
-        requestBill,
-        toggleServiceFee,
-        transferComanda,
-        transferItems,
-        mergeComandas,
-        reserveTable,
-        cancelReservation,
-        processPayment,
-        cancelComanda,
-        cashSession,
-        openCashSession,
-        closeCashSession,
-        addCashMovement,
-        settings,
-        updateSettings,
-        resetDemoData,
-        toast,
-        showToast,
-      }}
-    >
-      {children}
-    </ChurrasContext.Provider>
-  );
+  const registerWaste = (recordData: Omit<WasteRecord, 'id' | 'date'>) => {
+    const newWaste: WasteRecord = {
+      ...recordData,
+      id: `waste-${Date.now()}`,
+      date: new Date().toISOString(),
+    };
+
+    setWasteRecords((prev) => [newWaste, ...prev]);
+
+    // Deduct stock
+    setIngredients((prev) =>
+      prev.map((i) =>
+        i.id === recordData.ingredientId
+          ? {
+              ...i,
+              currentStock: Math.max(0, Math.round((i.currentStock - recordData.quantity) * 100) / 100),
+            }
+          : i
+      )
+    );
+
+    // Register movement
+    setStockMovements((prev) => [
+      {
+        id: `sm-${Date.now()}`,
+        ingredientId: recordData.ingredientId,
+        ingredientName: recordData.ingredientName,
+        type: 'PERDA',
+        quantity: recordData.quantity,
+        unit: recordData.unit,
+        date: new Date().toISOString(),
+        reference: `Descarte: ${recordData.reason}`,
+        registeredBy: recordData.registeredBy,
+      },
+      ...prev,
+    ]);
+
+    addAuditLog({
+      actionType: 'AJUSTE_ESTOQUE',
+      targetType: 'ESTOQUE',
+      targetReference: `${recordData.ingredientName} (${recordData.quantity} ${recordData.unit})`,
+      details: `Desperdício/Descarte de ${recordData.quantity} ${recordData.unit} - Custo: R$ ${recordData.estimatedCost.toFixed(2)}`,
+      reason: recordData.reason,
+      amountImpact: recordData.estimatedCost,
+      actorName: recordData.registeredBy,
+    });
+
+    showToast(`Perda de ${recordData.quantity} ${recordData.unit} registrada!`, 'warning');
+  };
+
+  const value: ChurrasContextType = {
+    currentUser,
+    employees,
+    menuItems,
+    tables,
+    comandas,
+    cashSession,
+    settings,
+    ingredients,
+    wasteRecords,
+    stockMovements,
+    lowStockIngredients,
+    bills,
+    cashClosings,
+    auditLogs,
+    toasts,
+    loginWithEmail,
+    loginWithPin,
+    logout,
+    switchUser,
+    addEmployee,
+    updateEmployee,
+    deleteEmployee,
+    resetCredentials,
+    addMenuItem,
+    updateMenuItem,
+    toggleMenuItemAvailability,
+    deleteMenuItem,
+    openComanda,
+    openDeliveryComanda,
+    addItemsToComanda,
+    requestBill,
+    toggleServiceFee,
+    transferComanda,
+    transferItems,
+    mergeComandas,
+    reserveTable,
+    cancelReservation,
+    updateOrderItemStatus,
+    payComanda,
+    cancelComanda,
+    refundComanda,
+    addExpenseBill,
+    payExpenseBill,
+    deleteExpenseBill,
+    closeShiftCash,
+    releaseTipsDistribution,
+    processMonthlyCommissions,
+    openCashSession,
+    closeCashSession,
+    addCashMovement,
+    addIngredient,
+    updateIngredient,
+    deleteIngredient,
+    restockIngredient,
+    registerWaste,
+    updateSettings,
+    addAuditLog,
+    showToast,
+    removeToast,
+  };
+
+  return <ChurrasContext.Provider value={value}>{children}</ChurrasContext.Provider>;
 };
 
-export const useChurras = () => {
+export const useChurras = (): ChurrasContextType => {
   const context = useContext(ChurrasContext);
   if (!context) {
     throw new Error('useChurras must be used within a ChurrasProvider');
