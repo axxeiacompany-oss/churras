@@ -1255,7 +1255,7 @@ export const ReportsTab: React.FC = () => {
               </div>
               <div>
                 <h4 className="text-xs font-bold text-stone-200">
-                  Engenharia de Cardápio para Churrascaria Prime
+                  Engenharia de Produtos & Vendas
                 </h4>
                 <p className="text-[11px] text-stone-400 mt-0.5">
                   Carnes nobres (Picanha, Ancho) têm CMV de ~35%, mas geram alto valor absoluto (₲). Chopp Brahma e Sobremesas atingem margens superiores a 72% e equilibram a rentabilidade global.
@@ -1363,7 +1363,7 @@ export const ReportsTab: React.FC = () => {
               <table className="w-full text-left text-xs">
                 <thead>
                   <tr className="border-b border-stone-800 text-[11px] font-bold text-stone-400 uppercase tracking-wider bg-stone-950/60">
-                    <th className="py-3 px-4">Item do Cardápio</th>
+                    <th className="py-3 px-4">Produto</th>
                     <th className="py-3 px-4">Categoria</th>
                     <th className="py-3 px-4 text-right">Preço de Venda</th>
                     <th className="py-3 px-4 text-right">Custo Insumos (Ficha)</th>

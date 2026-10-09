@@ -21,6 +21,7 @@ import {
   AuditLogEntry,
   AuditActionType,
   UserRole,
+  ProductPurchase,
 } from '../types';
 import {
   INITIAL_SETTINGS,
@@ -35,6 +36,7 @@ import {
   INITIAL_EXPENSE_BILLS,
   INITIAL_CASH_CLOSINGS,
   INITIAL_AUDIT_LOGS,
+  INITIAL_PRODUCT_PURCHASES,
 } from '../data/initialData';
 
 export interface ToastMessage {
@@ -59,6 +61,13 @@ interface ChurrasContextType {
   cashClosings: CashClosingRecord[];
   auditLogs: AuditLogEntry[];
   toasts: ToastMessage[];
+  purchases: ProductPurchase[];
+  addProductPurchase: (purchase: Omit<ProductPurchase, 'id' | 'timestamp'>) => void;
+
+  // Tables Management
+  addTable: (label: string, capacity: number) => { success: boolean; error?: string };
+  updateTable: (id: number, updates: { label?: string; capacity?: number }) => { success: boolean; error?: string };
+  deleteTable: (id: number) => { success: boolean; error?: string };
 
   // Auth
   loginWithEmail: (email: string, pass: string) => { success: boolean; error?: string };
@@ -254,9 +263,17 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
     return saved ? JSON.parse(saved) : INITIAL_AUDIT_LOGS;
   });
 
+  const [purchases, setPurchases] = useState<ProductPurchase[]>(() => {
+    const saved = localStorage.getItem('churras_purchases');
+    return saved ? JSON.parse(saved) : INITIAL_PRODUCT_PURCHASES;
+  });
+
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
   // Persist state updates to localStorage
+  useEffect(() => {
+    localStorage.setItem('churras_purchases', JSON.stringify(purchases));
+  }, [purchases]);
   useEffect(() => {
     localStorage.setItem('churras_settings', JSON.stringify(settings));
   }, [settings]);
@@ -731,6 +748,21 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
             }
           : c
       )
+    );
+
+    // Deduct direct product stockQuantity for simple sale tracking
+    setMenuItems((prev) =>
+      prev.map((item) => {
+        const matchingAdded = itemsToAdd.find((it) => it.menuItemId === item.id);
+        if (matchingAdded) {
+          const currentQty = typeof item.stockQuantity === 'number' ? item.stockQuantity : 40;
+          return {
+            ...item,
+            stockQuantity: Math.max(0, currentQty - matchingAdded.quantity),
+          };
+        }
+        return item;
+      })
     );
 
     // Stock deduction for recipes
@@ -1559,6 +1591,100 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
     showToast(`Perda de ${recordData.quantity} ${recordData.unit} registrada!`, 'warning');
   };
 
+  // Table Management (Admin)
+  const addTable = (label: string, capacity: number) => {
+    if (!label.trim()) {
+      showToast('Nome/número da mesa é obrigatório.', 'error');
+      return { success: false, error: 'Nome obrigatório' };
+    }
+    const maxId = tables.reduce((max, t) => Math.max(max, t.id), 0);
+    const newTable: Table = {
+      id: maxId + 1,
+      label: label.trim(),
+      capacity: capacity > 0 ? capacity : 4,
+      status: 'LIVRE',
+    };
+    setTables((prev) => [...prev, newTable]);
+    showToast(`Mesa "${newTable.label}" criada com sucesso!`, 'success');
+    return { success: true };
+  };
+
+  const updateTable = (id: number, updates: { label?: string; capacity?: number }) => {
+    const target = tables.find((t) => t.id === id);
+    if (!target) {
+      return { success: false, error: 'Mesa não encontrada' };
+    }
+    setTables((prev) =>
+      prev.map((t) =>
+        t.id === id
+          ? {
+              ...t,
+              label: updates.label !== undefined ? updates.label.trim() : t.label,
+              capacity: updates.capacity !== undefined ? updates.capacity : t.capacity,
+            }
+          : t
+      )
+    );
+    showToast(`Mesa "${updates.label || target.label}" atualizada!`, 'success');
+    return { success: true };
+  };
+
+  const deleteTable = (id: number) => {
+    const target = tables.find((t) => t.id === id);
+    if (!target) {
+      return { success: false, error: 'Mesa não encontrada' };
+    }
+    if (target.status === 'OCUPADA' || target.status === 'CONTA_SOLICITADA') {
+      showToast('Não é possível excluir uma mesa com comanda ou clientes ativos!', 'error');
+      return { success: false, error: 'Mesa ocupada' };
+    }
+    setTables((prev) => prev.filter((t) => t.id !== id));
+    showToast(`Mesa "${target.label}" excluída com sucesso.`, 'success');
+    return { success: true };
+  };
+
+  // Product Purchase Management (Daily Purchase & Sale Tracking)
+  const addProductPurchase = (p: Omit<ProductPurchase, 'id' | 'timestamp'>) => {
+    const newPurchase: ProductPurchase = {
+      ...p,
+      id: `pur-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      timestamp: new Date().toISOString(),
+    };
+    setPurchases((prev) => [newPurchase, ...prev]);
+
+    // Automatically increase product stockQuantity for sale
+    setMenuItems((prev) =>
+      prev.map((item) =>
+        item.id === p.productId
+          ? {
+              ...item,
+              stockQuantity: (typeof item.stockQuantity === 'number' ? item.stockQuantity : 40) + p.quantity,
+              costPrice: p.unitCost > 0 ? p.unitCost : item.costPrice,
+            }
+          : item
+      )
+    );
+
+    // Register movement in cash flow
+    setCashSession((prev) => ({
+      ...prev,
+      movements: [
+        {
+          id: `mov-${Date.now()}`,
+          type: 'DESPESA',
+          amount: p.totalCost,
+          paymentMethod: 'DINHEIRO',
+          description: `Compra de estoque: ${p.quantity}x ${p.productName}`,
+          operatorName: p.registeredBy || currentUser?.name || 'Admin',
+          timestamp: new Date().toISOString(),
+        },
+        ...prev.movements,
+      ],
+    }));
+
+    showToast(`Compra registrada: +${p.quantity} un de ${p.productName}!`, 'success');
+  };
+
   const value: ChurrasContextType = {
     currentUser,
     employees,
@@ -1575,6 +1701,11 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
     cashClosings,
     auditLogs,
     toasts,
+    purchases,
+    addProductPurchase,
+    addTable,
+    updateTable,
+    deleteTable,
     loginWithEmail,
     loginWithPin,
     logout,

@@ -3,6 +3,7 @@ import { useChurras } from '../../context/ChurrasContext';
 import { Comanda, PaymentMethod, Payment, CashMovementType } from '../../types';
 import { formatCurrency, formatTime, getPaymentMethodLabel } from '../../utils/format';
 import { ReceiptModal } from '../modals/ReceiptModal';
+import { QuickSaleModal } from '../pos/QuickSaleModal';
 import {
   Wallet,
   DollarSign,
@@ -26,6 +27,7 @@ import {
   X,
   FileText,
   UtensilsCrossed,
+  Zap,
 } from 'lucide-react';
 
 export const CashierDashboard: React.FC = () => {
@@ -47,6 +49,7 @@ export const CashierDashboard: React.FC = () => {
   const [selectedComandaForReceipt, setSelectedComandaForReceipt] = useState<Comanda | null>(null);
 
   // Cashier modal states
+  const [showQuickSale, setShowQuickSale] = useState<boolean>(false);
   const [showOpenModal, setShowOpenModal] = useState<boolean>(false);
   const [initialCashInput, setInitialCashInput] = useState<string>('400.00');
 

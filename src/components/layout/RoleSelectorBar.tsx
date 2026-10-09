@@ -41,13 +41,6 @@ export const RoleSelectorBar: React.FC<RoleSelectorBarProps> = () => {
       icon: UtensilsCrossed,
       badge: 'Atendimento',
     },
-    {
-      role: 'COZINHA',
-      label: 'Cozinha / Churrasqueiro (KDS)',
-      description: 'Pedidos na brasa em tempo real, ponto da carne e prontos',
-      icon: ChefHat,
-      badge: 'Preparo',
-    },
   ];
 
   const handleSelectRole = (targetRole: UserRole) => {
@@ -67,7 +60,7 @@ export const RoleSelectorBar: React.FC<RoleSelectorBarProps> = () => {
         </div>
 
         {/* Roles pills / buttons */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 w-full md:w-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 w-full md:w-auto">
           {roles.map((r) => {
             const isSelected = currentUser.role === r.role;
             const Icon = r.icon;

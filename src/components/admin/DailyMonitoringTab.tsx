@@ -462,24 +462,6 @@ export const DailyMonitoringTab: React.FC = () => {
               </button>
             </div>
 
-            {/* Funcionário Dropdown */}
-            <div className="relative">
-              <select
-                value={selectedEmployeeId}
-                onChange={(e) => setSelectedEmployeeId(e.target.value)}
-                className="bg-stone-950 border border-stone-800 rounded-xl px-3 py-1.5 text-xs text-stone-200 focus:outline-none focus:border-amber-500 cursor-pointer"
-              >
-                <option value="TODOS">Toda a Brigada</option>
-                {employees
-                  .filter((e) => e.role === 'GARCOM' || e.role === 'CAIXA')
-                  .map((e) => (
-                    <option key={e.id} value={e.id}>
-                      {e.name} ({e.role})
-                    </option>
-                  ))}
-              </select>
-            </div>
-
             {/* Refresh Button */}
             <button
               onClick={handleRefresh}

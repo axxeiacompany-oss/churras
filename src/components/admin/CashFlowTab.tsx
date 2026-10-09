@@ -507,7 +507,7 @@ export const CashFlowTab: React.FC = () => {
               onClick={() => setShowTipsModal(true)}
               className="text-[10px] text-purple-400 hover:underline font-semibold mt-1 block cursor-pointer"
             >
-              Realizar Repasse à Brigada →
+              Realizar Repasse aos Funcionários →
             </button>
           </div>
         </div>
@@ -877,7 +877,7 @@ export const CashFlowTab: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-bold text-stone-100 text-base">
-                  Conta de Taxa de Serviço & Gorjetas da Brigada
+                  Conta de Taxa de Serviço & Gorjetas da Equipe
                 </h3>
                 <p className="text-xs text-stone-400">
                   Os 10% cobrados nas comandas são segregados nesta conta exclusiva para repasse aos colaboradores

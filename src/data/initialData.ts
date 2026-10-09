@@ -11,6 +11,7 @@ import {
   ExpenseBill,
   CashClosingRecord,
   AuditLogEntry,
+  ProductPurchase,
 } from '../types';
 
 export const INITIAL_SETTINGS: RestaurantSettings = {
@@ -31,6 +32,11 @@ export const INITIAL_SETTINGS: RestaurantSettings = {
   whatsappReportsEnabled: true,
   discountAlertThreshold: 50000, // ₲ 50.000
   cashDiscrepancyThreshold: 20000, // ₲ 20.000
+  allowStaffCancelOrder: false,
+  allowStaffDiscounts: false,
+  allowStaffCloseBill: false,
+  allowStaffAddStock: false,
+  allowStaffManageTables: true,
 };
 
 export const INITIAL_EMPLOYEES: Employee[] = [
@@ -1554,5 +1560,60 @@ export const INITIAL_AUDIT_LOGS: AuditLogEntry[] = [
     details: 'Comanda cancelada integralmente antes do consumo de rodízio',
     reason: 'Mesa desistiu após emergência familiar médica comunicada na chegada',
     amountImpact: 0,
+  },
+];
+
+export const INITIAL_PRODUCT_PURCHASES: ProductPurchase[] = [
+  {
+    id: 'pur-01',
+    productId: 'menu-corte-picanha',
+    productName: 'Picanha Prime na Brasa (500g)',
+    quantity: 25,
+    unitCost: 55000,
+    totalCost: 1375000,
+    date: new Date().toISOString().split('T')[0],
+    timestamp: new Date().toISOString(),
+    supplier: 'Frigorífico VPJ Alimentos',
+    notes: 'Lote selecionado maturado',
+    registeredBy: 'Carlos Silveira',
+  },
+  {
+    id: 'pur-02',
+    productId: 'menu-chopp-500',
+    productName: 'Chopp Munich / Pilsen 500ml',
+    quantity: 60,
+    unitCost: 7500,
+    totalCost: 450000,
+    date: new Date().toISOString().split('T')[0],
+    timestamp: new Date().toISOString(),
+    supplier: 'Distribuidora Cervejas SA',
+    notes: 'Barris de 50L',
+    registeredBy: 'Carlos Silveira',
+  },
+  {
+    id: 'pur-03',
+    productId: 'menu-pao-alho',
+    productName: 'Pão de Alho Especial Recheado',
+    quantity: 40,
+    unitCost: 8000,
+    totalCost: 320000,
+    date: new Date().toISOString().split('T')[0],
+    timestamp: new Date().toISOString(),
+    supplier: 'Panificadora Central',
+    notes: 'Entrega matutina',
+    registeredBy: 'Carlos Silveira',
+  },
+  {
+    id: 'pur-04',
+    productId: 'menu-refrig-lata',
+    productName: 'Refrigerante Lata 350ml',
+    quantity: 80,
+    unitCost: 4000,
+    totalCost: 320000,
+    date: new Date().toISOString().split('T')[0],
+    timestamp: new Date().toISOString(),
+    supplier: 'Ambev Distribuição',
+    notes: 'Coca-Cola e Guaraná',
+    registeredBy: 'Carlos Silveira',
   },
 ];

@@ -120,6 +120,12 @@ export interface RestaurantSettings {
   whatsappReportsEnabled?: boolean;
   discountAlertThreshold?: number; // e.g. 50
   cashDiscrepancyThreshold?: number; // e.g. 10
+  // Staff Operation Permissions (controlled strictly by Admin)
+  allowStaffCancelOrder?: boolean;
+  allowStaffDiscounts?: boolean;
+  allowStaffCloseBill?: boolean;
+  allowStaffAddStock?: boolean;
+  allowStaffManageTables?: boolean;
 }
 
 export type AutomationAlertType =
@@ -198,6 +204,7 @@ export interface MenuItem {
   category: MenuCategory;
   price: number;
   costPrice?: number;
+  stockQuantity?: number; // Quantidade disponível para venda
   imageUrl?: string;
   description?: string;
   prepStation: PrepStation;
@@ -207,6 +214,20 @@ export interface MenuItem {
   isWeighed?: boolean;
   unitLabel?: string;
   recipe?: RecipeIngredient[];
+}
+
+export interface ProductPurchase {
+  id: string;
+  productId: string;
+  productName: string;
+  quantity: number;
+  unitCost: number;
+  totalCost: number;
+  date: string; // YYYY-MM-DD
+  timestamp: string;
+  supplier?: string;
+  notes?: string;
+  registeredBy: string;
 }
 
 export interface Table {

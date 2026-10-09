@@ -701,7 +701,7 @@ export const InventoryTab: React.FC = () => {
                       </div>
                       {recipe.length === 0 ? (
                         <div className="p-3 bg-stone-950/60 rounded-xl border border-dashed border-stone-800 text-[11px] text-stone-500">
-                          Nenhum insumo vinculado a este item. Edite no Cardápio para configurar a ficha técnica.
+                          Nenhum insumo vinculado a este item. Edite em Produtos para configurar a ficha técnica.
                         </div>
                       ) : (
                         <div className="space-y-1">

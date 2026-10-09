@@ -10,6 +10,7 @@ import {
   PaymentMethod,
   Comanda,
   RecipeIngredient,
+  Table,
 } from '../../types';
 import { formatCurrency, formatTime, getRoleLabel, getPaymentMethodLabel } from '../../utils/format';
 import {
@@ -49,6 +50,7 @@ import {
   Download,
   Copy,
   FileCode,
+  ShoppingCart,
 } from 'lucide-react';
 import { EmployeeHistoryModal } from './EmployeeHistoryModal';
 import { ReceiptModal } from '../modals/ReceiptModal';
@@ -56,12 +58,14 @@ import { DailyMonitoringTab } from './DailyMonitoringTab';
 import { CashFlowTab } from './CashFlowTab';
 import { AutomationsTab } from './AutomationsTab';
 import { ReportsTab } from './ReportsTab';
+import { DailyBuySellTab } from './DailyBuySellTab';
 import { SUPABASE_SQL_SCHEMA } from '../../data/supabaseSchemaSql';
 
 export type AdminTab =
   | 'OVERVIEW'
   | 'EMPLOYEES'
   | 'MENU'
+  | 'BUY_SELL'
   | 'TABLES'
   | 'CASH_FLOW'
   | 'AUTOMATIONS'
@@ -87,7 +91,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     addMenuItem,
     updateMenuItem,
     toggleMenuItemAvailability,
+    deleteMenuItem,
     tables,
+    addTable,
+    updateTable,
+    deleteTable,
     comandas,
     cashSession,
     settings,
@@ -155,13 +163,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [menuFormCategory, setMenuFormCategory] = useState<MenuCategory>('CORTES_NOBRES');
   const [menuFormPrice, setMenuFormPrice] = useState<string>('');
   const [menuFormCostPrice, setMenuFormCostPrice] = useState<string>('');
-  const [menuFormImageUrl, setMenuFormImageUrl] = useState<string>('');
-  const [menuFormIsWeighed, setMenuFormIsWeighed] = useState<boolean>(false);
-  const [menuFormUnitLabel, setMenuFormUnitLabel] = useState<string>('un');
-  const [menuFormRecipe, setMenuFormRecipe] = useState<RecipeIngredient[]>([]);
+  const [menuFormStockQuantity, setMenuFormStockQuantity] = useState<string>('30');
   const [menuFormDesc, setMenuFormDesc] = useState<string>('');
   const [menuFormStation, setMenuFormStation] = useState<PrepStation>('GRELHA');
-  const [menuFormDoneness, setMenuFormDoneness] = useState<boolean>(true);
+  const [menuFormDoneness, setMenuFormDoneness] = useState<boolean>(false);
+
+  // Table Modal & Delete State (Admin)
+  const [showTableModal, setShowTableModal] = useState<boolean>(false);
+  const [editingTable, setEditingTable] = useState<Table | null>(null);
+  const [tableFormLabel, setTableFormLabel] = useState<string>('');
+  const [tableFormCapacity, setTableFormCapacity] = useState<number>(4);
+  const [tableToDelete, setTableToDelete] = useState<Table | null>(null);
 
   // Search in menu
   const [menuSearch, setMenuSearch] = useState<string>('');
@@ -386,9 +398,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     setMenuFormName('');
     setMenuFormCategory('CORTES_NOBRES');
     setMenuFormPrice('');
+    setMenuFormCostPrice('');
+    setMenuFormStockQuantity('30');
     setMenuFormDesc('');
     setMenuFormStation('GRELHA');
-    setMenuFormDoneness(true);
+    setMenuFormDoneness(false);
     setShowMenuModal(true);
   };
 
@@ -397,36 +411,81 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     setMenuFormName(item.name);
     setMenuFormCategory(item.category);
     setMenuFormPrice(item.price.toString());
-    setMenuFormDesc(item.description);
+    setMenuFormCostPrice(item.costPrice ? item.costPrice.toString() : '');
+    setMenuFormStockQuantity((item.stockQuantity ?? 30).toString());
+    setMenuFormDesc(item.description || '');
     setMenuFormStation(item.prepStation);
-    setMenuFormDoneness(item.allowsDoneness);
+    setMenuFormDoneness(item.allowsDoneness || false);
     setShowMenuModal(true);
   };
 
   const handleSaveMenuItem = (e: React.FormEvent) => {
     e.preventDefault();
     const priceNum = parseFloat(menuFormPrice) || 0;
+    const costNum = parseFloat(menuFormCostPrice) || 0;
+    const stockQtyNum = parseInt(menuFormStockQuantity) || 0;
+
     if (editingMenuItem) {
       updateMenuItem(editingMenuItem.id, {
         name: menuFormName,
         category: menuFormCategory,
         price: priceNum,
+        costPrice: costNum,
+        stockQuantity: stockQtyNum,
         description: menuFormDesc,
-        prepStation: menuFormStation,
-        allowsDoneness: menuFormDoneness,
       });
     } else {
       addMenuItem({
         name: menuFormName,
         category: menuFormCategory,
         price: priceNum,
+        costPrice: costNum,
+        stockQuantity: stockQtyNum,
         description: menuFormDesc,
-        prepStation: menuFormStation,
-        allowsDoneness: menuFormDoneness,
+        prepStation: 'GRELHA',
         available: true,
       });
     }
     setShowMenuModal(false);
+  };
+
+  // Table Handlers (Admin)
+  const handleOpenAddTable = () => {
+    setEditingTable(null);
+    const nextNum = tables.length + 1;
+    setTableFormLabel(`Mesa ${nextNum < 10 ? '0' + nextNum : nextNum}`);
+    setTableFormCapacity(4);
+    setShowTableModal(true);
+  };
+
+  const handleOpenEditTable = (table: Table) => {
+    setEditingTable(table);
+    setTableFormLabel(table.label);
+    setTableFormCapacity(table.capacity);
+    setShowTableModal(true);
+  };
+
+  const handleSaveTable = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!tableFormLabel.trim()) {
+      showToast('Nome/número da mesa é obrigatório.', 'error');
+      return;
+    }
+    if (editingTable) {
+      updateTable(editingTable.id, {
+        label: tableFormLabel.trim(),
+        capacity: tableFormCapacity,
+      });
+    } else {
+      addTable(tableFormLabel.trim(), tableFormCapacity);
+    }
+    setShowTableModal(false);
+  };
+
+  const handleConfirmDeleteTable = () => {
+    if (!tableToDelete) return;
+    deleteTable(tableToDelete.id);
+    setTableToDelete(null);
   };
 
   return (
@@ -468,7 +527,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               }`}
             >
               <UtensilsCrossed className="w-4 h-4" />
-              <span>Cardápio & Cortes ({menuItems.length})</span>
+              <span>Produtos ({menuItems.length})</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('BUY_SELL')}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl whitespace-nowrap transition-all ${
+                activeTab === 'BUY_SELL'
+                  ? 'bg-amber-600 text-white shadow-md'
+                  : 'text-stone-400 hover:text-white hover:bg-stone-800'
+              }`}
+            >
+              <FileText className="w-4 h-4" />
+              <span>Relatório Diário (PDF)</span>
             </button>
 
             <button
@@ -623,7 +694,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <option value="ADMIN">Admin / Gerente</option>
                     <option value="CAIXA">Caixa</option>
                     <option value="GARCOM">Garçom</option>
-                    <option value="COZINHA">Cozinha / Grelha</option>
                   </select>
                 </div>
 
@@ -864,12 +934,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         );
       })()}
 
-      {/* TAB 3: MENU & CARNES */}
+      {/* TAB 3: MENU & PRODUTOS */}
       {activeTab === 'MENU' && (
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div>
-              <h3 className="text-base font-bold text-white">Cardápio de Cortes & Itens</h3>
+              <h3 className="text-base font-bold text-white">Produtos</h3>
               <p className="text-xs text-stone-400">
                 Ajuste preços, pause itens esgotados e adicione novidades ao rodízio ou à la carte.
               </p>
@@ -879,7 +949,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold transition-all shadow-md"
             >
               <Plus className="w-4 h-4" />
-              <span>Novo Corte / Item</span>
+              <span>Novo Produto</span>
             </button>
           </div>
 
@@ -889,7 +959,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <Search className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
               <input
                 type="text"
-                placeholder="Buscar item no cardápio..."
+                placeholder="Buscar produto..."
                 value={menuSearch}
                 onChange={(e) => setMenuSearch(e.target.value)}
                 className="w-full bg-stone-900 border border-stone-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-amber-500"
@@ -917,12 +987,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <table className="w-full text-left text-xs">
                 <thead className="bg-stone-950 text-stone-400 uppercase font-semibold text-[10px] border-b border-stone-800">
                   <tr>
-                    <th className="p-3.5">Item / Descrição</th>
+                    <th className="p-3.5">Produto / Descrição</th>
                     <th className="p-3.5">Categoria</th>
-                    <th className="p-3.5">Estação</th>
-                    <th className="p-3.5">Preço Unitário</th>
-                    <th className="p-3.5">Ponto Carne?</th>
-                    <th className="p-3.5 text-center">Disponibilidade</th>
+                    <th className="p-3.5">Preço Venda</th>
+                    <th className="p-3.5">Preço Custo</th>
+                    <th className="p-3.5 text-center">Qtd Estoque (p/ venda)</th>
+                    <th className="p-3.5 text-center">Status</th>
                     <th className="p-3.5 text-right">Ações</th>
                   </tr>
                 </thead>
@@ -933,39 +1003,43 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         menuCategoryFilter === 'ALL' || item.category === menuCategoryFilter;
                       const matchesSearch =
                         item.name.toLowerCase().includes(menuSearch.toLowerCase()) ||
-                        item.description.toLowerCase().includes(menuSearch.toLowerCase());
+                        (item.description && item.description.toLowerCase().includes(menuSearch.toLowerCase()));
                       return matchesCategory && matchesSearch;
                     })
                     .map((item) => (
                       <tr key={item.id} className="hover:bg-stone-850 transition-colors">
                         <td className="p-3.5">
                           <div className="font-bold text-white">{item.name}</div>
-                          <div className="text-[11px] text-stone-500 max-w-xs truncate">
-                            {item.description}
-                          </div>
+                          {item.description && (
+                            <div className="text-[11px] text-stone-500 max-w-xs truncate">
+                              {item.description}
+                            </div>
+                          )}
                         </td>
                         <td className="p-3.5 text-stone-400 font-medium">{item.category}</td>
-                        <td className="p-3.5">
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-stone-950 text-stone-400 border border-stone-800">
-                            {item.prepStation}
-                          </span>
-                        </td>
                         <td className="p-3.5 font-mono font-bold text-amber-400">
                           {formatCurrency(item.price)}
                         </td>
-                        <td className="p-3.5">
-                          {item.allowsDoneness ? (
-                            <span className="text-orange-400 text-[10px] font-bold flex items-center gap-1">
-                              <Flame className="w-3 h-3" /> Sim
-                            </span>
-                          ) : (
-                            <span className="text-stone-600 text-[10px]">Não</span>
-                          )}
+                        <td className="p-3.5 font-mono text-stone-400">
+                          {item.costPrice ? formatCurrency(item.costPrice) : '—'}
+                        </td>
+                        <td className="p-3.5 text-center font-mono">
+                          <span
+                            className={`font-bold px-2 py-0.5 rounded text-xs ${
+                              (item.stockQuantity ?? 30) > 10
+                                ? 'bg-emerald-950/70 text-emerald-400 border border-emerald-800/50'
+                                : (item.stockQuantity ?? 30) > 0
+                                ? 'bg-amber-950/70 text-amber-400 border border-amber-800/50'
+                                : 'bg-red-950/70 text-red-400 border border-red-800/50'
+                            }`}
+                          >
+                            {item.stockQuantity ?? 30} un
+                          </span>
                         </td>
                         <td className="p-3.5 text-center">
                           <button
                             onClick={() => toggleMenuItemAvailability(item.id)}
-                            className={`px-2.5 py-1 rounded-full text-[10px] font-bold border transition-colors ${
+                            className={`px-2.5 py-1 rounded-full text-[10px] font-bold border transition-colors cursor-pointer ${
                               item.available
                                 ? 'bg-emerald-950/80 text-emerald-400 border-emerald-800/60'
                                 : 'bg-red-950/80 text-red-400 border-red-800/60'
@@ -975,12 +1049,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           </button>
                         </td>
                         <td className="p-3.5 text-right">
-                          <button
-                            onClick={() => handleOpenEditMenuItem(item)}
-                            className="p-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white"
-                          >
-                            <Edit2 className="w-3.5 h-3.5" />
-                          </button>
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              onClick={() => handleOpenEditMenuItem(item)}
+                              className="p-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white transition cursor-pointer"
+                              title="Editar Produto"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => deleteMenuItem(item.id)}
+                              className="p-1.5 rounded-lg bg-stone-800 hover:bg-red-900/60 text-stone-400 hover:text-red-300 transition cursor-pointer"
+                              title="Excluir Produto"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -991,16 +1075,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </div>
       )}
 
-      {/* TAB 4: TABLES MAP */}
+      {/* TAB: RELATÓRIO DIÁRIO OFICIAL (PDF) */}
+      {activeTab === 'BUY_SELL' && <DailyBuySellTab />}
+
+      {/* TAB 4: TABLES MAP (COM EDITAR E EXCLUIR MESAS PELO ADMIN) */}
       {activeTab === 'TABLES' && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h3 className="text-base font-bold text-white">Salão & Mesas</h3>
               <p className="text-xs text-stone-400">
-                Visualização de status de todas as mesas cadastradas na churrascaria.
+                Gerenciamento exclusivo do Administrador: crie, edite a capacidade e exclua mesas desocupadas.
               </p>
             </div>
+            <button
+              onClick={handleOpenAddTable}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold transition shadow-md cursor-pointer self-start sm:self-auto"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Nova Mesa</span>
+            </button>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
@@ -1008,11 +1102,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               const tableComanda = table.currentComandaId
                 ? comandas.find((c) => c.id === table.currentComandaId)
                 : null;
+              const isOccupied = table.status === 'OCUPADA' || table.status === 'CONTA_SOLICITADA';
 
               return (
                 <div
                   key={table.id}
-                  className={`p-3.5 rounded-2xl border flex flex-col justify-between h-32 ${
+                  className={`p-3.5 rounded-2xl border flex flex-col justify-between min-h-[140px] relative group ${
                     table.status === 'LIVRE'
                       ? 'bg-stone-900 border-dashed border-stone-800'
                       : table.status === 'CONTA_SOLICITADA'
@@ -1039,8 +1134,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   </div>
 
                   {tableComanda ? (
-                    <div className="mt-auto space-y-0.5 text-xs">
-                      <div className="text-stone-200 font-semibold truncate">
+                    <div className="my-1.5 space-y-0.5 text-xs">
+                      <div className="text-stone-200 font-semibold truncate text-[11px]">
                         {tableComanda.customerName}
                       </div>
                       <div className="flex justify-between text-[10px] text-stone-400">
@@ -1051,8 +1146,40 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       </div>
                     </div>
                   ) : (
-                    <div className="mt-auto text-xs text-stone-500">Mesa desocupada</div>
+                    <div className="my-1.5 text-[11px] text-stone-500">Mesa desocupada</div>
                   )}
+
+                  {/* Admin Table Actions: Editar e Excluir */}
+                  <div className="pt-2 border-t border-stone-800/80 flex items-center justify-between">
+                    <button
+                      onClick={() => handleOpenEditTable(table)}
+                      className="px-2 py-1 rounded-lg bg-stone-950 hover:bg-stone-800 text-[10px] font-semibold text-stone-300 hover:text-white flex items-center gap-1 transition cursor-pointer"
+                      title="Editar nome e capacidade da mesa"
+                    >
+                      <Edit2 className="w-3 h-3 text-amber-400" />
+                      <span>Editar</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        if (isOccupied) {
+                          showToast('Não é possível excluir uma mesa ocupada!', 'error');
+                        } else {
+                          setTableToDelete(table);
+                        }
+                      }}
+                      disabled={isOccupied}
+                      className={`px-2 py-1 rounded-lg text-[10px] font-semibold flex items-center gap-1 transition cursor-pointer ${
+                        isOccupied
+                          ? 'opacity-30 cursor-not-allowed text-stone-600'
+                          : 'bg-stone-950 hover:bg-red-950 text-stone-400 hover:text-red-400'
+                      }`}
+                      title={isOccupied ? 'Mesa em atendimento' : 'Excluir esta mesa'}
+                    >
+                      <Trash2 className="w-3 h-3" />
+                      <span>Excluir</span>
+                    </button>
+                  </div>
                 </div>
               );
             })}
@@ -1196,6 +1323,90 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   }
                   className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white font-mono"
                 />
+              </div>
+            </div>
+
+            {/* SEÇÃO: CONTROLE DE PERMISSÕES DA EQUIPE (EXCLUSIVO DO ADMINISTRADOR) */}
+            <div className="pt-5 border-t border-stone-800 space-y-3">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                  <ShieldCheck className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-white">
+                    Permissões de Operações da Equipe
+                  </h4>
+                  <p className="text-[11px] text-stone-400">
+                    Somente o Administrador tem a função de permitir ou restringir operações aos funcionários.
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-2 bg-stone-950 p-3.5 rounded-xl border border-stone-800/80">
+                <label className="flex items-center justify-between p-2 rounded-lg hover:bg-stone-900 transition cursor-pointer">
+                  <div>
+                    <span className="font-semibold text-white block">Permitir Garçom cancelar itens/pedidos</span>
+                    <span className="text-[10px] text-stone-400">Se desativado, apenas o Administrador pode estornar ou cancelar lançamentos</span>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={settings.allowStaffCancelOrder || false}
+                    onChange={(e) => updateSettings({ allowStaffCancelOrder: e.target.checked })}
+                    className="w-4 h-4 accent-amber-600 rounded cursor-pointer"
+                  />
+                </label>
+
+                <label className="flex items-center justify-between p-2 rounded-lg hover:bg-stone-900 transition cursor-pointer">
+                  <div>
+                    <span className="font-semibold text-white block">Permitir Garçom aplicar descontos</span>
+                    <span className="text-[10px] text-stone-400">Se desativado, concessão de desconto na conta exige senha de Administrador</span>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={settings.allowStaffDiscounts || false}
+                    onChange={(e) => updateSettings({ allowStaffDiscounts: e.target.checked })}
+                    className="w-4 h-4 accent-amber-600 rounded cursor-pointer"
+                  />
+                </label>
+
+                <label className="flex items-center justify-between p-2 rounded-lg hover:bg-stone-900 transition cursor-pointer">
+                  <div>
+                    <span className="font-semibold text-white block">Permitir Garçom fechar e receber contas (PDV)</span>
+                    <span className="text-[10px] text-stone-400">Se desativado, o garçom apenas solicita a conta para quitação no Caixa</span>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={settings.allowStaffCloseBill || false}
+                    onChange={(e) => updateSettings({ allowStaffCloseBill: e.target.checked })}
+                    className="w-4 h-4 accent-amber-600 rounded cursor-pointer"
+                  />
+                </label>
+
+                <label className="flex items-center justify-between p-2 rounded-lg hover:bg-stone-900 transition cursor-pointer">
+                  <div>
+                    <span className="font-semibold text-white block">Permitir Funcionário registrar compras de produtos (+Estoque)</span>
+                    <span className="text-[10px] text-stone-400">Se desativado, somente o Administrador pode dar entrada de aquisição</span>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={settings.allowStaffAddStock || false}
+                    onChange={(e) => updateSettings({ allowStaffAddStock: e.target.checked })}
+                    className="w-4 h-4 accent-amber-600 rounded cursor-pointer"
+                  />
+                </label>
+
+                <label className="flex items-center justify-between p-2 rounded-lg hover:bg-stone-900 transition cursor-pointer">
+                  <div>
+                    <span className="font-semibold text-white block">Permitir Garçom transferir ou juntar mesas</span>
+                    <span className="text-[10px] text-stone-400">Controle de movimentações de salão e agrupamento de comandas</span>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={settings.allowStaffManageTables !== false}
+                    onChange={(e) => updateSettings({ allowStaffManageTables: e.target.checked })}
+                    className="w-4 h-4 accent-amber-600 rounded cursor-pointer"
+                  />
+                </label>
               </div>
             </div>
           </div>
@@ -1384,7 +1595,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <option value="ADMIN">ADMIN (Dono/Gerente)</option>
                     <option value="CAIXA">CAIXA (Operador)</option>
                     <option value="GARCOM">GARÇOM (Salão)</option>
-                    <option value="COZINHA">COZINHA / GRELHA</option>
                   </select>
                 </div>
 
@@ -1575,24 +1785,31 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </div>
       )}
 
-      {/* Modal: Add/Edit Menu Item */}
+      {/* Modal: Add/Edit Product (Simplificado com Quantidade para Venda) */}
       {showMenuModal && (
         <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-          <div className="bg-stone-900 border border-stone-700 rounded-2xl max-w-md w-full p-6 shadow-2xl">
-            <h3 className="text-lg font-bold text-white mb-4">
-              {editingMenuItem ? 'Editar Corte / Item' : 'Novo Corte ou Prato'}
-            </h3>
+          <div className="bg-stone-900 border border-stone-700 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div>
+              <h3 className="text-base font-bold text-white">
+                {editingMenuItem ? 'Editar Produto' : 'Cadastrar Novo Produto'}
+              </h3>
+              <p className="text-xs text-stone-400">
+                Cadastre o produto com a quantidade em estoque para venda pelo garçom.
+              </p>
+            </div>
 
-            <form onSubmit={handleSaveMenuItem} className="space-y-3 text-xs">
+            <form onSubmit={handleSaveMenuItem} className="space-y-3.5 text-xs">
               <div>
-                <label className="block font-semibold text-stone-300 mb-1">Nome do Item:</label>
+                <label className="block font-semibold text-stone-300 mb-1">
+                  Nome do Produto:
+                </label>
                 <input
                   type="text"
                   required
-                  placeholder="Ex: Picanha na Brasa 500g"
+                  placeholder="Ex: Picanha Prime 500g, Chopp 500ml..."
                   value={menuFormName}
                   onChange={(e) => setMenuFormName(e.target.value)}
-                  className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white"
+                  className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-500"
                 />
               </div>
 
@@ -1602,7 +1819,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <select
                     value={menuFormCategory}
                     onChange={(e) => setMenuFormCategory(e.target.value as MenuCategory)}
-                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white"
+                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-500"
                   >
                     <option value="CORTES_NOBRES">Cortes Nobres</option>
                     <option value="RODIZIO">Rodízio</option>
@@ -1614,7 +1831,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-stone-300 mb-1">Preço (₲):</label>
+                  <label className="block font-semibold text-stone-300 mb-1">
+                    Preço de Venda (₲ / R$):
+                  </label>
                   <input
                     type="number"
                     step="1000"
@@ -1622,65 +1841,172 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     placeholder="180000"
                     value={menuFormPrice}
                     onChange={(e) => setMenuFormPrice(e.target.value)}
-                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white font-mono"
+                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white font-mono focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-stone-300 mb-1">
+                    Custo / Compra (₲ / R$):
+                  </label>
+                  <input
+                    type="number"
+                    step="1000"
+                    placeholder="55000"
+                    value={menuFormCostPrice}
+                    onChange={(e) => setMenuFormCostPrice(e.target.value)}
+                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white font-mono focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-amber-400 mb-1">
+                    Qtd em Estoque (p/ venda):
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    required
+                    placeholder="30"
+                    value={menuFormStockQuantity}
+                    onChange={(e) => setMenuFormStockQuantity(e.target.value)}
+                    className="w-full bg-stone-950 border border-amber-600/70 rounded-xl px-3 py-2 text-white font-mono font-bold focus:outline-none focus:border-amber-400"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-semibold text-stone-300 mb-1">Descrição:</label>
+                <label className="block font-semibold text-stone-300 mb-1">Descrição (Opcional):</label>
                 <textarea
                   rows={2}
+                  placeholder="Detalhes adicionais do produto..."
                   value={menuFormDesc}
                   onChange={(e) => setMenuFormDesc(e.target.value)}
-                  className="w-full bg-stone-950 border border-stone-700 rounded-xl p-2.5 text-white"
+                  className="w-full bg-stone-950 border border-stone-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-amber-500"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-semibold text-stone-300 mb-1">Estação de Preparo:</label>
-                  <select
-                    value={menuFormStation}
-                    onChange={(e) => setMenuFormStation(e.target.value as PrepStation)}
-                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white"
-                  >
-                    <option value="GRELHA">Churrasqueira / Grelha</option>
-                    <option value="COZINHA">Cozinha Geral</option>
-                    <option value="BAR">Bar & Chopp</option>
-                  </select>
-                </div>
-
-                <div className="flex items-center gap-2 pt-4">
-                  <input
-                    type="checkbox"
-                    id="donenessCheckbox"
-                    checked={menuFormDoneness}
-                    onChange={(e) => setMenuFormDoneness(e.target.checked)}
-                    className="w-4 h-4 accent-amber-600 rounded"
-                  />
-                  <label htmlFor="donenessCheckbox" className="text-stone-300 font-medium">
-                    Exige Ponto da Carne?
-                  </label>
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3 pt-3">
+              <div className="flex justify-end gap-2.5 pt-2 border-t border-stone-800">
                 <button
                   type="button"
                   onClick={() => setShowMenuModal(false)}
-                  className="px-4 py-2 rounded-xl bg-stone-800 text-stone-300 font-semibold"
+                  className="px-4 py-2 rounded-xl bg-stone-800 text-stone-300 font-semibold cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold"
+                  className="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold cursor-pointer"
                 >
-                  Salvar Item
+                  Salvar Produto
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Add/Edit Table (Admin) */}
+      {showTableModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+          <div className="bg-stone-900 border border-stone-700 rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+            <div>
+              <h3 className="text-base font-bold text-white">
+                {editingTable ? `Editar ${editingTable.label}` : 'Cadastrar Nova Mesa'}
+              </h3>
+              <p className="text-xs text-stone-400">
+                Configure a identificação da mesa e a quantidade de lugares.
+              </p>
+            </div>
+
+            <form onSubmit={handleSaveTable} className="space-y-4 text-xs">
+              <div>
+                <label className="block font-semibold text-stone-300 mb-1">
+                  Nome / Número da Mesa:
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ex: Mesa 15, Camarote VIP..."
+                  value={tableFormLabel}
+                  onChange={(e) => setTableFormLabel(e.target.value)}
+                  className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-500"
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold text-stone-300 mb-1">
+                  Capacidade (Lugares):
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max="50"
+                  required
+                  value={tableFormCapacity}
+                  onChange={(e) => setTableFormCapacity(parseInt(e.target.value) || 2)}
+                  className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white font-mono focus:outline-none focus:border-amber-500"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2.5 pt-2 border-t border-stone-800">
+                <button
+                  type="button"
+                  onClick={() => setShowTableModal(false)}
+                  className="px-4 py-2 rounded-xl bg-stone-800 text-stone-300 font-semibold cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold cursor-pointer"
+                >
+                  {editingTable ? 'Salvar Alterações' : 'Criar Mesa'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Confirm Delete Table (Admin) */}
+      {tableToDelete && (
+        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+          <div className="bg-stone-900 border border-red-800/80 rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-red-600/20 text-red-400 border border-red-600/30">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-white">Excluir Mesa?</h3>
+                <p className="text-xs text-stone-400">
+                  {tableToDelete.label} ({tableToDelete.capacity} lugares)
+                </p>
+              </div>
+            </div>
+
+            <p className="text-xs text-stone-300">
+              Tem certeza que deseja remover esta mesa do salão? Ação exclusiva do administrador.
+            </p>
+
+            <div className="flex justify-end gap-2.5 pt-2 border-t border-stone-800">
+              <button
+                type="button"
+                onClick={() => setTableToDelete(null)}
+                className="px-4 py-2 rounded-xl bg-stone-800 text-stone-300 font-semibold cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDeleteTable}
+                className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold cursor-pointer"
+              >
+                Confirmar Exclusão
+              </button>
+            </div>
           </div>
         </div>
       )}

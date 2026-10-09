@@ -9,6 +9,7 @@ import { DailyMonitoringTab } from './components/admin/DailyMonitoringTab';
 import { CashFlowTab } from './components/admin/CashFlowTab';
 import { AutomationsTab } from './components/admin/AutomationsTab';
 import { ReportsTab } from './components/admin/ReportsTab';
+import { DailyBuySellTab } from './components/admin/DailyBuySellTab';
 import { UserRole } from './types';
 import {
   Flame,
@@ -38,6 +39,8 @@ import {
   ShieldAlert,
   Calendar,
   Sparkles,
+  ShoppingCart,
+  FileText,
 } from 'lucide-react';
 
 export type NavItemKey =
@@ -47,6 +50,7 @@ export type NavItemKey =
   | 'CASHIER'
   | 'KITCHEN'
   | 'MENU'
+  | 'BUY_SELL'
   | 'EMPLOYEES'
   | 'CASH_FLOW'
   | 'REPORTS'
@@ -74,17 +78,11 @@ export const App: React.FC = () => {
   const [selectedPeriod, setSelectedPeriod] = useState<'HOJE' | 'ONTEM' | '7D' | '30D' | 'MES'>('HOJE');
   const [showNotifications, setShowNotifications] = useState<boolean>(false);
 
-  // Sync initial nav with current user role
+  // Sync initial nav with current user role and enforce admin role guard
   useEffect(() => {
     if (currentUser) {
-      if (currentUser.role === 'GARCOM') {
+      if (currentUser.role !== 'ADMIN') {
         setActiveNav('TABLES');
-      } else if (currentUser.role === 'CAIXA') {
-        setActiveNav('CASHIER');
-      } else if (currentUser.role === 'COZINHA') {
-        setActiveNav('KITCHEN');
-      } else if (currentUser.role === 'ADMIN') {
-        setActiveNav('DASHBOARD');
       }
     }
   }, [currentUser?.role]);
@@ -115,7 +113,9 @@ export const App: React.FC = () => {
     }
   };
 
-  // Nav Groups configuration
+  const isAdmin = currentUser.role === 'ADMIN';
+
+  // Nav Groups configuration based on user role (Admin vs Garçom)
   const navGroups: Array<{
     title: string;
     items: Array<{
@@ -126,91 +126,104 @@ export const App: React.FC = () => {
       badgeColor?: string;
       roleRestriction?: UserRole[];
     }>;
-  }> = [
-    {
-      title: 'DASHBOARD & VENDAS',
-      items: [
+  }> = isAdmin
+    ? [
         {
-          key: 'DASHBOARD',
-          label: 'Visão Geral Executiva',
-          icon: LayoutDashboard,
+          title: 'DASHBOARD & VENDAS',
+          items: [
+            {
+              key: 'DASHBOARD',
+              label: 'Visão Geral Executiva',
+              icon: LayoutDashboard,
+            },
+            {
+              key: 'LIVE_SALES',
+              label: 'Vendas em Tempo Real',
+              icon: Radio,
+              badge: 'LIVE',
+              badgeColor: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
+            },
+          ],
         },
         {
-          key: 'LIVE_SALES',
-          label: 'Vendas em Tempo Real',
-          icon: Radio,
-          badge: 'LIVE',
-          badgeColor: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
-        },
-      ],
-    },
-    {
-      title: 'OPERAÇÕES DE SALÃO',
-      items: [
-        {
-          key: 'TABLES',
-          label: 'Salão & Mesas',
-          icon: UtensilsCrossed,
-          badge: occupiedTablesCount > 0 ? `${occupiedTablesCount}/${tables.length}` : undefined,
-          badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
+          title: 'OPERAÇÕES DE SALÃO',
+          items: [
+            {
+              key: 'TABLES',
+              label: 'Salão & Mesas',
+              icon: UtensilsCrossed,
+              badge: occupiedTablesCount > 0 ? `${occupiedTablesCount}/${tables.length}` : undefined,
+              badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
+            },
+            {
+              key: 'CASHIER',
+              label: 'Frente de Caixa (PDV)',
+              icon: Wallet,
+            },
+          ],
         },
         {
-          key: 'CASHIER',
-          label: 'Frente de Caixa (PDV)',
-          icon: Wallet,
+          title: 'PRODUTOS & DOCUMENTOS',
+          items: [
+            {
+              key: 'MENU',
+              label: 'Produtos',
+              icon: BookOpen,
+            },
+            {
+              key: 'BUY_SELL',
+              label: 'Relatório Diário (PDF)',
+              icon: FileText,
+            },
+          ],
         },
         {
-          key: 'KITCHEN',
-          label: 'Cozinha & KDS',
-          icon: ChefHat,
-          badge: pendingKitchenOrdersCount > 0 ? pendingKitchenOrdersCount : undefined,
-          badgeColor: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
-        },
-      ],
-    },
-    {
-      title: 'GESTÃO & BI',
-      items: [
-        {
-          key: 'MENU',
-          label: 'Cardápio & Cortes',
-          icon: BookOpen,
+          title: 'GESTÃO & BI',
+          items: [
+            {
+              key: 'CASH_FLOW',
+              label: 'Fluxo de Caixa & DRE',
+              icon: DollarSign,
+            },
+            {
+              key: 'REPORTS',
+              label: 'Relatórios & Inteligência',
+              icon: FileSpreadsheet,
+            },
+          ],
         },
         {
-          key: 'EMPLOYEES',
-          label: 'Brigada & Funcionários',
-          icon: Users,
+          title: 'SISTEMA & CONFIGURAÇÃO',
+          items: [
+            {
+              key: 'AUTOMATIONS',
+              label: 'Automações & Alertas',
+              icon: Zap,
+              badge: totalAlertsCount > 0 ? totalAlertsCount : undefined,
+              badgeColor: 'bg-red-500/20 text-red-400 border-red-500/30',
+            },
+            {
+              key: 'SETTINGS',
+              label: 'Configurações & SQL',
+              icon: Settings,
+            },
+          ],
         },
+      ]
+    : [
         {
-          key: 'CASH_FLOW',
-          label: 'Fluxo de Caixa & DRE',
-          icon: DollarSign,
+          title: 'ATENDIMENTO DE SALÃO',
+          items: [
+            {
+              key: 'TABLES',
+              label: 'Salão & Mesas (Anotar Pedidos)',
+              icon: UtensilsCrossed,
+              badge: occupiedTablesCount > 0 ? `${occupiedTablesCount}/${tables.length}` : undefined,
+              badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
+            },
+          ],
         },
-        {
-          key: 'REPORTS',
-          label: 'Relatórios & Inteligência',
-          icon: FileSpreadsheet,
-        },
-      ],
-    },
-    {
-      title: 'SISTEMA & CONFIGURAÇÃO',
-      items: [
-        {
-          key: 'AUTOMATIONS',
-          label: 'Automações & Alertas',
-          icon: Zap,
-          badge: totalAlertsCount > 0 ? totalAlertsCount : undefined,
-          badgeColor: 'bg-red-500/20 text-red-400 border-red-500/30',
-        },
-        {
-          key: 'SETTINGS',
-          label: 'Configurações & SQL',
-          icon: Settings,
-        },
-      ],
-    },
-  ];
+      ];
 
   const getBreadcrumbTitle = () => {
     switch (activeNav) {
@@ -219,13 +232,15 @@ export const App: React.FC = () => {
       case 'LIVE_SALES':
         return 'Dashboard / Vendas em Tempo Real';
       case 'TABLES':
-        return 'Operações / Salão & Mapa de Mesas';
+        return 'Operações / Salão & Anotação de Pedidos';
       case 'CASHIER':
         return 'Operações / Frente de Caixa & PDV';
       case 'KITCHEN':
         return 'Operações / Cozinha & KDS Parrilla';
       case 'MENU':
-        return 'Gestão / Cardápio & Cortes Nobres';
+        return 'Gestão / Cadastro de Produtos';
+      case 'BUY_SELL':
+        return 'Gestão / Relatório Diário Oficial (PDF)';
       case 'EMPLOYEES':
         return 'Gestão / Cadastro de Funcionários';
       case 'CASH_FLOW':
@@ -459,36 +474,42 @@ export const App: React.FC = () => {
                 ))}
               </div>
 
-              {/* Quick Role Switcher Pills (Admin, Caixa, Garçom, Cozinha) */}
-              <div className="flex items-center bg-[#101627] p-1 rounded-xl border border-[#1E2638] text-xs">
-                {(
-                  [
-                    { role: 'ADMIN', label: 'Admin', icon: ShieldCheck },
-                    { role: 'CAIXA', label: 'Caixa', icon: Wallet },
-                    { role: 'GARCOM', label: 'Garçom', icon: UtensilsCrossed },
-                    { role: 'COZINHA', label: 'KDS', icon: ChefHat },
-                  ] as const
-                ).map((r) => {
-                  const isCurrent = currentUser.role === r.role;
-                  const Icon = r.icon;
+              {/* Quick Role Switcher Pills (Apenas Visível para o Administrador) */}
+              {isAdmin ? (
+                <div className="flex items-center bg-[#101627] p-1 rounded-xl border border-[#1E2638] text-xs">
+                  {(
+                    [
+                      { role: 'ADMIN', label: 'Admin', icon: ShieldCheck },
+                      { role: 'CAIXA', label: 'Caixa', icon: Wallet },
+                      { role: 'GARCOM', label: 'Garçom', icon: UtensilsCrossed },
+                    ] as const
+                  ).map((r) => {
+                    const isCurrent = currentUser.role === r.role;
+                    const Icon = r.icon;
 
-                  return (
-                    <button
-                      key={r.role}
-                      onClick={() => handleSelectRole(r.role)}
-                      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-bold text-[11px] transition cursor-pointer ${
-                        isCurrent
-                          ? 'bg-amber-600 text-white shadow-sm'
-                          : 'text-stone-400 hover:text-stone-200'
-                      }`}
-                      title={`Alternar para perfil de ${r.label}`}
-                    >
-                      <Icon className="w-3 h-3" />
-                      <span className="hidden sm:inline">{r.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
+                    return (
+                      <button
+                        key={r.role}
+                        onClick={() => handleSelectRole(r.role)}
+                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-bold text-[11px] transition cursor-pointer ${
+                          isCurrent
+                            ? 'bg-amber-600 text-white shadow-sm'
+                            : 'text-stone-400 hover:text-stone-200'
+                        }`}
+                        title={`Alternar para perfil de ${r.label}`}
+                      >
+                        <Icon className="w-3 h-3" />
+                        <span className="hidden sm:inline">{r.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold">
+                  <UtensilsCrossed className="w-3.5 h-3.5" />
+                  <span>Terminal do Garçom</span>
+                </div>
+              )}
 
               {/* Notification Bell with Badge */}
               <div className="relative">
@@ -557,6 +578,7 @@ export const App: React.FC = () => {
             {activeNav === 'CASHIER' && <CashierDashboard />}
             {activeNav === 'KITCHEN' && <KitchenKdsDashboard />}
             {activeNav === 'MENU' && <AdminDashboard initialTab="MENU" hideTabBar />}
+            {activeNav === 'BUY_SELL' && <DailyBuySellTab />}
             {activeNav === 'EMPLOYEES' && <AdminDashboard initialTab="EMPLOYEES" hideTabBar />}
             {activeNav === 'CASH_FLOW' && <CashFlowTab />}
             {activeNav === 'REPORTS' && <ReportsTab />}
