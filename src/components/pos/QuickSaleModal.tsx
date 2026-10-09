@@ -499,8 +499,8 @@ export const QuickSaleModal: React.FC<QuickSaleModalProps> = ({ onClose }) => {
                     [
                       { id: 'PIX', label: 'PIX', icon: QrCode, color: 'text-teal-400' },
                       { id: 'DINHEIRO', label: 'Dinheiro', icon: DollarSign, color: 'text-emerald-400' },
-                      { id: 'CARTAO_DEBITO', label: 'Débito', icon: CreditCard, color: 'text-blue-400' },
-                      { id: 'CARTAO_CREDITO', label: 'Crédito', icon: CreditCard, color: 'text-purple-400' },
+                      { id: 'DEBITO', label: 'Débito', icon: CreditCard, color: 'text-blue-400' },
+                      { id: 'CREDITO', label: 'Crédito', icon: CreditCard, color: 'text-purple-400' },
                     ] as const
                   ).map((m) => {
                     const Icon = m.icon;

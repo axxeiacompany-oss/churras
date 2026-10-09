@@ -136,13 +136,6 @@ export const App: React.FC = () => {
               label: 'Visão Geral Executiva',
               icon: LayoutDashboard,
             },
-            {
-              key: 'LIVE_SALES',
-              label: 'Vendas em Tempo Real',
-              icon: Radio,
-              badge: 'LIVE',
-              badgeColor: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
-            },
           ],
         },
         {
@@ -157,7 +150,7 @@ export const App: React.FC = () => {
             },
             {
               key: 'CASHIER',
-              label: 'Frente de Caixa (PDV)',
+              label: 'Frente de Caixa',
               icon: Wallet,
             },
           ],
@@ -196,15 +189,15 @@ export const App: React.FC = () => {
           title: 'SISTEMA & CONFIGURAÇÃO',
           items: [
             {
-              key: 'AUTOMATIONS',
-              label: 'Automações & Alertas',
-              icon: Zap,
-              badge: totalAlertsCount > 0 ? totalAlertsCount : undefined,
-              badgeColor: 'bg-red-500/20 text-red-400 border-red-500/30',
+              key: 'EMPLOYEES',
+              label: 'Funcionários & Equipe',
+              icon: Users,
+              badge: employees.length,
+              badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
             },
             {
               key: 'SETTINGS',
-              label: 'Configurações & SQL',
+              label: 'Configurações & Admin',
               icon: Settings,
             },
           ],
@@ -229,12 +222,10 @@ export const App: React.FC = () => {
     switch (activeNav) {
       case 'DASHBOARD':
         return 'Dashboard / Visão Geral de Vendas';
-      case 'LIVE_SALES':
-        return 'Dashboard / Vendas em Tempo Real';
       case 'TABLES':
         return 'Operações / Salão & Anotação de Pedidos';
       case 'CASHIER':
-        return 'Operações / Frente de Caixa & PDV';
+        return 'Operações / Frente de Caixa';
       case 'KITCHEN':
         return 'Operações / Cozinha & KDS Parrilla';
       case 'MENU':
@@ -247,10 +238,8 @@ export const App: React.FC = () => {
         return 'Financeiro / Fluxo de Caixa & DRE';
       case 'REPORTS':
         return 'Inteligência / Relatórios & BI';
-      case 'AUTOMATIONS':
-        return 'Sistema / Automações & Alertas';
       case 'SETTINGS':
-        return 'Sistema / Configurações & Script SQL';
+        return 'Sistema / Configurações';
       default:
         return 'Dashboard';
     }

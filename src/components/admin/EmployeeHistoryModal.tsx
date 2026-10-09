@@ -95,9 +95,6 @@ export const EmployeeHistoryModal: React.FC<EmployeeHistoryModalProps> = ({
                   <Calendar className="w-3.5 h-3.5 text-stone-500" /> Admissão:{' '}
                   {employee.admissionDate ? new Date(employee.admissionDate + 'T00:00:00').toLocaleDateString('pt-BR') : 'Não informada'}
                 </span>
-                <span className="flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5 text-stone-500" /> Turno: {employee.shift}
-                </span>
               </div>
             </div>
           </div>

@@ -174,6 +174,14 @@ export interface AuditLogEntry {
   amountImpact?: number;
 }
 
+export interface EmployeePermissions {
+  canCancelOrders: boolean;
+  canApplyDiscounts: boolean;
+  canCloseBills: boolean;
+  canAddStock: boolean;
+  canManageTables: boolean;
+}
+
 export interface Employee {
   id: string;
   name: string;
@@ -191,6 +199,7 @@ export interface Employee {
   pin: string;
   avatar?: string;
   colorTag?: string;
+  permissions?: EmployeePermissions;
 }
 
 export interface RecipeIngredient {

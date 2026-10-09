@@ -270,9 +270,9 @@ export const CashFlowTab: React.FC = () => {
       'SANGRIA',
       amt,
       'DINHEIRO',
-      quickDesc.trim() || 'Sangria de segurança para o cofre central'
+      quickDesc.trim() || 'Retirada / Saída de Caixa'
     );
-    showToast(`Sangria de ${formatCurrency(amt)} registrada!`, 'success');
+    showToast(`Saída de Caixa de ${formatCurrency(amt)} registrada!`, 'success');
     setShowSangriaModal(false);
     setQuickAmount('');
     setQuickDesc('');
@@ -287,9 +287,9 @@ export const CashFlowTab: React.FC = () => {
       'SUPRIMENTO',
       amt,
       'DINHEIRO',
-      quickDesc.trim() || 'Suprimento de troco para a gaveta'
+      quickDesc.trim() || 'Aporte / Entrada de Caixa'
     );
-    showToast(`Suprimento de ${formatCurrency(amt)} adicionado ao caixa!`, 'success');
+    showToast(`Entrada de Caixa de ${formatCurrency(amt)} adicionada!`, 'success');
     setShowSuprimentoModal(false);
     setQuickAmount('');
     setQuickDesc('');
@@ -345,7 +345,7 @@ export const CashFlowTab: React.FC = () => {
       'Forma de Pagamento',
       'Operador',
       'Comanda Ref.',
-      'Valor (R$)',
+      'Valor (₲)',
     ];
 
     const rows = cashSession.movements.map((m) => [
@@ -404,8 +404,8 @@ export const CashFlowTab: React.FC = () => {
               onClick={() => setShowSuprimentoModal(true)}
               className="px-3 py-2 bg-stone-800 hover:bg-stone-700 text-stone-200 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
             >
-              <ArrowDownRight className="w-3.5 h-3.5 text-blue-400" />
-              Suprimento (+)
+              <ArrowDownRight className="w-3.5 h-3.5 text-emerald-400" />
+              Registrar Entrada (+)
             </button>
 
             <button
@@ -413,7 +413,7 @@ export const CashFlowTab: React.FC = () => {
               className="px-3 py-2 bg-stone-800 hover:bg-stone-700 text-stone-200 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
             >
               <ArrowUpRight className="w-3.5 h-3.5 text-red-400" />
-              Sangria (-)
+              Registrar Saída (-)
             </button>
 
             <button
@@ -422,15 +422,6 @@ export const CashFlowTab: React.FC = () => {
             >
               <Scale className="w-3.5 h-3.5 text-amber-400" />
               Conferir / Fechar Caixa
-            </button>
-
-            <button
-              onClick={() => processMonthlyCommissions('Outubro/2026')}
-              className="px-3 py-2 bg-indigo-950/40 hover:bg-indigo-900/60 border border-indigo-800 text-indigo-300 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
-              title="Apurar comissões de todos os garçons e lançar saída no caixa"
-            >
-              <Percent className="w-3.5 h-3.5" />
-              Apurar Comissões
             </button>
 
             <button
@@ -471,7 +462,7 @@ export const CashFlowTab: React.FC = () => {
               {formatCurrency(ledgerMetrics.totalEntries)}
             </div>
             <div className="text-[10px] text-stone-500 mt-1">
-              Vendas + Suprimentos recebidos
+              Vendas + Entradas em caixa
             </div>
           </div>
 
@@ -482,7 +473,7 @@ export const CashFlowTab: React.FC = () => {
               {formatCurrency(ledgerMetrics.totalExits)}
             </div>
             <div className="text-[10px] text-stone-500 mt-1">
-              Despesas + Sangrias + Estornos
+              Despesas + Retiradas + Estornos
             </div>
           </div>
 
@@ -591,8 +582,8 @@ export const CashFlowTab: React.FC = () => {
                 <option value="ALL">Todos os Tipos</option>
                 <option value="VENDA">Vendas (Entrada)</option>
                 <option value="DESPESA">Despesas (Saída)</option>
-                <option value="SANGRIA">Sangrias (-)</option>
-                <option value="SUPRIMENTO">Suprimentos (+)</option>
+                <option value="SANGRIA">Saídas de Caixa (-)</option>
+                <option value="SUPRIMENTO">Entradas de Caixa (+)</option>
                 <option value="ESTORNO">Estornos (-)</option>
                 <option value="REPASSE_GORJETA">Repasse Gorjeta</option>
                 <option value="COMISSAO">Comissões Garçom</option>
@@ -666,7 +657,11 @@ export const CashFlowTab: React.FC = () => {
                           </td>
                           <td className="py-3 px-3 whitespace-nowrap">
                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${typeColor}`}>
-                              {m.type}
+                              {m.type === 'SANGRIA'
+                                ? 'SAÍDA DE CAIXA'
+                                : m.type === 'SUPRIMENTO'
+                                ? 'ENTRADA DE CAIXA'
+                                : m.type}
                             </span>
                           </td>
                           <td className="py-3 px-3">
@@ -1004,7 +999,7 @@ export const CashFlowTab: React.FC = () => {
                       }`}
                     >
                       {c.discrepancy === 0
-                        ? 'R$ 0,00'
+                        ? '₲ 0'
                         : `${c.discrepancy > 0 ? '+' : ''}${formatCurrency(c.discrepancy)}`}
                     </td>
                     <td className="py-3 px-3 text-center">
@@ -1129,12 +1124,12 @@ export const CashFlowTab: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-stone-300 font-semibold mb-1">Valor (R$) *</label>
+                  <label className="block text-stone-300 font-semibold mb-1">Valor (₲) *</label>
                   <input
                     type="number"
-                    step="0.01"
+                    step="1000"
                     required
-                    placeholder="0,00"
+                    placeholder="0"
                     value={expAmount}
                     onChange={(e) => setExpAmount(e.target.value)}
                     className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-stone-100 focus:outline-none focus:border-amber-500"
@@ -1234,19 +1229,19 @@ export const CashFlowTab: React.FC = () => {
         </div>
       )}
 
-      {/* Modal: Sangria */}
+      {/* Modal: Saída de Caixa */}
       {showSangriaModal && (
         <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
           <div className="bg-stone-900 border border-stone-700 rounded-2xl max-w-sm w-full p-5 space-y-4">
-            <h3 className="font-bold text-stone-100 text-sm">Registrar Sangria (Retirada de Dinheiro)</h3>
+            <h3 className="font-bold text-stone-100 text-sm">Registrar Saída de Caixa (Retirada)</h3>
             <form onSubmit={handleConfirmSangria} className="space-y-3 text-xs">
               <div>
-                <label className="block text-stone-300 font-semibold mb-1">Valor em Dinheiro (R$)</label>
+                <label className="block text-stone-300 font-semibold mb-1">Valor em Guaraníes (₲)</label>
                 <input
                   type="number"
-                  step="5"
+                  step="1000"
                   required
-                  placeholder="0,00"
+                  placeholder="Ex: 50000"
                   value={quickAmount}
                   onChange={(e) => setQuickAmount(e.target.value)}
                   className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-stone-100"
@@ -1256,7 +1251,7 @@ export const CashFlowTab: React.FC = () => {
                 <label className="block text-stone-300 font-semibold mb-1">Motivo / Destino</label>
                 <input
                   type="text"
-                  placeholder="Ex: Envio ao cofre central"
+                  placeholder="Ex: Retirada para o cofre ou pagamento rápido"
                   value={quickDesc}
                   onChange={(e) => setQuickDesc(e.target.value)}
                   className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-stone-100"
@@ -1274,7 +1269,7 @@ export const CashFlowTab: React.FC = () => {
                   type="submit"
                   className="flex-1 py-2 bg-red-600 hover:bg-red-500 text-white rounded-xl font-bold"
                 >
-                  Confirmar Sangria
+                  Confirmar Saída
                 </button>
               </div>
             </form>
@@ -1282,19 +1277,19 @@ export const CashFlowTab: React.FC = () => {
         </div>
       )}
 
-      {/* Modal: Suprimento */}
+      {/* Modal: Entrada de Caixa */}
       {showSuprimentoModal && (
         <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
           <div className="bg-stone-900 border border-stone-700 rounded-2xl max-w-sm w-full p-5 space-y-4">
-            <h3 className="font-bold text-stone-100 text-sm">Registrar Suprimento (Entrada de Troco)</h3>
+            <h3 className="font-bold text-stone-100 text-sm">Registrar Entrada de Caixa (Aporte / Troco)</h3>
             <form onSubmit={handleConfirmSuprimento} className="space-y-3 text-xs">
               <div>
-                <label className="block text-stone-300 font-semibold mb-1">Valor em Dinheiro (R$)</label>
+                <label className="block text-stone-300 font-semibold mb-1">Valor em Guaraníes (₲)</label>
                 <input
                   type="number"
-                  step="5"
+                  step="1000"
                   required
-                  placeholder="0,00"
+                  placeholder="Ex: 100000"
                   value={quickAmount}
                   onChange={(e) => setQuickAmount(e.target.value)}
                   className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-stone-100"
@@ -1304,7 +1299,7 @@ export const CashFlowTab: React.FC = () => {
                 <label className="block text-stone-300 font-semibold mb-1">Descrição</label>
                 <input
                   type="text"
-                  placeholder="Ex: Reforço de moedas e notas de 10"
+                  placeholder="Ex: Entrada de troco ou aporte no caixa"
                   value={quickDesc}
                   onChange={(e) => setQuickDesc(e.target.value)}
                   className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-stone-100"
@@ -1320,9 +1315,9 @@ export const CashFlowTab: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold"
+                  className="flex-1 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold"
                 >
-                  Confirmar Suprimento
+                  Confirmar Entrada
                 </button>
               </div>
             </form>
@@ -1384,13 +1379,13 @@ export const CashFlowTab: React.FC = () => {
 
                 <div>
                   <label className="block text-stone-300 font-semibold mb-1">
-                    Valor Contado em Dinheiro Vivo (R$) *
+                    Valor Contado em Dinheiro Vivo (₲) *
                   </label>
                   <input
                     type="number"
-                    step="0.01"
+                    step="1000"
                     required
-                    placeholder="0,00"
+                    placeholder="0"
                     value={countedCashInput}
                     onChange={(e) => setCountedCashInput(e.target.value)}
                     className="w-full bg-stone-900 border border-amber-500 rounded-xl px-3 py-2 text-stone-100 font-mono text-sm"
@@ -1648,12 +1643,12 @@ export const CashFlowTab: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-stone-300 font-semibold mb-1">Valor do Repasse (R$) *</label>
+                <label className="block text-stone-300 font-semibold mb-1">Valor do Repasse (₲) *</label>
                 <input
                   type="number"
-                  step="0.01"
+                  step="1000"
                   required
-                  placeholder="0,00"
+                  placeholder="0"
                   value={tipsDistAmount}
                   onChange={(e) => setTipsDistAmount(e.target.value)}
                   className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-stone-100"

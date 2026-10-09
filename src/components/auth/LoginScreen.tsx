@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 
 export const LoginScreen: React.FC = () => {
-  const { loginWithEmail, loginWithPin, employees } = useChurras();
+  const { loginWithEmail, loginStaffWithGmail, employees } = useChurras();
 
   // Primary separation: ADMIN vs FUNCIONÁRIO
   const [loginType, setLoginType] = useState<'ADMIN' | 'FUNCIONARIO'>('ADMIN');
@@ -24,12 +24,14 @@ export const LoginScreen: React.FC = () => {
   const [adminPassword, setAdminPassword] = useState<string>('admin');
   const [showAdminPassword, setShowAdminPassword] = useState<boolean>(false);
 
-  // Funcionário / Garçom PIN state
-  const [selectedStaffId, setSelectedStaffId] = useState<string>(() => {
-    const waiter = employees.find((e) => e.role === 'GARCOM' && e.active);
-    return waiter ? waiter.id : employees[0]?.id || '';
-  });
-  const [staffPinDigits, setStaffPinDigits] = useState<string>('');
+  // Funcionário Nome + Gmail + Senha state
+  const activeStaff = employees.filter((e) => e.active);
+  const defaultWaiter = activeStaff.find((e) => e.role !== 'ADMIN') || activeStaff[0];
+
+  const [staffName, setStaffName] = useState<string>(defaultWaiter?.name || '');
+  const [staffEmail, setStaffEmail] = useState<string>(defaultWaiter?.email || '');
+  const [staffPassword, setStaffPassword] = useState<string>(defaultWaiter?.password || 'garcom');
+  const [showStaffPassword, setShowStaffPassword] = useState<boolean>(false);
 
   // Error state
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -44,49 +46,35 @@ export const LoginScreen: React.FC = () => {
     }
   };
 
-  // Handle Waiter PIN Submit
-  const handleStaffPinInput = (digit: string) => {
+  // Handle Funcionário Nome + Gmail + Senha Submit
+  const handleStaffSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     setErrorMessage(null);
-    if (staffPinDigits.length < 4) {
-      const nextPin = staffPinDigits + digit;
-      setStaffPinDigits(nextPin);
-      if (nextPin.length === 4) {
-        setTimeout(() => {
-          const res = loginWithPin(nextPin);
-          if (!res.success) {
-            setErrorMessage(res.error || 'PIN de funcionário incorreto.');
-            setStaffPinDigits('');
-          }
-        }, 120);
-      }
+    if (!staffName.trim() || !staffEmail.trim() || !staffPassword.trim()) {
+      setErrorMessage('Informe seu Nome, Gmail e Senha para acessar o sistema.');
+      return;
+    }
+    const res = loginStaffWithGmail(staffEmail, staffName, staffPassword);
+    if (!res.success) {
+      setErrorMessage(res.error || 'Credenciais de funcionário inválidas.');
     }
   };
 
-  const handleStaffBackspace = () => {
-    setErrorMessage(null);
-    setStaffPinDigits((prev) => prev.slice(0, -1));
-  };
-
-  const handleStaffClear = () => {
-    setErrorMessage(null);
-    setStaffPinDigits('');
-  };
-
-  const handleSelectStaff = (empId: string, empPin: string) => {
-    setSelectedStaffId(empId);
-    setStaffPinDigits(empPin);
+  const handleSelectQuickStaff = (empName: string, empEmail: string, empPass?: string) => {
+    setStaffName(empName);
+    setStaffEmail(empEmail);
+    setStaffPassword(empPass || '123456');
     setErrorMessage(null);
     setTimeout(() => {
-      const res = loginWithPin(empPin);
+      const res = loginStaffWithGmail(empEmail, empName, empPass || '123456');
       if (!res.success) {
-        setErrorMessage(res.error || 'PIN incorreto.');
-        setStaffPinDigits('');
+        setErrorMessage(res.error || 'Funcionário não encontrado.');
       }
-    }, 120);
+    }, 100);
   };
 
-  const activeWaiters = employees.filter(
-    (e) => e.role === 'GARCOM' && e.active
+  const activeNonAdminStaff = employees.filter(
+    (e) => e.role !== 'ADMIN' && e.active
   );
 
   return (
@@ -141,7 +129,7 @@ export const LoginScreen: React.FC = () => {
               }`}
             >
               <UtensilsCrossed className="w-4 h-4" />
-              <span>Funcionário / Garçom</span>
+              <span>Funcionário</span>
             </button>
           </div>
 
@@ -219,101 +207,119 @@ export const LoginScreen: React.FC = () => {
             </div>
           )}
 
-          {/* 2. MODO FUNCIONÁRIO / GARÇOM */}
+          {/* 2. MODO FUNCIONÁRIO (NOME + GMAIL + SENHA) */}
           {loginType === 'FUNCIONARIO' && (
             <div className="space-y-4">
               <div className="bg-stone-950/70 p-3 rounded-xl border border-stone-800 text-xs text-stone-300 space-y-1">
                 <div className="flex items-center gap-1.5 font-bold text-amber-400">
-                  <UtensilsCrossed className="w-4 h-4" />
-                  <span>Terminal de Salão & Pedidos</span>
+                  <UserCheck className="w-4 h-4" />
+                  <span>Acesso de Funcionário</span>
                 </div>
                 <p className="text-[11px] text-stone-400">
-                  Acesso operacional para garçons: visualização de mesas e lançamento de pedidos.
+                  Informe seu Nome, Gmail e Senha cadastrados pelo administrador para acessar o sistema.
                 </p>
               </div>
 
-              {/* Seleção do Garçom */}
-              <div className="space-y-1.5">
-                <label className="block text-xs font-semibold text-stone-300">
-                  Selecione o Garçom:
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {activeWaiters.map((w) => (
+              <form onSubmit={handleStaffSubmit} className="space-y-3.5">
+                <div>
+                  <label className="block text-xs font-semibold text-stone-300 mb-1">
+                    Nome do Funcionário:
+                  </label>
+                  <div className="relative">
+                    <UserCheck className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
+                    <input
+                      type="text"
+                      required
+                      value={staffName}
+                      onChange={(e) => setStaffName(e.target.value)}
+                      placeholder="Ex: Marcelo"
+                      className="w-full bg-stone-950 border border-stone-700 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-stone-600 focus:outline-none focus:border-amber-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-stone-300 mb-1">
+                    Gmail / E-mail de Acesso:
+                  </label>
+                  <div className="relative">
+                    <Mail className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
+                    <input
+                      type="email"
+                      required
+                      value={staffEmail}
+                      onChange={(e) => setStaffEmail(e.target.value)}
+                      placeholder="funcionario@gmail.com"
+                      className="w-full bg-stone-950 border border-stone-700 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-stone-600 focus:outline-none focus:border-amber-500 font-mono"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-stone-300 mb-1">
+                    Senha de Acesso:
+                  </label>
+                  <div className="relative">
+                    <Lock className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
+                    <input
+                      type={showStaffPassword ? 'text' : 'password'}
+                      required
+                      value={staffPassword}
+                      onChange={(e) => setStaffPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full bg-stone-950 border border-stone-700 rounded-xl pl-9 pr-9 py-2 text-xs text-white placeholder-stone-600 focus:outline-none focus:border-amber-500 font-mono"
+                    />
                     <button
-                      key={w.id}
                       type="button"
-                      onClick={() => handleSelectStaff(w.id, w.pin)}
-                      className={`p-2.5 rounded-xl border text-left transition cursor-pointer ${
-                        selectedStaffId === w.id
-                          ? 'bg-amber-600/20 border-amber-500 text-white shadow-sm'
-                          : 'bg-stone-950 border-stone-800 text-stone-300 hover:border-stone-700'
-                      }`}
+                      onClick={() => setShowStaffPassword(!showStaffPassword)}
+                      className="absolute right-3 top-2.5 text-stone-400 hover:text-stone-200 text-[10px] font-semibold cursor-pointer"
                     >
-                      <div className="font-bold text-xs truncate">{w.name}</div>
-                      <div className="text-[10px] text-amber-400 font-mono mt-0.5">
-                        PIN: {w.pin}
-                      </div>
+                      {showStaffPassword ? 'Ocultar' : 'Ver'}
                     </button>
-                  ))}
+                  </div>
                 </div>
-              </div>
 
-              {/* PIN Indicators */}
-              <div className="text-center space-y-2 pt-1">
-                <p className="text-[11px] text-stone-400">
-                  Ou digite o PIN de 4 dígitos:
-                </p>
-                <div className="flex justify-center gap-3">
-                  {[0, 1, 2, 3].map((idx) => {
-                    const filled = staffPinDigits.length > idx;
-                    return (
-                      <div
-                        key={idx}
-                        className={`w-3.5 h-3.5 rounded-full border-2 transition-all duration-150 ${
-                          filled
-                            ? 'bg-amber-500 border-amber-400 scale-110 shadow-lg shadow-amber-500/50'
-                            : 'bg-stone-800 border-stone-700'
+                <button
+                  type="submit"
+                  className="w-full py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold transition shadow-lg shadow-amber-950/40 flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <UserCheck className="w-4 h-4" />
+                  <span>Entrar no Sistema</span>
+                </button>
+              </form>
+
+              {/* Lista de Funcionários Cadastrados para 1-Clique */}
+              {activeNonAdminStaff.length > 0 && (
+                <div className="space-y-1.5 pt-2 border-t border-stone-800">
+                  <label className="block text-[11px] font-semibold text-stone-400">
+                    Ou selecione seu perfil cadastrado:
+                  </label>
+                  <div className="grid grid-cols-1 gap-2 max-h-40 overflow-y-auto pr-1">
+                    {activeNonAdminStaff.map((w) => (
+                      <button
+                        key={w.id}
+                        type="button"
+                        onClick={() => handleSelectQuickStaff(w.name, w.email, w.password)}
+                        className={`p-2.5 rounded-xl border text-left transition cursor-pointer flex items-center justify-between ${
+                          staffEmail.toLowerCase() === w.email.toLowerCase()
+                            ? 'bg-amber-600/20 border-amber-500 text-white shadow-sm'
+                            : 'bg-stone-950 border-stone-800 text-stone-300 hover:border-stone-700'
                         }`}
-                      />
-                    );
-                  })}
+                      >
+                        <div className="min-w-0">
+                          <div className="font-bold text-xs truncate">{w.name}</div>
+                          <div className="text-[10px] text-amber-400 font-mono truncate">
+                            {w.email}
+                          </div>
+                        </div>
+                        <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded bg-stone-900 text-stone-300 border border-stone-800 shrink-0 ml-2">
+                          {w.role}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-
-              {/* Keypad */}
-              <div className="grid grid-cols-3 gap-2 max-w-[240px] mx-auto pt-1">
-                {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((digit) => (
-                  <button
-                    key={digit}
-                    type="button"
-                    onClick={() => handleStaffPinInput(digit)}
-                    className="h-11 rounded-xl bg-stone-950 hover:bg-stone-800 border border-stone-800/80 text-white font-mono font-bold text-base transition active:scale-95 cursor-pointer shadow-sm"
-                  >
-                    {digit}
-                  </button>
-                ))}
-                <button
-                  type="button"
-                  onClick={handleStaffClear}
-                  className="h-11 rounded-xl bg-stone-950 hover:bg-stone-800 border border-stone-800/80 text-stone-400 text-xs font-semibold transition active:scale-95 cursor-pointer"
-                >
-                  Limpar
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleStaffPinInput('0')}
-                  className="h-11 rounded-xl bg-stone-950 hover:bg-stone-800 border border-stone-800/80 text-white font-mono font-bold text-base transition active:scale-95 cursor-pointer shadow-sm"
-                >
-                  0
-                </button>
-                <button
-                  type="button"
-                  onClick={handleStaffBackspace}
-                  className="h-11 rounded-xl bg-stone-950 hover:bg-stone-800 border border-stone-800/80 text-stone-400 flex items-center justify-center transition active:scale-95 cursor-pointer"
-                >
-                  <Delete className="w-4 h-4" />
-                </button>
-              </div>
+              )}
             </div>
           )}
         </div>
@@ -348,7 +354,7 @@ export const LoginScreen: React.FC = () => {
               onClick={() => {
                 setLoginType('FUNCIONARIO');
                 const waiter = employees.find((e) => e.role === 'GARCOM' && e.active) || employees[0];
-                handleSelectStaff(waiter.id, waiter.pin);
+                handleSelectQuickStaff(waiter.name, waiter.email, waiter.password);
               }}
               className="p-2.5 rounded-xl bg-stone-950 hover:bg-stone-900 border border-stone-800 hover:border-amber-500/50 text-left transition cursor-pointer"
             >
@@ -356,7 +362,7 @@ export const LoginScreen: React.FC = () => {
                 <UtensilsCrossed className="w-3.5 h-3.5 text-amber-500" />
                 <span>Marcelo "Gaúcho"</span>
               </div>
-              <div className="text-[10px] text-stone-400 mt-0.5">GARÇOM (Salão/Pedidos)</div>
+              <div className="text-[10px] text-stone-400 mt-0.5">GARÇOM (Nome + Gmail + Senha)</div>
             </button>
           </div>
         </div>

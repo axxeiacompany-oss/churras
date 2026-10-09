@@ -391,9 +391,6 @@ export const DailyMonitoringTab: React.FC = () => {
               <h2 className="text-lg font-extrabold text-stone-100">
                 Monitoramento Diário & Inteligência de Salão
               </h2>
-              <span className="text-xs text-amber-500 font-bold uppercase tracking-wider">
-                TEMPO REAL
-              </span>
             </div>
             <p className="text-xs text-stone-400 mt-0.5">
               Última atualização às {formatTime(lastRefreshed.toISOString())} · Sincronização
@@ -424,42 +421,6 @@ export const DailyMonitoringTab: React.FC = () => {
                   {tab.label}
                 </button>
               ))}
-            </div>
-
-            {/* Turno Tabs */}
-            <div className="flex items-center bg-stone-950 p-1 rounded-xl border border-stone-800">
-              <button
-                onClick={() => setShiftFilter('TODOS')}
-                className={`px-2.5 py-1.5 text-xs font-semibold rounded-lg transition cursor-pointer ${
-                  shiftFilter === 'TODOS'
-                    ? 'bg-stone-800 text-stone-100'
-                    : 'text-stone-400 hover:text-stone-200'
-                }`}
-              >
-                Todos Turnos
-              </button>
-              <button
-                onClick={() => setShiftFilter('ALMOCO')}
-                className={`px-2.5 py-1.5 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition cursor-pointer ${
-                  shiftFilter === 'ALMOCO'
-                    ? 'bg-amber-600/30 text-amber-300 border border-amber-500/40'
-                    : 'text-stone-400 hover:text-stone-200'
-                }`}
-              >
-                <Sun className="w-3.5 h-3.5 text-amber-400" />
-                Almoço
-              </button>
-              <button
-                onClick={() => setShiftFilter('JANTAR')}
-                className={`px-2.5 py-1.5 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition cursor-pointer ${
-                  shiftFilter === 'JANTAR'
-                    ? 'bg-indigo-600/30 text-indigo-300 border border-indigo-500/40'
-                    : 'text-stone-400 hover:text-stone-200'
-                }`}
-              >
-                <Moon className="w-3.5 h-3.5 text-indigo-400" />
-                Jantar
-              </button>
             </div>
 
             {/* Refresh Button */}
@@ -566,64 +527,8 @@ export const DailyMonitoringTab: React.FC = () => {
         </div>
       </div>
 
-      {/* 3. Comparativos: Almoço x Jantar & Dia Útil x Fim de Semana */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        {/* Comparativo Almoço x Jantar */}
-        <div className="bg-stone-900 border border-stone-800 rounded-2xl p-5 shadow-lg space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Sun className="w-4 h-4 text-amber-500" />
-              <h3 className="font-bold text-stone-100 text-sm">Comparativo: Almoço x Jantar</h3>
-            </div>
-            <span className="text-xs text-stone-400">Histórico Consolidado</span>
-          </div>
-
-          {/* Proportional visual bar */}
-          <div className="space-y-1.5">
-            <div className="flex justify-between text-xs font-semibold">
-              <span className="text-amber-400 flex items-center gap-1">
-                <Sun className="w-3.5 h-3.5" /> Almoço ({shiftComparison.lunchPct}%)
-              </span>
-              <span className="text-indigo-400 flex items-center gap-1">
-                Jantar ({shiftComparison.dinnerPct}%) <Moon className="w-3.5 h-3.5" />
-              </span>
-            </div>
-            <div className="w-full h-3 rounded-full bg-stone-950 overflow-hidden flex">
-              <div
-                className="bg-gradient-to-r from-amber-500 to-amber-600 h-full transition-all duration-500"
-                style={{ width: `${shiftComparison.lunchPct}%` }}
-              />
-              <div
-                className="bg-gradient-to-r from-indigo-600 to-indigo-500 h-full transition-all duration-500"
-                style={{ width: `${shiftComparison.dinnerPct}%` }}
-              />
-            </div>
-          </div>
-
-          {/* Metrics comparison cards */}
-          <div className="grid grid-cols-2 gap-3 pt-2">
-            <div className="p-3 rounded-xl bg-stone-950 border border-amber-500/20 space-y-1">
-              <span className="text-[11px] text-amber-400 font-semibold block">Turno do Almoço</span>
-              <div className="text-base font-bold text-stone-100 font-mono tabular-nums">
-                {formatCurrency(shiftComparison.totalLunch)}
-              </div>
-              <div className="text-[11px] text-stone-400">
-                Ticket Médio: <strong className="text-stone-200">{formatCurrency(shiftComparison.avgTicketLunch)}</strong>
-              </div>
-            </div>
-
-            <div className="p-3 rounded-xl bg-stone-950 border border-indigo-500/20 space-y-1">
-              <span className="text-[11px] text-indigo-400 font-semibold block">Turno do Jantar</span>
-              <div className="text-base font-bold text-stone-100 font-mono tabular-nums">
-                {formatCurrency(shiftComparison.totalDinner)}
-              </div>
-              <div className="text-[11px] text-stone-400">
-                Ticket Médio: <strong className="text-stone-200">{formatCurrency(shiftComparison.avgTicketDinner)}</strong>
-              </div>
-            </div>
-          </div>
-        </div>
-
+      {/* 3. Comparativo: Dia Útil x Fim de Semana */}
+      <div className="grid grid-cols-1 gap-5">
         {/* Comparativo Dia Útil x Fim de Semana */}
         <div className="bg-stone-900 border border-stone-800 rounded-2xl p-5 shadow-lg space-y-4">
           <div className="flex items-center justify-between">

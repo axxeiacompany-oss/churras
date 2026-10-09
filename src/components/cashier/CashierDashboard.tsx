@@ -51,7 +51,7 @@ export const CashierDashboard: React.FC = () => {
   // Cashier modal states
   const [showQuickSale, setShowQuickSale] = useState<boolean>(false);
   const [showOpenModal, setShowOpenModal] = useState<boolean>(false);
-  const [initialCashInput, setInitialCashInput] = useState<string>('400.00');
+  const [initialCashInput, setInitialCashInput] = useState<string>('500000');
 
   const [showMovementModal, setShowMovementModal] = useState<boolean>(false);
   const [movementType, setMovementType] = useState<'SANGRIA' | 'SUPRIMENTO'>('SANGRIA');
@@ -201,10 +201,10 @@ export const CashierDashboard: React.FC = () => {
       movementType,
       amt,
       'DINHEIRO',
-      movementDesc.trim() || (movementType === 'SANGRIA' ? 'Sangria de Caixa' : 'Suprimento de Troco')
+      movementDesc.trim() || (movementType === 'SANGRIA' ? 'Saída de Caixa' : 'Entrada de Caixa')
     );
 
-    showToast(`${movementType === 'SANGRIA' ? 'Sangria' : 'Suprimento'} registrado com sucesso!`, 'success');
+    showToast(`${movementType === 'SANGRIA' ? 'Saída de Caixa' : 'Entrada de Caixa'} registrada com sucesso!`, 'success');
     setShowMovementModal(false);
     setMovementAmount('');
     setMovementDesc('');
@@ -223,7 +223,7 @@ export const CashierDashboard: React.FC = () => {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-xl font-extrabold text-stone-100">Frente de Caixa (PDV)</h2>
+                <h2 className="text-xl font-extrabold text-stone-100">Frente de Caixa</h2>
                 <span
                   className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${
                     isCashierOpen
@@ -252,7 +252,7 @@ export const CashierDashboard: React.FC = () => {
                   className="px-3.5 py-2 bg-stone-800 hover:bg-stone-700 text-stone-200 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5 text-emerald-400" />
-                  Suprimento (+)
+                  Registrar Entrada (+)
                 </button>
                 <button
                   onClick={() => {
@@ -262,7 +262,7 @@ export const CashierDashboard: React.FC = () => {
                   className="px-3.5 py-2 bg-stone-800 hover:bg-stone-700 text-stone-200 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
                 >
                   <Minus className="w-3.5 h-3.5 text-red-400" />
-                  Sangria (-)
+                  Registrar Saída (-)
                 </button>
                 <button
                   onClick={() => {
@@ -303,7 +303,7 @@ export const CashierDashboard: React.FC = () => {
             </span>
           </div>
           <div className="bg-stone-950 border border-stone-800/80 rounded-xl p-3.5">
-            <span className="text-[11px] font-medium text-red-400 block">Sangrias / Retiradas</span>
+            <span className="text-[11px] font-medium text-red-400 block">Saídas de Caixa</span>
             <span className="text-lg font-bold text-red-300 mt-1 block">
               {formatCurrency(metrics.sangrias)}
             </span>
@@ -517,7 +517,7 @@ export const CashierDashboard: React.FC = () => {
           <div className="bg-stone-900 border border-stone-700 rounded-2xl max-w-sm w-full p-5 shadow-2xl">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-base font-bold text-stone-100">
-                {movementType === 'SANGRIA' ? 'Registrar Sangria (Retirada)' : 'Registrar Suprimento (Troco)'}
+                {movementType === 'SANGRIA' ? 'Registrar Saída de Caixa' : 'Registrar Entrada de Caixa'}
               </h3>
               <button onClick={() => setShowMovementModal(false)} className="text-stone-400 hover:text-white">
                 <X className="w-4 h-4" />

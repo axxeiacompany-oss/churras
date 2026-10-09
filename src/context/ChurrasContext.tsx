@@ -71,6 +71,7 @@ interface ChurrasContextType {
 
   // Auth
   loginWithEmail: (email: string, pass: string) => { success: boolean; error?: string };
+  loginStaffWithGmail: (email: string, name?: string, password?: string) => { success: boolean; error?: string };
   loginWithPin: (pin: string) => { success: boolean; error?: string };
   logout: () => void;
   switchUser: (employeeId: string) => void;
@@ -198,7 +199,8 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
 
   const [employees, setEmployees] = useState<Employee[]>(() => {
     const saved = localStorage.getItem('churras_employees');
-    return saved ? JSON.parse(saved) : INITIAL_EMPLOYEES;
+    const parsed: Employee[] = saved ? JSON.parse(saved) : INITIAL_EMPLOYEES;
+    return parsed.filter((e) => e.id !== 'emp-caixa-2' && e.name !== 'Renata Lins');
   });
 
   const [currentUser, setCurrentUser] = useState<Employee | null>(() => {
@@ -369,6 +371,33 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
     return { success: true };
   };
 
+  const loginStaffWithGmail = (email: string, name?: string, password?: string) => {
+    const cleanEmail = email.toLowerCase().trim();
+    const cleanName = (name || '').toLowerCase().trim();
+
+    const found = employees.find((e) => {
+      const emailMatch = e.email.toLowerCase().trim() === cleanEmail;
+      if (!emailMatch) return false;
+      if (cleanName) {
+        return e.name.toLowerCase().includes(cleanName) || cleanName.includes(e.name.toLowerCase().split(' ')[0]);
+      }
+      return true;
+    }) || employees.find((e) => e.email.toLowerCase().trim() === cleanEmail);
+
+    if (!found) {
+      return { success: false, error: 'Funcionário não encontrado com este Gmail/E-mail.' };
+    }
+    if (password !== undefined && found.password && found.password !== password) {
+      return { success: false, error: 'Senha incorreta para este funcionário.' };
+    }
+    if (!found.active) {
+      return { success: false, error: 'Conta de funcionário inativa. Contate o administrador.' };
+    }
+    setCurrentUser(found);
+    showToast(`Olá, ${found.name}! Acesso liberado.`, 'success');
+    return { success: true };
+  };
+
   const loginWithPin = (pin: string) => {
     const found = employees.find((e) => e.pin === pin);
     if (!found) {
@@ -401,11 +430,7 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
       (e) => e.email.toLowerCase() === empData.email.toLowerCase().trim()
     );
     if (emailExists) {
-      return { success: false, error: 'Este e-mail já está cadastrado para outro funcionário.' };
-    }
-    const pinExists = employees.some((e) => e.pin === empData.pin);
-    if (pinExists) {
-      return { success: false, error: 'Este PIN de 4 dígitos já está em uso.' };
+      return { success: false, error: 'Este Gmail/e-mail já está cadastrado para outro funcionário.' };
     }
 
     const newEmp: Employee = {
@@ -1707,6 +1732,7 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
     updateTable,
     deleteTable,
     loginWithEmail,
+    loginStaffWithGmail,
     loginWithPin,
     logout,
     switchUser,

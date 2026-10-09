@@ -142,23 +142,6 @@ export const INITIAL_EMPLOYEES: Employee[] = [
     pin: '5555',
     colorTag: 'red',
   },
-  {
-    id: 'emp-caixa-2',
-    name: 'Renata Lins',
-    email: 'renata@churrascaria.com',
-    password: 'caixa',
-    phone: '+595 987 789-012',
-    cpf: 'C.I. 4.901.234-5',
-    role: 'CAIXA',
-    shift: 'JANTAR',
-    admissionDate: '2024-05-02',
-    baseSalary: 3600000, // ₲ 3.600.000
-    commissionRate: 2,
-    monthlyTarget: 50000000, // ₲ 50.000.000
-    active: false,
-    pin: '7777',
-    colorTag: 'pink',
-  },
 ];
 
 export const INITIAL_MENU_ITEMS: MenuItem[] = [

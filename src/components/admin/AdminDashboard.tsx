@@ -11,6 +11,7 @@ import {
   Comanda,
   RecipeIngredient,
   Table,
+  EmployeePermissions,
 } from '../../types';
 import { formatCurrency, formatTime, getRoleLabel, getPaymentMethodLabel } from '../../utils/format';
 import {
@@ -136,6 +137,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [empFormBaseSalary, setEmpFormBaseSalary] = useState<number>(3200000);
   const [empFormMonthlyTarget, setEmpFormMonthlyTarget] = useState<number>(45000000);
   const [empFormActive, setEmpFormActive] = useState<boolean>(true);
+  const [empFormPermissions, setEmpFormPermissions] = useState<EmployeePermissions>({
+    canCancelOrders: false,
+    canApplyDiscounts: false,
+    canCloseBills: true,
+    canAddStock: false,
+    canManageTables: true,
+  });
   const [empFormError, setEmpFormError] = useState<string | null>(null);
 
   // Employee List Search, Filter & Pagination
@@ -270,6 +278,66 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     })
     .sort((a, b) => b.sales - a.sales);
 
+  const getDefaultPermissionsForRole = (role: UserRole): EmployeePermissions => {
+    if (role === 'ADMIN') {
+      return {
+        canCancelOrders: true,
+        canApplyDiscounts: true,
+        canCloseBills: true,
+        canAddStock: true,
+        canManageTables: true,
+      };
+    }
+    if (role === 'CAIXA') {
+      return {
+        canCancelOrders: true,
+        canApplyDiscounts: true,
+        canCloseBills: true,
+        canAddStock: false,
+        canManageTables: true,
+      };
+    }
+    return {
+      canCancelOrders: settings.allowStaffCancelOrder || false,
+      canApplyDiscounts: settings.allowStaffDiscounts || false,
+      canCloseBills: settings.allowStaffCloseBill || false,
+      canAddStock: settings.allowStaffAddStock || false,
+      canManageTables: settings.allowStaffManageTables !== false,
+    };
+  };
+
+  const getEmployeePermissions = (emp: Employee): EmployeePermissions => {
+    if (emp.role === 'ADMIN') {
+      return {
+        canCancelOrders: true,
+        canApplyDiscounts: true,
+        canCloseBills: true,
+        canAddStock: true,
+        canManageTables: true,
+      };
+    }
+    if (emp.permissions) {
+      return emp.permissions;
+    }
+    return getDefaultPermissionsForRole(emp.role);
+  };
+
+  const handleToggleEmployeePermission = (
+    emp: Employee,
+    permKey: keyof EmployeePermissions
+  ) => {
+    if (emp.role === 'ADMIN') {
+      showToast('Administradores possuem todas as funções liberadas por padrão.', 'info');
+      return;
+    }
+    const currentPerms = getEmployeePermissions(emp);
+    const updatedPerms: EmployeePermissions = {
+      ...currentPerms,
+      [permKey]: !currentPerms[permKey],
+    };
+    updateEmployee(emp.id, { permissions: updatedPerms });
+  };
+
   // Handlers for Employees
   const handleOpenAddEmployee = () => {
     setEditingEmployee(null);
@@ -286,6 +354,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     setEmpFormBaseSalary(3200000);
     setEmpFormMonthlyTarget(45000000);
     setEmpFormActive(true);
+    setEmpFormPermissions(getDefaultPermissionsForRole('GARCOM'));
     setEmpFormError(null);
     setShowEmployeeModal(true);
   };
@@ -305,6 +374,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     setEmpFormBaseSalary(emp.baseSalary || 3200000);
     setEmpFormMonthlyTarget(emp.monthlyTarget || 45000000);
     setEmpFormActive(emp.active);
+    setEmpFormPermissions(getEmployeePermissions(emp));
     setEmpFormError(null);
     setShowEmployeeModal(true);
   };
@@ -313,16 +383,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     e.preventDefault();
     setEmpFormError(null);
 
-    // Validate PIN (must be 4 digits)
-    if (!/^\d{4}$/.test(empFormPin.trim())) {
-      setEmpFormError('O PIN deve conter exatamente 4 dígitos numéricos.');
+    if (!empFormEmail.trim()) {
+      setEmpFormError('Informe o Gmail/e-mail do colaborador.');
       return;
     }
 
-    if (!empFormEmail.trim()) {
-      setEmpFormError('Informe o e-mail do colaborador.');
-      return;
-    }
+    const finalPermissions: EmployeePermissions =
+      empFormRole === 'ADMIN'
+        ? {
+            canCancelOrders: true,
+            canApplyDiscounts: true,
+            canCloseBills: true,
+            canAddStock: true,
+            canManageTables: true,
+          }
+        : empFormPermissions;
 
     if (editingEmployee) {
       updateEmployee(editingEmployee.id, {
@@ -339,6 +414,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         baseSalary: empFormBaseSalary,
         monthlyTarget: empFormMonthlyTarget,
         active: empFormActive,
+        permissions: finalPermissions,
       });
       setShowEmployeeModal(false);
     } else {
@@ -357,6 +433,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         monthlyTarget: empFormMonthlyTarget,
         active: empFormActive,
         colorTag: 'amber',
+        permissions: finalPermissions,
       });
 
       if (!res.success) {
@@ -515,7 +592,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               }`}
             >
               <Users className="w-4 h-4" />
-              <span>Controle de Funcionários ({employees.length})</span>
+              <span>Funcionários & Equipe ({employees.filter((e) => e.role !== 'ADMIN').length})</span>
             </button>
 
             <button
@@ -567,23 +644,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </button>
 
             <button
-              onClick={() => setActiveTab('AUTOMATIONS')}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl whitespace-nowrap transition-all ${
-                activeTab === 'AUTOMATIONS'
-                  ? 'bg-amber-600 text-white shadow-md'
-                  : 'text-stone-400 hover:text-white hover:bg-stone-800'
-              }`}
-            >
-              <Zap className="w-4 h-4 text-amber-400" />
-              <span>Automações & Alertas</span>
-              {alertsCount > 0 && (
-                <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-red-500/20 text-red-400 border border-red-500/40">
-                  {alertsCount}
-                </span>
-              )}
-            </button>
-
-            <button
               onClick={() => setActiveTab('REPORTS')}
               className={`flex items-center gap-2 px-3.5 py-2 rounded-xl whitespace-nowrap transition-all ${
                 activeTab === 'REPORTS'
@@ -615,8 +675,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
       {/* TAB 2: EMPLOYEES */}
       {activeTab === 'EMPLOYEES' && (() => {
-        // Compute filtered employees
-        const filteredEmployees = employees.filter((emp) => {
+        const staffEmployeesOnly = employees.filter((e) => e.role !== 'ADMIN');
+        const adminAccounts = employees.filter((e) => e.role === 'ADMIN');
+
+        // Compute filtered employees (only staff/equipe, excluding ADMIN/Gerente)
+        const filteredEmployees = staffEmployeesOnly.filter((emp) => {
           const q = empSearch.toLowerCase().trim();
           const matchesSearch =
             !q ||
@@ -640,36 +703,69 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         const paginatedEmployees = filteredEmployees.slice(startIndex, startIndex + empItemsPerPage);
 
         return (
-          <div className="space-y-4">
-            {/* Header & Add Button */}
+          <div className="space-y-5">
+            {/* Bloco Separado: Diretoria / Admin & Gerente */}
+            <div className="bg-stone-900/90 border border-amber-500/30 rounded-2xl p-4 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-400 flex items-center justify-center shrink-0">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-extrabold uppercase tracking-wider text-amber-400">
+                      Admin & Gerência (Separado da Equipe)
+                    </span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800/60">
+                      Acesso Total
+                    </span>
+                  </div>
+                  <p className="text-xs text-stone-300 mt-0.5">
+                    {adminAccounts.map((a) => `${a.name} (${a.email})`).join(' • ')}
+                  </p>
+                </div>
+              </div>
+              {adminAccounts[0] && (
+                <div className="flex items-center gap-2 self-start sm:self-auto">
+                  <button
+                    onClick={() => handleOpenResetCredentials(adminAccounts[0])}
+                    className="px-3 py-1.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-amber-300 border border-stone-700 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
+                  >
+                    <KeyRound className="w-3.5 h-3.5" />
+                    <span>Alterar Senha Admin</span>
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Header & Add Button (Somente Funcionários & Equipe) */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div>
                 <h3 className="text-base font-bold text-white flex items-center gap-2">
                   <Users className="w-5 h-5 text-amber-500" />
-                  Cadastro de Funcionários & Equipe ({employees.length})
+                  Funcionários & Equipe Operacional ({staffEmployeesOnly.length})
                 </h3>
                 <p className="text-xs text-stone-400">
-                  Gestão completa de dados cadastrais, remuneração, metas e controle de permissões.
+                  Cadastro exclusivo de funcionários e equipe (Garçons, Operadores de Caixa e Cozinha/Churrasqueiro).
                 </p>
               </div>
               <button
                 onClick={handleOpenAddEmployee}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold transition-all shadow-md active:scale-98"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold transition-all shadow-md active:scale-98 cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
-                <span>+ Novo Funcionário</span>
+                <span>+ Adicionar Funcionário</span>
               </button>
             </div>
 
             {/* Search and Filters Bar */}
             <div className="bg-stone-900 border border-stone-800 rounded-2xl p-3.5 space-y-3">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                 {/* Search Input */}
                 <div className="relative">
                   <Search className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
                   <input
                     type="text"
-                    placeholder="Buscar por nome, e-mail ou C.I...."
+                    placeholder="Buscar funcionário por nome, Gmail ou C.I...."
                     value={empSearch}
                     onChange={(e) => {
                       setEmpSearch(e.target.value);
@@ -679,39 +775,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   />
                 </div>
 
-                {/* Filter by Role */}
+                {/* Filter by Role (Somente Equipe) */}
                 <div className="flex items-center gap-2 bg-stone-950 border border-stone-700/80 rounded-xl px-3 py-1.5 text-xs">
                   <Filter className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
                   <select
-                    value={empRoleFilter}
+                    value={empRoleFilter === 'ADMIN' ? 'ALL' : empRoleFilter}
                     onChange={(e) => {
                       setEmpRoleFilter(e.target.value as UserRole | 'ALL');
                       setEmpCurrentPage(1);
                     }}
                     className="w-full bg-transparent text-stone-200 focus:outline-none text-xs"
                   >
-                    <option value="ALL">Todos os Cargos</option>
-                    <option value="ADMIN">Admin / Gerente</option>
-                    <option value="CAIXA">Caixa</option>
-                    <option value="GARCOM">Garçom</option>
-                  </select>
-                </div>
-
-                {/* Filter by Shift */}
-                <div className="flex items-center gap-2 bg-stone-950 border border-stone-700/80 rounded-xl px-3 py-1.5 text-xs">
-                  <Clock className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
-                  <select
-                    value={empShiftFilter}
-                    onChange={(e) => {
-                      setEmpShiftFilter(e.target.value as ShiftType | 'ALL');
-                      setEmpCurrentPage(1);
-                    }}
-                    className="w-full bg-transparent text-stone-200 focus:outline-none text-xs"
-                  >
-                    <option value="ALL">Todos os Turnos</option>
-                    <option value="ALMOCO">Turno Almoço</option>
-                    <option value="JANTAR">Turno Jantar</option>
-                    <option value="AMBOS">Ambos (Integral)</option>
+                    <option value="ALL">Todas as Funções da Equipe</option>
+                    <option value="GARCOM">Garçom (Salão)</option>
+                    <option value="CAIXA">Operador de Caixa</option>
+                    <option value="COZINHA">Cozinha / Churrasqueiro</option>
                   </select>
                 </div>
 
@@ -793,20 +871,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       {/* Detail Fields Grid */}
                       <div className="p-3 bg-stone-950 rounded-xl border border-stone-800/80 text-xs space-y-1.5">
                         <div className="flex justify-between text-stone-400">
+                          <span>Gmail / E-mail:</span>
+                          <span className="text-amber-300 font-mono text-[11px] font-bold truncate max-w-[170px]">{emp.email}</span>
+                        </div>
+                        <div className="flex justify-between text-stone-400">
                           <span>C.I. / Doc:</span>
                           <span className="text-stone-200 font-mono text-[11px] font-semibold">{emp.cpf || 'Não informado'}</span>
                         </div>
                         <div className="flex justify-between text-stone-400">
-                          <span>E-mail:</span>
-                          <span className="text-stone-200 font-mono text-[11px] truncate max-w-[170px]">{emp.email}</span>
-                        </div>
-                        <div className="flex justify-between text-stone-400">
                           <span>Telefone:</span>
                           <span className="text-stone-200">{emp.phone || 'Não informado'}</span>
-                        </div>
-                        <div className="flex justify-between text-stone-400">
-                          <span>Turno:</span>
-                          <span className="text-stone-200 font-semibold">{emp.shift}</span>
                         </div>
                         <div className="flex justify-between text-stone-400">
                           <span>Admissão:</span>
@@ -819,20 +893,79 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           <span className="text-stone-200 font-mono font-semibold">{formatCurrency(emp.baseSalary || 0)}</span>
                         </div>
                         <div className="flex justify-between text-stone-400">
-                          <span>Comissão:</span>
-                          <span className="text-amber-400 font-mono font-bold">{emp.commissionRate}%</span>
-                        </div>
-                        <div className="flex justify-between text-stone-400">
                           <span>Meta Mensal:</span>
                           <span className="text-emerald-400 font-mono font-semibold">{formatCurrency(emp.monthlyTarget || 0)}</span>
                         </div>
                         <div className="flex justify-between text-stone-400 pt-1 border-t border-stone-900">
-                          <span>PIN de Acesso:</span>
-                          <span className="font-mono text-stone-200 font-bold bg-stone-900 px-2 py-0.5 rounded text-[11px]">
-                            {emp.pin}
+                          <span>Acesso ao Sistema:</span>
+                          <span className="font-mono text-emerald-400 font-bold bg-emerald-950/60 border border-emerald-800/50 px-2 py-0.5 rounded text-[10px]">
+                            Nome + Gmail + Senha
                           </span>
                         </div>
                       </div>
+
+                      {/* Role Selector & Individual Functions in the same card */}
+                      {(() => {
+                        const empPerms = getEmployeePermissions(emp);
+                        const isEmpAdmin = emp.role === 'ADMIN';
+                        return (
+                          <div className="p-3 bg-stone-950 rounded-xl border border-amber-500/25 space-y-2.5 text-xs">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="font-bold text-amber-400 flex items-center gap-1.5 text-[11px] uppercase tracking-wider">
+                                <ShieldCheck className="w-3.5 h-3.5" /> Função Principal:
+                              </span>
+                              <select
+                                value={emp.role}
+                                onChange={(e) => {
+                                  const nextRole = e.target.value as UserRole;
+                                  updateEmployee(emp.id, {
+                                    role: nextRole,
+                                    permissions: getDefaultPermissionsForRole(nextRole),
+                                  });
+                                }}
+                                className="bg-stone-900 border border-stone-700 rounded-lg px-2.5 py-1 text-xs font-bold text-white focus:outline-none focus:border-amber-500 cursor-pointer"
+                              >
+                                <option value="GARCOM">GARÇOM (Salão)</option>
+                                <option value="CAIXA">CAIXA (Operador)</option>
+                                <option value="COZINHA">COZINHA (Churrasqueiro)</option>
+                              </select>
+                            </div>
+
+                            <div className="pt-2 border-t border-stone-800/80 space-y-1.5">
+                              <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">
+                                Funções & Permissões Liberadas para {emp.name.split(' ')[0]}:
+                              </span>
+                              <div className="grid grid-cols-1 gap-1">
+                                {[
+                                  { key: 'canCloseBills' as const, label: 'Fechar e receber contas' },
+                                  { key: 'canManageTables' as const, label: 'Transferir / juntar mesas' },
+                                  { key: 'canCancelOrders' as const, label: 'Cancelar itens / pedidos' },
+                                  { key: 'canApplyDiscounts' as const, label: 'Aplicar descontos' },
+                                  { key: 'canAddStock' as const, label: 'Registrar compras (+Estoque)' },
+                                ].map((permItem) => (
+                                  <label
+                                    key={permItem.key}
+                                    className={`flex items-center justify-between px-2 py-1 rounded-lg border transition ${
+                                      empPerms[permItem.key]
+                                        ? 'bg-emerald-950/30 border-emerald-800/50 text-emerald-300'
+                                        : 'bg-stone-900/60 border-stone-800 text-stone-400'
+                                    } ${isEmpAdmin ? 'opacity-80 cursor-not-allowed' : 'cursor-pointer hover:border-amber-500/40'}`}
+                                  >
+                                    <span className="text-[11px] font-medium">{permItem.label}</span>
+                                    <input
+                                      type="checkbox"
+                                      disabled={isEmpAdmin}
+                                      checked={empPerms[permItem.key]}
+                                      onChange={() => handleToggleEmployeePermission(emp, permItem.key)}
+                                      className="w-3.5 h-3.5 accent-amber-500 rounded cursor-pointer"
+                                    />
+                                  </label>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })()}
 
                       {/* Performance & History Action Button */}
                       <button
@@ -1190,328 +1323,241 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       {/* TAB 5: CASH FLOW & AUDIT */}
       {activeTab === 'CASH_FLOW' && <CashFlowTab />}
 
-      {/* TAB 6: AUTOMATIONS & ALERTS */}
-      {activeTab === 'AUTOMATIONS' && <AutomationsTab />}
-
       {/* TAB 8: RELATÓRIOS & BI */}
       {activeTab === 'REPORTS' && <ReportsTab />}
 
-      {/* TAB 9: RESTAURANT SETTINGS */}
-      {activeTab === 'SETTINGS' && (
-        <div className="bg-stone-900 border border-stone-800 rounded-2xl p-6 shadow-lg max-w-2xl space-y-4">
-          <div>
-            <h3 className="text-base font-bold text-white">Configurações Gerais da Churrascaria</h3>
-            <p className="text-xs text-stone-400">
-              Personalize dados para o cupom não fiscal e parâmetros de cobrança.
-            </p>
-          </div>
+      {/* TAB 9: RESTAURANT SETTINGS & ADMIN CONTROL CENTER */}
+      {activeTab === 'SETTINGS' && (() => {
+        const staffEmployeesOnly = employees.filter((e) => e.role !== 'ADMIN');
+        const adminAccounts = employees.filter((e) => e.role === 'ADMIN');
 
-          <div className="space-y-3 text-xs">
-            <div>
-              <label className="block text-stone-300 font-semibold mb-1">
-                Nome Fantasia do Restaurante:
-              </label>
-              <input
-                type="text"
-                value={settings.name}
-                onChange={(e) => updateSettings({ name: e.target.value })}
-                className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white"
-              />
-            </div>
+        const activeStaffCount = staffEmployeesOnly.filter((e) => e.active).length;
+        const freeTablesCount = tables.filter((t) => t.status === 'LIVRE').length;
 
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-stone-300 font-semibold mb-1">CNPJ:</label>
-                <input
-                  type="text"
-                  value={settings.cnpj}
-                  onChange={(e) => updateSettings({ cnpj: e.target.value })}
-                  className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white"
-                />
-              </div>
-              <div>
-                <label className="block text-stone-300 font-semibold mb-1">Telefone:</label>
-                <input
-                  type="text"
-                  value={settings.phone}
-                  onChange={(e) => updateSettings({ phone: e.target.value })}
-                  className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-stone-300 font-semibold mb-1">Endereço:</label>
-              <input
-                type="text"
-                value={settings.address}
-                onChange={(e) => updateSettings({ address: e.target.value })}
-                className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
-              <div>
-                <label className="block text-stone-300 font-semibold mb-1">
-                  Rodízio Adulto (₲):
-                </label>
-                <input
-                  type="number"
-                  step="1000"
-                  value={settings.rodizioAdultPrice}
-                  onChange={(e) =>
-                    updateSettings({ rodizioAdultPrice: parseFloat(e.target.value) || 0 })
-                  }
-                  className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white font-mono"
-                />
-              </div>
-
-              <div>
-                <label className="block text-stone-300 font-semibold mb-1">
-                  Rodízio Infantil (₲):
-                </label>
-                <input
-                  type="number"
-                  step="1000"
-                  value={settings.rodizioChildPrice}
-                  onChange={(e) =>
-                    updateSettings({ rodizioChildPrice: parseFloat(e.target.value) || 0 })
-                  }
-                  className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white font-mono"
-                />
-              </div>
-
-              <div>
-                <label className="block text-stone-300 font-semibold mb-1">
-                  Rodízio Idoso / 60+ (₲):
-                </label>
-                <input
-                  type="number"
-                  step="1000"
-                  value={settings.rodizioSeniorPrice}
-                  onChange={(e) =>
-                    updateSettings({ rodizioSeniorPrice: parseFloat(e.target.value) || 0 })
-                  }
-                  className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white font-mono"
-                />
-              </div>
-
-              <div>
-                <label className="block text-stone-300 font-semibold mb-1">
-                  Buffet por Quilo (₲/kg):
-                </label>
-                <input
-                  type="number"
-                  step="1000"
-                  value={settings.kiloPrice}
-                  onChange={(e) =>
-                    updateSettings({ kiloPrice: parseFloat(e.target.value) || 0 })
-                  }
-                  className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white font-mono"
-                />
-              </div>
-
-              <div>
-                <label className="block text-stone-300 font-semibold mb-1">
-                  Taxa Serviço (%):
-                </label>
-                <input
-                  type="number"
-                  value={settings.serviceTaxPercentage}
-                  onChange={(e) =>
-                    updateSettings({ serviceTaxPercentage: parseFloat(e.target.value) || 0 })
-                  }
-                  className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white font-mono"
-                />
-              </div>
-            </div>
-
-            {/* SEÇÃO: CONTROLE DE PERMISSÕES DA EQUIPE (EXCLUSIVO DO ADMINISTRADOR) */}
-            <div className="pt-5 border-t border-stone-800 space-y-3">
-              <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                  <ShieldCheck className="w-4 h-4" />
+        return (
+          <div className="space-y-6">
+            {/* 1. Header Executivo do Painel de Administração */}
+            <div className="bg-stone-900 border border-stone-800 rounded-2xl p-5 shadow-xl flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+              <div className="flex items-center gap-3.5">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white shadow-lg shadow-amber-950/40 shrink-0">
+                  <ShieldCheck className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-white">
-                    Permissões de Operações da Equipe
-                  </h4>
-                  <p className="text-[11px] text-stone-400">
-                    Somente o Administrador tem a função de permitir ou restringir operações aos funcionários.
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-2 bg-stone-950 p-3.5 rounded-xl border border-stone-800/80">
-                <label className="flex items-center justify-between p-2 rounded-lg hover:bg-stone-900 transition cursor-pointer">
-                  <div>
-                    <span className="font-semibold text-white block">Permitir Garçom cancelar itens/pedidos</span>
-                    <span className="text-[10px] text-stone-400">Se desativado, apenas o Administrador pode estornar ou cancelar lançamentos</span>
-                  </div>
-                  <input
-                    type="checkbox"
-                    checked={settings.allowStaffCancelOrder || false}
-                    onChange={(e) => updateSettings({ allowStaffCancelOrder: e.target.checked })}
-                    className="w-4 h-4 accent-amber-600 rounded cursor-pointer"
-                  />
-                </label>
-
-                <label className="flex items-center justify-between p-2 rounded-lg hover:bg-stone-900 transition cursor-pointer">
-                  <div>
-                    <span className="font-semibold text-white block">Permitir Garçom aplicar descontos</span>
-                    <span className="text-[10px] text-stone-400">Se desativado, concessão de desconto na conta exige senha de Administrador</span>
-                  </div>
-                  <input
-                    type="checkbox"
-                    checked={settings.allowStaffDiscounts || false}
-                    onChange={(e) => updateSettings({ allowStaffDiscounts: e.target.checked })}
-                    className="w-4 h-4 accent-amber-600 rounded cursor-pointer"
-                  />
-                </label>
-
-                <label className="flex items-center justify-between p-2 rounded-lg hover:bg-stone-900 transition cursor-pointer">
-                  <div>
-                    <span className="font-semibold text-white block">Permitir Garçom fechar e receber contas (PDV)</span>
-                    <span className="text-[10px] text-stone-400">Se desativado, o garçom apenas solicita a conta para quitação no Caixa</span>
-                  </div>
-                  <input
-                    type="checkbox"
-                    checked={settings.allowStaffCloseBill || false}
-                    onChange={(e) => updateSettings({ allowStaffCloseBill: e.target.checked })}
-                    className="w-4 h-4 accent-amber-600 rounded cursor-pointer"
-                  />
-                </label>
-
-                <label className="flex items-center justify-between p-2 rounded-lg hover:bg-stone-900 transition cursor-pointer">
-                  <div>
-                    <span className="font-semibold text-white block">Permitir Funcionário registrar compras de produtos (+Estoque)</span>
-                    <span className="text-[10px] text-stone-400">Se desativado, somente o Administrador pode dar entrada de aquisição</span>
-                  </div>
-                  <input
-                    type="checkbox"
-                    checked={settings.allowStaffAddStock || false}
-                    onChange={(e) => updateSettings({ allowStaffAddStock: e.target.checked })}
-                    className="w-4 h-4 accent-amber-600 rounded cursor-pointer"
-                  />
-                </label>
-
-                <label className="flex items-center justify-between p-2 rounded-lg hover:bg-stone-900 transition cursor-pointer">
-                  <div>
-                    <span className="font-semibold text-white block">Permitir Garçom transferir ou juntar mesas</span>
-                    <span className="text-[10px] text-stone-400">Controle de movimentações de salão e agrupamento de comandas</span>
-                  </div>
-                  <input
-                    type="checkbox"
-                    checked={settings.allowStaffManageTables !== false}
-                    onChange={(e) => updateSettings({ allowStaffManageTables: e.target.checked })}
-                    className="w-4 h-4 accent-amber-600 rounded cursor-pointer"
-                  />
-                </label>
-              </div>
-            </div>
-          </div>
-
-          {/* Seção de Entrega & Banco de Dados (Supabase / SQL) */}
-          <div className="pt-6 border-t border-stone-800 space-y-4">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                  <Database className="w-5 h-5" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                    Banco de Dados & Script SQL (Supabase)
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                      Entrega
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-lg font-extrabold text-white tracking-tight">
+                      Central Administrativa & Configurações
+                    </h2>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 uppercase">
+                      Admin & Gerência
                     </span>
-                  </h4>
-                  <p className="text-xs text-stone-400">
-                    Schema completo com 14 tabelas, triggers inteligentes, RLS de segurança e carga inicial.
+                  </div>
+                  <p className="text-xs text-stone-400 mt-0.5">
+                    Gerencie a conta do Administrador/Gerente, configure as mesas do salão e adicione produtos ao cardápio.
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              {/* Ações Rápidas do Admin (Sem adicionar funcionário aqui) */}
+              <div className="flex flex-wrap items-center gap-2">
                 <button
-                  type="button"
-                  onClick={handleCopySql}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition border ${
-                    copiedSql
-                      ? 'bg-emerald-600 text-white border-emerald-500'
-                      : 'bg-stone-800 hover:bg-stone-700 text-stone-200 border-stone-700'
-                  }`}
-                  title="Copiar SQL completo"
+                  onClick={handleOpenAddTable}
+                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-100 border border-stone-700 text-xs font-semibold transition cursor-pointer"
                 >
-                  {copiedSql ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{copiedSql ? 'Copiado!' : 'Copiar SQL'}</span>
+                  <Plus className="w-3.5 h-3.5 text-amber-400" />
+                  <span>+ Nova Mesa</span>
                 </button>
-
                 <button
-                  type="button"
-                  onClick={handleDownloadSql}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-amber-600 hover:bg-amber-500 text-white transition shadow-sm"
-                  title="Baixar arquivo schema.sql"
+                  onClick={handleOpenAddMenuItem}
+                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-100 border border-stone-700 text-xs font-semibold transition cursor-pointer"
                 >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Baixar .sql</span>
+                  <Plus className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>+ Novo Produto</span>
                 </button>
               </div>
             </div>
 
-            {/* Informações do Administrador Inicial e Credenciais */}
-            <div className="bg-stone-950 border border-stone-800 rounded-xl p-3.5 text-xs space-y-2">
-              <div className="font-bold text-amber-400 flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4" />
-                <span>Credenciais do Administrador Inicial (Entrega):</span>
+            {/* 1.5. CONTA DO GERENTE / ADMIN (SEPARADO DA EQUIPE) */}
+            <div className="bg-stone-900 border border-amber-500/30 rounded-2xl p-5 shadow-xl">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-11 h-11 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-400 flex items-center justify-center font-black text-sm shrink-0">
+                    AD
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-sm font-bold text-white">
+                        Gerente & Administrador (Acesso Geral à Parte)
+                      </h3>
+                      <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-800/60">
+                        Separado da Equipe
+                      </span>
+                    </div>
+                    <p className="text-xs text-stone-400 mt-0.5">
+                      Conta exclusiva da gerência e administração do sistema.
+                    </p>
+                  </div>
+                </div>
+
+                {adminAccounts.map((adminAcc) => (
+                  <div
+                    key={adminAcc.id}
+                    className="flex flex-wrap items-center gap-3 bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-2.5 text-xs"
+                  >
+                    <div>
+                      <div className="font-bold text-white">{adminAcc.name}</div>
+                      <div className="text-[11px] text-amber-400 font-mono">{adminAcc.email}</div>
+                    </div>
+                    <button
+                      onClick={() => handleOpenResetCredentials(adminAcc)}
+                      className="px-3 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-amber-300 border border-stone-700 font-semibold flex items-center gap-1.5 transition cursor-pointer"
+                    >
+                      <KeyRound className="w-3.5 h-3.5" />
+                      <span>Alterar Senha</span>
+                    </button>
+                  </div>
+                ))}
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 font-mono text-[11px] text-stone-300">
-                <div className="bg-stone-900/80 p-2 rounded-lg border border-stone-800">
-                  <span className="text-stone-500 block text-[10px]">E-mail Admin:</span>
-                  <span className="text-amber-300 font-bold">admin@churrascaria.com</span>
+            </div>
+
+            {/* 2. Resumo Rápido de Recursos do Admin */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+              <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4 flex items-center justify-between">
+                <div>
+                  <span className="text-[11px] text-stone-400 font-semibold block">Admin / Gerência</span>
+                  <span className="text-2xl font-black text-amber-400 font-mono mt-0.5 block">
+                    {adminAccounts.length}
+                  </span>
+                  <span className="text-[10px] text-stone-400 font-medium">
+                    gestão separada ({activeStaffCount} na aba Funcionários)
+                  </span>
                 </div>
-                <div className="bg-stone-900/80 p-2 rounded-lg border border-stone-800">
-                  <span className="text-stone-500 block text-[10px]">Senha Padrão:</span>
-                  <span className="text-amber-300 font-bold">admin</span>
+                <div className="p-3 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                  <ShieldCheck className="w-5 h-5" />
                 </div>
-                <div className="bg-stone-900/80 p-2 rounded-lg border border-stone-800">
-                  <span className="text-stone-500 block text-[10px]">PIN Rápido (4 dígitos):</span>
-                  <span className="text-amber-300 font-bold">1234</span>
+              </div>
+
+              <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4 flex items-center justify-between">
+                <div>
+                  <span className="text-[11px] text-stone-400 font-semibold block">Mesas do Salão</span>
+                  <span className="text-2xl font-black text-white font-mono mt-0.5 block">
+                    {tables.length}
+                  </span>
+                  <span className="text-[10px] text-stone-400 font-medium">
+                    {freeTablesCount} livres agora
+                  </span>
+                </div>
+                <div className="p-3 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                  <Layers className="w-5 h-5" />
+                </div>
+              </div>
+
+              <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4 flex items-center justify-between">
+                <div>
+                  <span className="text-[11px] text-stone-400 font-semibold block">Produtos no Cardápio</span>
+                  <span className="text-2xl font-black text-white font-mono mt-0.5 block">
+                    {menuItems.length}
+                  </span>
+                  <span className="text-[10px] text-emerald-400 font-medium">
+                    {menuItems.filter((m) => m.available).length} disponíveis p/ venda
+                  </span>
+                </div>
+                <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                  <UtensilsCrossed className="w-5 h-5" />
                 </div>
               </div>
             </div>
 
-            {/* Toggle para visualizar o código SQL */}
-            <div>
-              <button
-                type="button"
-                onClick={() => setShowSqlViewer(!showSqlViewer)}
-                className="text-xs font-semibold text-stone-400 hover:text-white flex items-center gap-1.5 transition"
-              >
-                <FileCode className="w-3.5 h-3.5 text-amber-500" />
-                <span>{showSqlViewer ? 'Ocultar código do Script SQL' : 'Visualizar código do Script SQL (/supabase/schema.sql)'}</span>
-              </button>
-
-              {showSqlViewer && (
-                <div className="mt-2 relative">
-                  <pre className="bg-stone-950 border border-stone-800 rounded-xl p-3 text-[10px] font-mono text-stone-300 max-h-64 overflow-y-auto overflow-x-auto whitespace-pre">
-                    {SUPABASE_SQL_SCHEMA}
-                  </pre>
+            {/* 4. CONFIGURAÇÃO DE MESAS DO SALÃO */}
+            <div className="bg-stone-900 border border-stone-800 rounded-2xl p-5 shadow-xl space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-stone-800">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                    <Layers className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-white">
+                      Configuração de Mesas do Salão ({tables.length})
+                    </h4>
+                    <p className="text-[11px] text-stone-400">
+                      Adicione novas mesas, altere a capacidade de lugares ou remova mesas livres.
+                    </p>
+                  </div>
                 </div>
-              )}
+
+                <button
+                  onClick={handleOpenAddTable}
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold transition cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Nova Mesa</span>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
+                {tables.map((table) => {
+                  const isOccupied = table.status === 'OCUPADA' || table.status === 'CONTA_SOLICITADA';
+                  return (
+                    <div
+                      key={table.id}
+                      className="p-3 rounded-xl bg-stone-950 border border-stone-800 flex flex-col justify-between gap-2"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <div className="font-bold text-xs text-white">{table.label}</div>
+                          <div className="text-[10px] text-stone-400">{table.capacity} lugares</div>
+                        </div>
+                        <span
+                          className={`text-[8px] font-bold px-1.5 py-0.5 rounded ${
+                            table.status === 'LIVRE'
+                              ? 'bg-emerald-950 text-emerald-400'
+                              : 'bg-amber-950 text-amber-400'
+                          }`}
+                        >
+                          {table.status}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-1.5 border-t border-stone-900">
+                        <button
+                          onClick={() => handleOpenEditTable(table)}
+                          className="text-[10px] font-semibold text-amber-400 hover:underline flex items-center gap-1 cursor-pointer"
+                        >
+                          <Edit2 className="w-2.5 h-2.5" /> Editar
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (isOccupied) {
+                              showToast('Não é possível excluir uma mesa ocupada!', 'error');
+                            } else {
+                              setTableToDelete(table);
+                            }
+                          }}
+                          disabled={isOccupied}
+                          className={`text-[10px] font-semibold flex items-center gap-1 cursor-pointer ${
+                            isOccupied ? 'opacity-30 cursor-not-allowed text-stone-600' : 'text-red-400 hover:underline'
+                          }`}
+                        >
+                          <Trash2 className="w-2.5 h-2.5" /> Excluir
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Modal: Add/Edit Employee */}
       {showEmployeeModal && (
         <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
           <div className="bg-stone-900 border border-stone-700 rounded-2xl max-w-md w-full p-6 shadow-2xl">
             <h3 className="text-lg font-bold text-white mb-1">
-              {editingEmployee ? 'Editar Dados do Funcionário' : 'Novo Funcionário (Criar Conta)'}
+              {editingEmployee ? 'Editar Funcionário da Equipe' : 'Adicionar Funcionário & Equipe'}
             </h3>
             <p className="text-xs text-stone-400 mb-4">
-              Cadastro exclusivo administrativo. O colaborador usará estes dados para acessar o sistema.
+              Cadastro exclusivo para funcionários e equipe operacional (o Gerente/Admin fica separado).
             </p>
 
             {empFormError && (
@@ -1523,44 +1569,58 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
             <form onSubmit={handleSaveEmployee} className="space-y-3.5 text-xs max-h-[75vh] overflow-y-auto pr-1">
               <div>
-                <label className="block font-semibold text-stone-300 mb-1">Nome Completo:</label>
+                <label className="block font-semibold text-stone-300 mb-1">Nome do Funcionário (para Acesso):</label>
                 <input
                   type="text"
                   required
-                  placeholder="Ex: Carlos Silveira"
+                  placeholder="Ex: Marcelo"
                   value={empFormName}
                   onChange={(e) => setEmpFormName(e.target.value)}
                   className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white"
                 />
               </div>
 
+              <div>
+                <label className="block font-semibold text-amber-400 mb-1">Gmail de Acesso ao Sistema:</label>
+                <input
+                  type="email"
+                  required
+                  placeholder="funcionario@gmail.com"
+                  value={empFormEmail}
+                  onChange={(e) => setEmpFormEmail(e.target.value)}
+                  className="w-full bg-stone-950 border border-amber-500/50 rounded-xl px-3 py-2 text-white font-mono text-xs"
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold text-amber-400 mb-1">
+                  {editingEmployee ? 'Senha de Acesso (deixe em branco para manter a atual):' : 'Senha de Acesso:'}
+                </label>
+                <input
+                  type="text"
+                  required={!editingEmployee}
+                  placeholder="Digite a senha do funcionário..."
+                  value={empFormPassword}
+                  onChange={(e) => setEmpFormPassword(e.target.value)}
+                  className="w-full bg-stone-950 border border-amber-500/50 rounded-xl px-3 py-2 text-white font-mono text-xs"
+                />
+                <span className="text-[10px] text-stone-400 mt-1 block">
+                  O funcionário acessará o sistema informando seu Nome, Gmail e esta Senha.
+                </span>
+              </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-stone-300 mb-1">E-mail de Acesso:</label>
-                  <input
-                    type="email"
-                    required
-                    placeholder="carlos@churrascaria.com"
-                    value={empFormEmail}
-                    onChange={(e) => setEmpFormEmail(e.target.value)}
-                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white font-mono text-[11px]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-stone-300 mb-1">C.I. / Documento:</label>
+                  <label className="block font-semibold text-stone-300 mb-1">C.I. / Documento (Opcional):</label>
                   <input
                     type="text"
-                    required
                     placeholder="C.I. 3.456.789-0"
                     value={empFormCpf}
                     onChange={(e) => setEmpFormCpf(e.target.value)}
                     className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white font-mono text-[11px]"
                   />
                 </div>
-              </div>
 
-              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block font-semibold text-stone-300 mb-1">Telefone / WhatsApp:</label>
                   <input
@@ -1571,44 +1631,90 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white"
                   />
                 </div>
-
-                <div>
-                  <label className="block font-semibold text-stone-300 mb-1">Data de Admissão:</label>
-                  <input
-                    type="date"
-                    required
-                    value={empFormAdmissionDate}
-                    onChange={(e) => setEmpFormAdmissionDate(e.target.value)}
-                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white"
-                  />
-                </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              {/* Seletor de Função na Equipe + Quais Funções o Funcionário Terá (no mesmo local) */}
+              <div className="p-3.5 bg-stone-950 border border-amber-500/30 rounded-xl space-y-3">
                 <div>
-                  <label className="block font-semibold text-stone-300 mb-1">Perfil / Cargo:</label>
+                  <label className="block font-bold text-amber-400 mb-1 flex items-center gap-1.5">
+                    <ShieldCheck className="w-4 h-4" /> Função na Equipe (Somente Funcionários):
+                  </label>
                   <select
-                    value={empFormRole}
-                    onChange={(e) => setEmpFormRole(e.target.value as UserRole)}
-                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white"
+                    value={empFormRole === 'ADMIN' ? 'GARCOM' : empFormRole}
+                    onChange={(e) => {
+                      const nextRole = e.target.value as UserRole;
+                      setEmpFormRole(nextRole);
+                      setEmpFormPermissions(getDefaultPermissionsForRole(nextRole));
+                    }}
+                    className="w-full bg-stone-900 border border-stone-700 rounded-xl px-3 py-2 text-white font-bold"
                   >
-                    <option value="ADMIN">ADMIN (Dono/Gerente)</option>
-                    <option value="CAIXA">CAIXA (Operador)</option>
-                    <option value="GARCOM">GARÇOM (Salão)</option>
+                    <option value="GARCOM">GARÇOM (Atendimento de Salão)</option>
+                    <option value="CAIXA">CAIXA (Operador de Caixa)</option>
+                    <option value="COZINHA">COZINHA / CHURRASQUEIRO (Equipe)</option>
                   </select>
                 </div>
 
-                <div>
-                  <label className="block font-semibold text-stone-300 mb-1">Turno de Trabalho:</label>
-                  <select
-                    value={empFormShift}
-                    onChange={(e) => setEmpFormShift(e.target.value as ShiftType)}
-                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white"
-                  >
-                    <option value="ALMOCO">Almoço</option>
-                    <option value="JANTAR">Jantar</option>
-                    <option value="AMBOS">Ambos (Integral)</option>
-                  </select>
+                <div className="pt-2 border-t border-stone-800 space-y-1.5">
+                  <span className="block font-bold text-stone-200 text-[11px]">
+                    Decidir quais funções este funcionário terá no sistema:
+                  </span>
+                  <div className="grid grid-cols-1 gap-1.5">
+                    {[
+                      {
+                        key: 'canCloseBills' as const,
+                        label: 'Fechar e receber contas de mesas',
+                        desc: 'Permite quitar pagamentos diretamente na comanda',
+                      },
+                      {
+                        key: 'canManageTables' as const,
+                        label: 'Transferir ou juntar mesas no salão',
+                        desc: 'Permite mover itens e unificar comandas',
+                      },
+                      {
+                        key: 'canCancelOrders' as const,
+                        label: 'Cancelar itens ou pedidos lançados',
+                        desc: 'Permite estornar/cancelar itens de comandas abertas',
+                      },
+                      {
+                        key: 'canApplyDiscounts' as const,
+                        label: 'Aplicar descontos na conta',
+                        desc: 'Permite conceder desconto comercial no fechamento',
+                      },
+                      {
+                        key: 'canAddStock' as const,
+                        label: 'Registrar compras e entrada de estoque (+Estoque)',
+                        desc: 'Permite alimentar compras no relatório diário',
+                      },
+                    ].map((perm) => {
+                      const isChecked = empFormPermissions[perm.key];
+                      return (
+                        <label
+                          key={perm.key}
+                          className={`flex items-center justify-between p-2 rounded-lg border transition cursor-pointer hover:border-amber-500/40 ${
+                            isChecked
+                              ? 'bg-emerald-950/30 border-emerald-800/60 text-stone-100'
+                              : 'bg-stone-900/60 border-stone-800 text-stone-400'
+                          }`}
+                        >
+                          <div>
+                            <span className="font-semibold block text-[11px]">{perm.label}</span>
+                            <span className="text-[10px] text-stone-400 block">{perm.desc}</span>
+                          </div>
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={(e) =>
+                              setEmpFormPermissions((prev) => ({
+                                ...prev,
+                                [perm.key]: e.target.checked,
+                              }))
+                            }
+                            className="w-4 h-4 accent-amber-500 rounded cursor-pointer"
+                          />
+                        </label>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
 
@@ -1618,36 +1724,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <input
                     type="number"
                     step="100000"
-                    required
                     placeholder="3200000"
                     value={empFormBaseSalary}
                     onChange={(e) => setEmpFormBaseSalary(parseFloat(e.target.value) || 0)}
-                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white font-mono"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-stone-300 mb-1">Comissão / Gorjeta (%):</label>
-                  <input
-                    type="number"
-                    required
-                    placeholder="10"
-                    value={empFormCommission}
-                    onChange={(e) => setEmpFormCommission(parseFloat(e.target.value) || 0)}
-                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white font-mono"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-semibold text-stone-300 mb-1">Meta Mensal de Vendas (₲):</label>
-                  <input
-                    type="number"
-                    step="500000"
-                    placeholder="45000000"
-                    value={empFormMonthlyTarget}
-                    onChange={(e) => setEmpFormMonthlyTarget(parseFloat(e.target.value) || 0)}
                     className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white font-mono"
                   />
                 </div>
@@ -1662,34 +1741,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <option value="ACTIVE">Ativo (Permitido Acesso)</option>
                     <option value="INACTIVE">Inativo (Bloqueado)</option>
                   </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 pt-1 border-t border-stone-800">
-                <div>
-                  <label className="block font-semibold text-stone-300 mb-1">
-                    {editingEmployee ? 'Senha (em branco mantém):' : 'Senha de Acesso:'}
-                  </label>
-                  <input
-                    type="password"
-                    placeholder="••••••••"
-                    value={empFormPassword}
-                    onChange={(e) => setEmpFormPassword(e.target.value)}
-                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white font-mono"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-stone-300 mb-1">PIN Numérico (4 Dígitos):</label>
-                  <input
-                    type="text"
-                    maxLength={4}
-                    required
-                    placeholder="Ex: 1234"
-                    value={empFormPin}
-                    onChange={(e) => setEmpFormPin(e.target.value.replace(/\D/g, ''))}
-                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white font-mono text-center tracking-widest text-sm font-bold"
-                  />
                 </div>
               </div>
 

@@ -802,23 +802,6 @@ export const ReportsTab: React.FC = () => {
         </button>
 
         <button
-          onClick={() => setActiveSection('COMMISSIONS')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer ${
-            activeSection === 'COMMISSIONS'
-              ? 'bg-amber-600 text-white shadow-md'
-              : 'text-stone-400 hover:text-white hover:bg-stone-900'
-          }`}
-        >
-          <DollarSign className="w-4 h-4 text-emerald-400" />
-          <span>3. Comissões & Gorjetas</span>
-          {staffCommissions.totalCommissionsToPay > 0 && (
-            <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300">
-              {staffCommissions.rows.filter((r) => !r.isPaid).length}
-            </span>
-          )}
-        </button>
-
-        <button
           onClick={() => setActiveSection('DRE')}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer ${
             activeSection === 'DRE'
@@ -827,7 +810,7 @@ export const ReportsTab: React.FC = () => {
           }`}
         >
           <FileText className="w-4 h-4 text-blue-400" />
-          <span>4. DRE Simplificado</span>
+          <span>3. DRE Simplificado</span>
         </button>
 
         <button
@@ -839,7 +822,7 @@ export const ReportsTab: React.FC = () => {
           }`}
         >
           <ShieldAlert className="w-4 h-4 text-red-400" />
-          <span>5. Auditoria & Prevenção de Perdas</span>
+          <span>4. Auditoria & Prevenção de Perdas</span>
           <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-red-500/20 text-red-300">
             {auditLogs.length}
           </span>
@@ -920,17 +903,6 @@ export const ReportsTab: React.FC = () => {
                   />
                 </div>
 
-                {/* Turno */}
-                <select
-                  value={salesShiftFilter}
-                  onChange={(e) => setSalesShiftFilter(e.target.value as any)}
-                  className="bg-stone-950 border border-stone-800 rounded-xl px-3 py-1.5 text-xs text-stone-300 font-medium focus:outline-none"
-                >
-                  <option value="TODOS">Todos os Turnos</option>
-                  <option value="ALMOCO">Almoço (11h às 17h)</option>
-                  <option value="JANTAR">Jantar (17h às 23h+)</option>
-                </select>
-
                 {/* Garçom */}
                 <select
                   value={salesEmployeeFilter}
@@ -970,63 +942,8 @@ export const ReportsTab: React.FC = () => {
             </div>
           </div>
 
-          {/* Breakdown: Turno & Formas de Pagamento (Recharts) */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {/* Turno Almoço x Jantar com Recharts BarChart */}
-            <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-stone-300 flex items-center gap-1.5">
-                  <Flame className="w-3.5 h-3.5 text-amber-500" />
-                  Divisão de Faturamento por Turno (Recharts)
-                </span>
-                <span className="text-xs text-amber-400 font-mono font-bold">
-                  {renderMoney(salesDataset.totalSales)}
-                </span>
-              </div>
-
-              <div className="h-44 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={shiftChartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#292524" vertical={false} />
-                    <XAxis dataKey="name" stroke="#a8a29e" fontSize={11} />
-                    <YAxis
-                      stroke="#a8a29e"
-                      fontSize={10}
-                      tickFormatter={(val) => `₲ ${Math.round(val / 1000000)}M`}
-                    />
-                    <Tooltip
-                      contentStyle={{ backgroundColor: '#1c1917', borderColor: '#44403c', borderRadius: 8, fontSize: 12 }}
-                      formatter={(val: any) => [renderMoney(Number(val) || 0), 'Faturamento']}
-                    />
-                    <Bar dataKey="valor" radius={[6, 6, 0, 0]}>
-                      {shiftChartData.map((entry, index) => (
-                        <Cell key={`cell-shift-${index}`} fill={entry.color} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2 pt-1 text-center">
-                <div className="p-2 bg-stone-950/70 border border-stone-800/80 rounded-xl">
-                  <div className="text-[10px] text-amber-400 font-bold flex items-center justify-center gap-1">
-                    <span>☀️ ALMOÇO (42%)</span>
-                  </div>
-                  <div className="text-xs font-black text-stone-100 font-mono mt-0.5">
-                    {renderMoney(salesDataset.lunchRevenue)}
-                  </div>
-                </div>
-                <div className="p-2 bg-stone-950/70 border border-stone-800/80 rounded-xl">
-                  <div className="text-[10px] text-indigo-400 font-bold flex items-center justify-center gap-1">
-                    <span>🌙 JANTAR (58%)</span>
-                  </div>
-                  <div className="text-xs font-black text-stone-100 font-mono mt-0.5">
-                    {renderMoney(salesDataset.dinnerRevenue)}
-                  </div>
-                </div>
-              </div>
-            </div>
-
+          {/* Breakdown: Formas de Pagamento (Recharts) */}
+          <div className="grid grid-cols-1 gap-4">
             {/* Formas de Pagamento com Recharts PieChart */}
             <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4 space-y-3">
               <div className="flex items-center justify-between">
@@ -1532,7 +1449,7 @@ export const ReportsTab: React.FC = () => {
                 <thead>
                   <tr className="border-b border-stone-800 text-[11px] font-bold text-stone-400 uppercase tracking-wider bg-stone-950/60">
                     <th className="py-3 px-4">Colaborador</th>
-                    <th className="py-3 px-4">Função / Turno</th>
+                    <th className="py-3 px-4">Função</th>
                     <th className="py-3 px-4 text-right">Vendas Atribuídas</th>
                     <th className="py-3 px-4 text-right">Taxa 10% Gerada</th>
                     <th className="py-3 px-4 text-right">Gorjetas Extras</th>
@@ -1552,7 +1469,7 @@ export const ReportsTab: React.FC = () => {
                         <span>{row.employee.name}</span>
                       </td>
                       <td className="py-3 px-4 text-stone-400">
-                        {row.employee.role} · {row.employee.shift}
+                        {row.employee.role}
                       </td>
                       <td className="py-3 px-4 text-right font-mono text-stone-300">
                         {formatCurrency(row.attributedSales)}
