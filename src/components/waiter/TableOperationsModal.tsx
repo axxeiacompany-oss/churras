@@ -80,7 +80,7 @@ export const TableOperationsModal: React.FC<TableOperationsModalProps> = ({
       `👥 Total: ${formatCurrency(totalWithService)} (${comanda.items.length} itens)\n` +
       `💳 Dividido por ${splitPeopleCount} pessoas: *${formatCurrency(perPersonWithService)}* por pessoa (com 10%)\n` +
       (comanda.includeService ? `✨ Ou ${formatCurrency(perPersonWithoutService)} sem os 10%\n` : '') +
-      `📱 Chave PIX: ${settings.cnpj}`;
+      `📱 RUC / SIPAP: ${settings.cnpj}`;
 
     navigator.clipboard.writeText(text);
     setCopied(true);

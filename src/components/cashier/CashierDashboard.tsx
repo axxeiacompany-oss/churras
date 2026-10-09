@@ -399,7 +399,7 @@ export const CashierDashboard: React.FC = () => {
                               cmd.includeService ? 'text-emerald-400' : 'text-stone-500'
                             }`}
                           >
-                            {cmd.includeService ? `Inclusa (${formatCurrency(cmd.serviceFee)})` : 'Isenta (R$ 0)'}
+                            {cmd.includeService ? `Inclusa (${formatCurrency(cmd.serviceFee)})` : 'Isenta (₲ 0)'}
                           </button>
                         </div>
                       </div>
@@ -478,10 +478,10 @@ export const CashierDashboard: React.FC = () => {
               Informe o valor em dinheiro vivo para troco inicial na gaveta.
             </p>
             <div className="mb-4">
-              <label className="block text-xs font-medium text-stone-300 mb-1">Fundo de Troco (R$)</label>
+              <label className="block text-xs font-medium text-stone-300 mb-1">Fundo de Troco (₲)</label>
               <input
                 type="number"
-                step="10"
+                step="1000"
                 value={initialCashInput}
                 onChange={(e) => setInitialCashInput(e.target.value)}
                 className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-sm text-stone-100 focus:outline-none focus:border-amber-500"
@@ -522,12 +522,12 @@ export const CashierDashboard: React.FC = () => {
             </div>
             <form onSubmit={handleConfirmMovement} className="space-y-3">
               <div>
-                <label className="block text-xs font-medium text-stone-300 mb-1">Valor em Dinheiro (R$)</label>
+                <label className="block text-xs font-medium text-stone-300 mb-1">Valor em Dinheiro (₲)</label>
                 <input
                   type="number"
-                  step="5"
+                  step="1000"
                   required
-                  placeholder="0,00"
+                  placeholder="0"
                   value={movementAmount}
                   onChange={(e) => setMovementAmount(e.target.value)}
                   className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-sm text-stone-100 focus:outline-none focus:border-amber-500"
@@ -621,14 +621,14 @@ export const CashierDashboard: React.FC = () => {
               {/* Discount field */}
               <div>
                 <label className="block text-xs font-medium text-stone-300 mb-1">
-                  Desconto Comercial (R$)
+                  Desconto Comercial (₲)
                 </label>
                 <div className="relative">
                   <Percent className="w-4 h-4 text-stone-500 absolute left-3 top-2.5" />
                   <input
                     type="number"
                     min="0"
-                    step="1"
+                    step="1000"
                     value={discountInput}
                     onChange={(e) => setDiscountInput(e.target.value)}
                     className="w-full bg-stone-950 border border-stone-700 rounded-xl pl-9 pr-3 py-2 text-sm text-stone-100 focus:outline-none focus:border-amber-500"

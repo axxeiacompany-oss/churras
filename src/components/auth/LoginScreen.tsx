@@ -285,11 +285,9 @@ export const LoginScreen: React.FC = () => {
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <img
-                    src={emp.avatar}
-                    alt={emp.name}
-                    className="w-6 h-6 rounded-md object-cover border border-stone-700"
-                  />
+                  <div className="w-6 h-6 rounded-md bg-stone-800 border border-stone-700 text-amber-300 font-bold text-[10px] flex items-center justify-center shrink-0">
+                    {emp.name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()}
+                  </div>
                   <div className="overflow-hidden">
                     <div className="text-[11px] font-bold text-white truncate">
                       {emp.name.split(' ')[0]}

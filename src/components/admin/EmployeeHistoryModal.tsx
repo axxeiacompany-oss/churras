@@ -60,11 +60,9 @@ export const EmployeeHistoryModal: React.FC<EmployeeHistoryModalProps> = ({
         {/* Header */}
         <div className="p-5 bg-stone-950 border-b border-stone-800 flex items-start justify-between">
           <div className="flex items-center gap-4">
-            <img
-              src={employee.avatar}
-              alt={employee.name}
-              className="w-16 h-16 rounded-2xl object-cover border-2 border-amber-500 shadow-md"
-            />
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-600/30 to-stone-900 border-2 border-amber-500/50 text-amber-300 font-bold text-xl flex items-center justify-center shadow-md tracking-wider">
+              {employee.name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()}
+            </div>
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-lg font-bold text-white">{employee.name}</h3>
@@ -85,7 +83,7 @@ export const EmployeeHistoryModal: React.FC<EmployeeHistoryModalProps> = ({
               {/* Employee Metadata Grid */}
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-stone-400 mt-2">
                 <span className="flex items-center gap-1 font-mono text-[11px]">
-                  <FileText className="w-3.5 h-3.5 text-stone-500" /> CPF: {employee.cpf || 'Não informado'}
+                  <FileText className="w-3.5 h-3.5 text-stone-500" /> C.I. / Doc: {employee.cpf || 'Não informado'}
                 </span>
                 <span className="flex items-center gap-1">
                   <Mail className="w-3.5 h-3.5 text-stone-500" /> {employee.email}

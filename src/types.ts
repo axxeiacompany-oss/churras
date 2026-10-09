@@ -150,7 +150,9 @@ export type AuditActionType =
   | 'ALTERACAO_PRECO'
   | 'AJUSTE_ESTOQUE'
   | 'SANGRIA_CAIXA'
-  | 'DIFERENCA_FECHAMENTO';
+  | 'DIFERENCA_FECHAMENTO'
+  | 'FECHAMENTO_CAIXA'
+  | 'DIVERGENCIA_CAIXA';
 
 export interface AuditLogEntry {
   id: string;

@@ -45,16 +45,38 @@ import {
   Zap,
   Image as ImageIcon,
   FileSpreadsheet,
+  Database,
+  Download,
+  Copy,
+  FileCode,
 } from 'lucide-react';
 import { EmployeeHistoryModal } from './EmployeeHistoryModal';
 import { ReceiptModal } from '../modals/ReceiptModal';
-import { InventoryTab } from './InventoryTab';
 import { DailyMonitoringTab } from './DailyMonitoringTab';
 import { CashFlowTab } from './CashFlowTab';
 import { AutomationsTab } from './AutomationsTab';
 import { ReportsTab } from './ReportsTab';
+import { SUPABASE_SQL_SCHEMA } from '../../data/supabaseSchemaSql';
 
-export const AdminDashboard: React.FC = () => {
+export type AdminTab =
+  | 'OVERVIEW'
+  | 'EMPLOYEES'
+  | 'MENU'
+  | 'TABLES'
+  | 'CASH_FLOW'
+  | 'AUTOMATIONS'
+  | 'REPORTS'
+  | 'SETTINGS';
+
+interface AdminDashboardProps {
+  initialTab?: AdminTab;
+  hideTabBar?: boolean;
+}
+
+export const AdminDashboard: React.FC<AdminDashboardProps> = ({
+  initialTab = 'OVERVIEW',
+  hideTabBar = false,
+}) => {
   const {
     employees,
     addEmployee,
@@ -76,9 +98,13 @@ export const AdminDashboard: React.FC = () => {
     showToast,
   } = useChurras();
 
-  const [activeTab, setActiveTab] = useState<
-    'OVERVIEW' | 'EMPLOYEES' | 'MENU' | 'INVENTORY' | 'TABLES' | 'CASH_FLOW' | 'AUTOMATIONS' | 'REPORTS' | 'SETTINGS'
-  >('OVERVIEW');
+  const [activeTab, setActiveTab] = useState<AdminTab>(initialTab);
+
+  React.useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
 
   const alertsCount =
     lowStockIngredients.length +
@@ -99,8 +125,8 @@ export const AdminDashboard: React.FC = () => {
   const [empFormCommission, setEmpFormCommission] = useState<number>(10);
   const [empFormShift, setEmpFormShift] = useState<ShiftType>('ALMOCO');
   const [empFormAdmissionDate, setEmpFormAdmissionDate] = useState<string>('2024-01-15');
-  const [empFormBaseSalary, setEmpFormBaseSalary] = useState<number>(1900);
-  const [empFormMonthlyTarget, setEmpFormMonthlyTarget] = useState<number>(25000);
+  const [empFormBaseSalary, setEmpFormBaseSalary] = useState<number>(3200000);
+  const [empFormMonthlyTarget, setEmpFormMonthlyTarget] = useState<number>(45000000);
   const [empFormActive, setEmpFormActive] = useState<boolean>(true);
   const [empFormError, setEmpFormError] = useState<string | null>(null);
 
@@ -140,6 +166,30 @@ export const AdminDashboard: React.FC = () => {
   // Search in menu
   const [menuSearch, setMenuSearch] = useState<string>('');
   const [menuCategoryFilter, setMenuCategoryFilter] = useState<string>('ALL');
+
+  // SQL Script Viewer & Copy state
+  const [copiedSql, setCopiedSql] = useState<boolean>(false);
+  const [showSqlViewer, setShowSqlViewer] = useState<boolean>(false);
+
+  const handleCopySql = () => {
+    navigator.clipboard.writeText(SUPABASE_SQL_SCHEMA);
+    setCopiedSql(true);
+    showToast('Script SQL copiado para a área de transferência!', 'success');
+    setTimeout(() => setCopiedSql(false), 3000);
+  };
+
+  const handleDownloadSql = () => {
+    const blob = new Blob([SUPABASE_SQL_SCHEMA], { type: 'text/sql' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'churrasgestao_schema.sql';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Arquivo churrasgestao_schema.sql baixado com sucesso!', 'success');
+  };
 
   // Financial calculations
   const totalSalesRevenue = comandas
@@ -221,8 +271,8 @@ export const AdminDashboard: React.FC = () => {
     setEmpFormCommission(10);
     setEmpFormShift('ALMOCO');
     setEmpFormAdmissionDate(new Date().toISOString().split('T')[0]);
-    setEmpFormBaseSalary(1900);
-    setEmpFormMonthlyTarget(25000);
+    setEmpFormBaseSalary(3200000);
+    setEmpFormMonthlyTarget(45000000);
     setEmpFormActive(true);
     setEmpFormError(null);
     setShowEmployeeModal(true);
@@ -240,8 +290,8 @@ export const AdminDashboard: React.FC = () => {
     setEmpFormCommission(emp.commissionRate);
     setEmpFormShift(emp.shift);
     setEmpFormAdmissionDate(emp.admissionDate || new Date().toISOString().split('T')[0]);
-    setEmpFormBaseSalary(emp.baseSalary || 1900);
-    setEmpFormMonthlyTarget(emp.monthlyTarget || 25000);
+    setEmpFormBaseSalary(emp.baseSalary || 3200000);
+    setEmpFormMonthlyTarget(emp.monthlyTarget || 45000000);
     setEmpFormActive(emp.active);
     setEmpFormError(null);
     setShowEmployeeModal(true);
@@ -294,7 +344,6 @@ export const AdminDashboard: React.FC = () => {
         baseSalary: empFormBaseSalary,
         monthlyTarget: empFormMonthlyTarget,
         active: empFormActive,
-        avatar: `https://images.unsplash.com/photo-${1500000000000 + Math.floor(Math.random() * 1000000)}?w=150&auto=format&fit=crop&q=80`,
         colorTag: 'amber',
       });
 
@@ -383,127 +432,112 @@ export const AdminDashboard: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Admin Subnav Tabs */}
-      <div className="bg-stone-900 border border-stone-800 rounded-2xl p-2 sm:p-2.5 shadow-lg">
-        <div className="flex items-center gap-1.5 overflow-x-auto text-xs font-semibold">
-          <button
-            onClick={() => setActiveTab('OVERVIEW')}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl whitespace-nowrap transition-all ${
-              activeTab === 'OVERVIEW'
-                ? 'bg-amber-600 text-white shadow-md'
-                : 'text-stone-400 hover:text-white hover:bg-stone-800'
-            }`}
-          >
-            <TrendingUp className="w-4 h-4" />
-            <span>Visão Geral & Métricas</span>
-          </button>
+      {!hideTabBar && (
+        <div className="bg-stone-900 border border-stone-800 rounded-2xl p-2 sm:p-2.5 shadow-lg">
+          <div className="flex items-center gap-1.5 overflow-x-auto text-xs font-semibold">
+            <button
+              onClick={() => setActiveTab('OVERVIEW')}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl whitespace-nowrap transition-all ${
+                activeTab === 'OVERVIEW'
+                  ? 'bg-amber-600 text-white shadow-md'
+                  : 'text-stone-400 hover:text-white hover:bg-stone-800'
+              }`}
+            >
+              <TrendingUp className="w-4 h-4" />
+              <span>Visão Geral & Métricas</span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('EMPLOYEES')}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl whitespace-nowrap transition-all ${
-              activeTab === 'EMPLOYEES'
-                ? 'bg-amber-600 text-white shadow-md'
-                : 'text-stone-400 hover:text-white hover:bg-stone-800'
-            }`}
-          >
-            <Users className="w-4 h-4" />
-            <span>Controle de Funcionários ({employees.length})</span>
-          </button>
+            <button
+              onClick={() => setActiveTab('EMPLOYEES')}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl whitespace-nowrap transition-all ${
+                activeTab === 'EMPLOYEES'
+                  ? 'bg-amber-600 text-white shadow-md'
+                  : 'text-stone-400 hover:text-white hover:bg-stone-800'
+              }`}
+            >
+              <Users className="w-4 h-4" />
+              <span>Controle de Funcionários ({employees.length})</span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('MENU')}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl whitespace-nowrap transition-all ${
-              activeTab === 'MENU'
-                ? 'bg-amber-600 text-white shadow-md'
-                : 'text-stone-400 hover:text-white hover:bg-stone-800'
-            }`}
-          >
-            <UtensilsCrossed className="w-4 h-4" />
-            <span>Cardápio & Cortes ({menuItems.length})</span>
-          </button>
+            <button
+              onClick={() => setActiveTab('MENU')}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl whitespace-nowrap transition-all ${
+                activeTab === 'MENU'
+                  ? 'bg-amber-600 text-white shadow-md'
+                  : 'text-stone-400 hover:text-white hover:bg-stone-800'
+              }`}
+            >
+              <UtensilsCrossed className="w-4 h-4" />
+              <span>Cardápio & Cortes ({menuItems.length})</span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('TABLES')}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl whitespace-nowrap transition-all ${
-              activeTab === 'TABLES'
-                ? 'bg-amber-600 text-white shadow-md'
-                : 'text-stone-400 hover:text-white hover:bg-stone-800'
-            }`}
-          >
-            <Layers className="w-4 h-4" />
-            <span>Mapa do Salão ({tables.length} mesas)</span>
-          </button>
+            <button
+              onClick={() => setActiveTab('TABLES')}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl whitespace-nowrap transition-all ${
+                activeTab === 'TABLES'
+                  ? 'bg-amber-600 text-white shadow-md'
+                  : 'text-stone-400 hover:text-white hover:bg-stone-800'
+              }`}
+            >
+              <Layers className="w-4 h-4" />
+              <span>Mapa do Salão ({tables.length} mesas)</span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('CASH_FLOW')}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl whitespace-nowrap transition-all ${
-              activeTab === 'CASH_FLOW'
-                ? 'bg-amber-600 text-white shadow-md'
-                : 'text-stone-400 hover:text-white hover:bg-stone-800'
-            }`}
-          >
-            <DollarSign className="w-4 h-4" />
-            <span>Fluxo de Caixa & Auditoria</span>
-          </button>
+            <button
+              onClick={() => setActiveTab('CASH_FLOW')}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl whitespace-nowrap transition-all ${
+                activeTab === 'CASH_FLOW'
+                  ? 'bg-amber-600 text-white shadow-md'
+                  : 'text-stone-400 hover:text-white hover:bg-stone-800'
+              }`}
+            >
+              <DollarSign className="w-4 h-4" />
+              <span>Fluxo de Caixa & Auditoria</span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('INVENTORY')}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl whitespace-nowrap transition-all ${
-              activeTab === 'INVENTORY'
-                ? 'bg-amber-600 text-white shadow-md'
-                : 'text-stone-400 hover:text-white hover:bg-stone-800'
-            }`}
-          >
-            <Package className="w-4 h-4" />
-            <span>Estoque & Insumos</span>
-            {lowStockIngredients.length > 0 && (
-              <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/40">
-                {lowStockIngredients.length}
-              </span>
-            )}
-          </button>
+            <button
+              onClick={() => setActiveTab('AUTOMATIONS')}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl whitespace-nowrap transition-all ${
+                activeTab === 'AUTOMATIONS'
+                  ? 'bg-amber-600 text-white shadow-md'
+                  : 'text-stone-400 hover:text-white hover:bg-stone-800'
+              }`}
+            >
+              <Zap className="w-4 h-4 text-amber-400" />
+              <span>Automações & Alertas</span>
+              {alertsCount > 0 && (
+                <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-red-500/20 text-red-400 border border-red-500/40">
+                  {alertsCount}
+                </span>
+              )}
+            </button>
 
-          <button
-            onClick={() => setActiveTab('AUTOMATIONS')}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl whitespace-nowrap transition-all ${
-              activeTab === 'AUTOMATIONS'
-                ? 'bg-amber-600 text-white shadow-md'
-                : 'text-stone-400 hover:text-white hover:bg-stone-800'
-            }`}
-          >
-            <Zap className="w-4 h-4 text-amber-400" />
-            <span>Automações & Alertas</span>
-            {alertsCount > 0 && (
-              <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-red-500/20 text-red-400 border border-red-500/40">
-                {alertsCount}
-              </span>
-            )}
-          </button>
+            <button
+              onClick={() => setActiveTab('REPORTS')}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl whitespace-nowrap transition-all ${
+                activeTab === 'REPORTS'
+                  ? 'bg-amber-600 text-white shadow-md'
+                  : 'text-stone-400 hover:text-white hover:bg-stone-800'
+              }`}
+            >
+              <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
+              <span>Relatórios & BI</span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('REPORTS')}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl whitespace-nowrap transition-all ${
-              activeTab === 'REPORTS'
-                ? 'bg-amber-600 text-white shadow-md'
-                : 'text-stone-400 hover:text-white hover:bg-stone-800'
-            }`}
-          >
-            <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
-            <span>Relatórios & BI</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('SETTINGS')}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl whitespace-nowrap transition-all ${
-              activeTab === 'SETTINGS'
-                ? 'bg-amber-600 text-white shadow-md'
-                : 'text-stone-400 hover:text-white hover:bg-stone-800'
-            }`}
-          >
-            <Settings className="w-4 h-4" />
-            <span>Configurações</span>
-          </button>
+            <button
+              onClick={() => setActiveTab('SETTINGS')}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl whitespace-nowrap transition-all ${
+                activeTab === 'SETTINGS'
+                  ? 'bg-amber-600 text-white shadow-md'
+                  : 'text-stone-400 hover:text-white hover:bg-stone-800'
+              }`}
+            >
+              <Settings className="w-4 h-4" />
+              <span>Configurações</span>
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* TAB 1: OVERVIEW */}
       {activeTab === 'OVERVIEW' && <DailyMonitoringTab />}
@@ -564,7 +598,7 @@ export const AdminDashboard: React.FC = () => {
                   <Search className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
                   <input
                     type="text"
-                    placeholder="Buscar por nome, e-mail ou CPF..."
+                    placeholder="Buscar por nome, e-mail ou C.I...."
                     value={empSearch}
                     onChange={(e) => {
                       setEmpSearch(e.target.value);
@@ -662,11 +696,9 @@ export const AdminDashboard: React.FC = () => {
                       {/* Top Header */}
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-3">
-                          <img
-                            src={emp.avatar}
-                            alt={emp.name}
-                            className="w-12 h-12 rounded-xl object-cover border border-stone-700 shadow"
-                          />
+                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-600/30 to-stone-900 border border-amber-500/30 text-amber-300 font-bold text-sm flex items-center justify-center shadow-inner tracking-wider">
+                            {emp.name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()}
+                          </div>
                           <div>
                             <h4 className="text-sm font-bold text-white">{emp.name}</h4>
                             <div className="flex items-center gap-1.5 mt-0.5">
@@ -691,7 +723,7 @@ export const AdminDashboard: React.FC = () => {
                       {/* Detail Fields Grid */}
                       <div className="p-3 bg-stone-950 rounded-xl border border-stone-800/80 text-xs space-y-1.5">
                         <div className="flex justify-between text-stone-400">
-                          <span>CPF:</span>
+                          <span>C.I. / Doc:</span>
                           <span className="text-stone-200 font-mono text-[11px] font-semibold">{emp.cpf || 'Não informado'}</span>
                         </div>
                         <div className="flex justify-between text-stone-400">
@@ -1031,10 +1063,7 @@ export const AdminDashboard: React.FC = () => {
       {/* TAB 5: CASH FLOW & AUDIT */}
       {activeTab === 'CASH_FLOW' && <CashFlowTab />}
 
-      {/* TAB 6: INVENTORY & SUPPLIES */}
-      {activeTab === 'INVENTORY' && <InventoryTab />}
-
-      {/* TAB 7: AUTOMATIONS & ALERTS */}
+      {/* TAB 6: AUTOMATIONS & ALERTS */}
       {activeTab === 'AUTOMATIONS' && <AutomationsTab />}
 
       {/* TAB 8: RELATÓRIOS & BI */}
@@ -1097,11 +1126,11 @@ export const AdminDashboard: React.FC = () => {
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
               <div>
                 <label className="block text-stone-300 font-semibold mb-1">
-                  Rodízio Adulto (R$):
+                  Rodízio Adulto (₲):
                 </label>
                 <input
                   type="number"
-                  step="0.01"
+                  step="1000"
                   value={settings.rodizioAdultPrice}
                   onChange={(e) =>
                     updateSettings({ rodizioAdultPrice: parseFloat(e.target.value) || 0 })
@@ -1112,11 +1141,11 @@ export const AdminDashboard: React.FC = () => {
 
               <div>
                 <label className="block text-stone-300 font-semibold mb-1">
-                  Rodízio Infantil (R$):
+                  Rodízio Infantil (₲):
                 </label>
                 <input
                   type="number"
-                  step="0.01"
+                  step="1000"
                   value={settings.rodizioChildPrice}
                   onChange={(e) =>
                     updateSettings({ rodizioChildPrice: parseFloat(e.target.value) || 0 })
@@ -1127,11 +1156,11 @@ export const AdminDashboard: React.FC = () => {
 
               <div>
                 <label className="block text-stone-300 font-semibold mb-1">
-                  Rodízio Idoso / 60+ (R$):
+                  Rodízio Idoso / 60+ (₲):
                 </label>
                 <input
                   type="number"
-                  step="0.01"
+                  step="1000"
                   value={settings.rodizioSeniorPrice}
                   onChange={(e) =>
                     updateSettings({ rodizioSeniorPrice: parseFloat(e.target.value) || 0 })
@@ -1142,11 +1171,11 @@ export const AdminDashboard: React.FC = () => {
 
               <div>
                 <label className="block text-stone-300 font-semibold mb-1">
-                  Buffet por Quilo (R$/kg):
+                  Buffet por Quilo (₲/kg):
                 </label>
                 <input
                   type="number"
-                  step="0.01"
+                  step="1000"
                   value={settings.kiloPrice}
                   onChange={(e) =>
                     updateSettings({ kiloPrice: parseFloat(e.target.value) || 0 })
@@ -1168,6 +1197,96 @@ export const AdminDashboard: React.FC = () => {
                   className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white font-mono"
                 />
               </div>
+            </div>
+          </div>
+
+          {/* Seção de Entrega & Banco de Dados (Supabase / SQL) */}
+          <div className="pt-6 border-t border-stone-800 space-y-4">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                  <Database className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                    Banco de Dados & Script SQL (Supabase)
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                      Entrega
+                    </span>
+                  </h4>
+                  <p className="text-xs text-stone-400">
+                    Schema completo com 14 tabelas, triggers inteligentes, RLS de segurança e carga inicial.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleCopySql}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition border ${
+                    copiedSql
+                      ? 'bg-emerald-600 text-white border-emerald-500'
+                      : 'bg-stone-800 hover:bg-stone-700 text-stone-200 border-stone-700'
+                  }`}
+                  title="Copiar SQL completo"
+                >
+                  {copiedSql ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copiedSql ? 'Copiado!' : 'Copiar SQL'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleDownloadSql}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-amber-600 hover:bg-amber-500 text-white transition shadow-sm"
+                  title="Baixar arquivo schema.sql"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Baixar .sql</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Informações do Administrador Inicial e Credenciais */}
+            <div className="bg-stone-950 border border-stone-800 rounded-xl p-3.5 text-xs space-y-2">
+              <div className="font-bold text-amber-400 flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4" />
+                <span>Credenciais do Administrador Inicial (Entrega):</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 font-mono text-[11px] text-stone-300">
+                <div className="bg-stone-900/80 p-2 rounded-lg border border-stone-800">
+                  <span className="text-stone-500 block text-[10px]">E-mail Admin:</span>
+                  <span className="text-amber-300 font-bold">admin@churrascaria.com</span>
+                </div>
+                <div className="bg-stone-900/80 p-2 rounded-lg border border-stone-800">
+                  <span className="text-stone-500 block text-[10px]">Senha Padrão:</span>
+                  <span className="text-amber-300 font-bold">admin</span>
+                </div>
+                <div className="bg-stone-900/80 p-2 rounded-lg border border-stone-800">
+                  <span className="text-stone-500 block text-[10px]">PIN Rápido (4 dígitos):</span>
+                  <span className="text-amber-300 font-bold">1234</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Toggle para visualizar o código SQL */}
+            <div>
+              <button
+                type="button"
+                onClick={() => setShowSqlViewer(!showSqlViewer)}
+                className="text-xs font-semibold text-stone-400 hover:text-white flex items-center gap-1.5 transition"
+              >
+                <FileCode className="w-3.5 h-3.5 text-amber-500" />
+                <span>{showSqlViewer ? 'Ocultar código do Script SQL' : 'Visualizar código do Script SQL (/supabase/schema.sql)'}</span>
+              </button>
+
+              {showSqlViewer && (
+                <div className="mt-2 relative">
+                  <pre className="bg-stone-950 border border-stone-800 rounded-xl p-3 text-[10px] font-mono text-stone-300 max-h-64 overflow-y-auto overflow-x-auto whitespace-pre">
+                    {SUPABASE_SQL_SCHEMA}
+                  </pre>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -1218,11 +1337,11 @@ export const AdminDashboard: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-stone-300 mb-1">CPF:</label>
+                  <label className="block font-semibold text-stone-300 mb-1">C.I. / Documento:</label>
                   <input
                     type="text"
                     required
-                    placeholder="000.000.000-00"
+                    placeholder="C.I. 3.456.789-0"
                     value={empFormCpf}
                     onChange={(e) => setEmpFormCpf(e.target.value)}
                     className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white font-mono text-[11px]"
@@ -1285,12 +1404,12 @@ export const AdminDashboard: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-stone-300 mb-1">Salário Base (R$):</label>
+                  <label className="block font-semibold text-stone-300 mb-1">Salário Base (₲):</label>
                   <input
                     type="number"
-                    step="0.01"
+                    step="100000"
                     required
-                    placeholder="1900.00"
+                    placeholder="3200000"
                     value={empFormBaseSalary}
                     onChange={(e) => setEmpFormBaseSalary(parseFloat(e.target.value) || 0)}
                     className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white font-mono"
@@ -1312,11 +1431,11 @@ export const AdminDashboard: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-stone-300 mb-1">Meta Mensal de Vendas (R$):</label>
+                  <label className="block font-semibold text-stone-300 mb-1">Meta Mensal de Vendas (₲):</label>
                   <input
                     type="number"
-                    step="0.01"
-                    placeholder="25000.00"
+                    step="500000"
+                    placeholder="45000000"
                     value={empFormMonthlyTarget}
                     onChange={(e) => setEmpFormMonthlyTarget(parseFloat(e.target.value) || 0)}
                     className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white font-mono"
@@ -1495,12 +1614,12 @@ export const AdminDashboard: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-stone-300 mb-1">Preço (R$):</label>
+                  <label className="block font-semibold text-stone-300 mb-1">Preço (₲):</label>
                   <input
                     type="number"
-                    step="0.01"
+                    step="1000"
                     required
-                    placeholder="0.00"
+                    placeholder="180000"
                     value={menuFormPrice}
                     onChange={(e) => setMenuFormPrice(e.target.value)}
                     className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white font-mono"

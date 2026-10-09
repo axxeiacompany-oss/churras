@@ -137,13 +137,13 @@ export const DeliveryModal: React.FC<DeliveryModalProps> = ({ onClose, onCreated
 
               <div>
                 <label className="block text-xs font-medium text-stone-300 mb-1">
-                  Taxa de Entrega (R$)
+                  Taxa de Entrega (₲)
                 </label>
                 <div className="relative">
                   <DollarSign className="w-4 h-4 text-stone-500 absolute left-3 top-2.5" />
                   <input
                     type="number"
-                    step="0.50"
+                    step="1000"
                     min="0"
                     value={deliveryFee}
                     onChange={(e) => setDeliveryFee(e.target.value)}

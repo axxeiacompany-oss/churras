@@ -1,28 +1,27 @@
 import { UserRole, PaymentMethod, MeatDoneness } from '../types';
 
+/**
+ * Formatação oficial para a moeda do Paraguai: Guaraní (₲ / PYG / Gs.)
+ * O Guaraní não utiliza casas decimais (centavos) e tem separador de milhar com ponto.
+ * Exemplo: ₲ 210.000 | ₲ 1.450.000
+ */
 export const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  }).format(amount || 0);
+  const rounded = Math.round(amount || 0);
+  return `₲ ${new Intl.NumberFormat('es-PY', { maximumFractionDigits: 0 }).format(rounded)}`;
 };
 
-export const GUARANI_EXCHANGE_RATE = 1400; // 1 BRL = 1.400 PYG (Guaranis)
+export const GUARANI_EXCHANGE_RATE = 1;
 
-export const formatGuarani = (amountInBrl: number, exchangeRate = GUARANI_EXCHANGE_RATE): string => {
-  const guaraniVal = Math.round((amountInBrl || 0) * exchangeRate);
-  return `₲ ${new Intl.NumberFormat('es-PY', { maximumFractionDigits: 0 }).format(guaraniVal)}`;
+export const formatGuarani = (amount: number): string => {
+  return formatCurrency(amount);
 };
 
 export const formatCurrencyDual = (
-  amountInBrl: number,
-  currency: 'BRL' | 'GUARANI' = 'BRL',
-  exchangeRate = GUARANI_EXCHANGE_RATE
+  amount: number,
+  _currency?: string,
+  _exchangeRate?: number
 ): string => {
-  if (currency === 'GUARANI') {
-    return formatGuarani(amountInBrl, exchangeRate);
-  }
-  return formatCurrency(amountInBrl);
+  return formatCurrency(amount);
 };
 
 export const formatTime = (isoString?: string): string => {
@@ -30,7 +29,7 @@ export const formatTime = (isoString?: string): string => {
   try {
     const d = new Date(isoString);
     if (isNaN(d.getTime())) return isoString;
-    return d.toLocaleTimeString('pt-BR', {
+    return d.toLocaleTimeString('es-PY', {
       hour: '2-digit',
       minute: '2-digit',
     });
@@ -44,7 +43,7 @@ export const formatDate = (isoString?: string): string => {
   try {
     const d = new Date(isoString);
     if (isNaN(d.getTime())) return isoString;
-    return d.toLocaleDateString('pt-BR');
+    return d.toLocaleDateString('es-PY');
   } catch {
     return '--/--/----';
   }
@@ -55,11 +54,11 @@ export const getRoleLabel = (role: UserRole): string => {
     case 'ADMIN':
       return 'Administrador (Gerência)';
     case 'CAIXA':
-      return 'Operador de Caixa';
+      return 'Operador de Caixa (Cajero)';
     case 'GARCOM':
-      return 'Garçom (Salão)';
+      return 'Garçom (Mozo)';
     case 'COZINHA':
-      return 'Cozinha / Churrasqueiro';
+      return 'Cozinha / Parrillero (KDS)';
     default:
       return role;
   }
@@ -68,15 +67,15 @@ export const getRoleLabel = (role: UserRole): string => {
 export const getPaymentMethodLabel = (method: PaymentMethod): string => {
   switch (method) {
     case 'DINHEIRO':
-      return 'Dinheiro';
+      return 'Efectivo (Guaraníes ₲)';
     case 'CREDITO':
-      return 'Cartão de Crédito';
+      return 'Tarjeta de Crédito';
     case 'DEBITO':
-      return 'Cartão de Débito';
+      return 'Tarjeta de Débito';
     case 'PIX':
-      return 'PIX Instantâneo';
+      return 'Transferencia QR / SIPAP';
     case 'VR_VA':
-      return 'Vale Refeição / Alimentação';
+      return 'Billetera Móvil (Tigo / Personal)';
     default:
       return method;
   }
@@ -85,17 +84,17 @@ export const getPaymentMethodLabel = (method: PaymentMethod): string => {
 export const getMeatDonenessLabel = (doneness?: MeatDoneness): string => {
   switch (doneness) {
     case 'SELANTE':
-      return 'Selada (Quase Crua)';
+      return 'Selada (Sellada)';
     case 'MAL_PASSADO':
-      return 'Mal Passada';
+      return 'Mal Passada (Jugosa)';
     case 'AO_PONTO_PARA_MAL':
       return 'Ao Ponto p/ Mal';
     case 'AO_PONTO':
-      return 'Ao Ponto';
+      return 'Ao Ponto (A punto)';
     case 'AO_PONTO_PARA_BEM':
       return 'Ao Ponto p/ Bem';
     case 'BEM_PASSADO':
-      return 'Bem Passada';
+      return 'Bem Passada (Bien cocida)';
     default:
       return 'Padrão da Casa';
   }

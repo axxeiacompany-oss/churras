@@ -82,11 +82,11 @@ export const ReportsTab: React.FC = () => {
 
   const [activeSection, setActiveSection] = useState<ReportSection>('SALES');
   const [periodOption, setPeriodOption] = useState<PeriodOption>('MES_ATUAL');
-  const [currencyMode, setCurrencyMode] = useState<'BRL' | 'GUARANI'>('BRL');
+  
   const [showPrintModal, setShowPrintModal] = useState<boolean>(false);
 
   const renderMoney = (amount: number) => {
-    return formatCurrencyDual(amount, currencyMode);
+    return formatCurrency(amount);
   };
 
   // Filters for Sales Report
@@ -192,7 +192,7 @@ export const ReportsTab: React.FC = () => {
     });
 
     // If historical period, scale realistically
-    const baseClosedSales = paidComandas.reduce((sum, c) => sum + c.total, 0) || 14670;
+    const baseClosedSales = paidComandas.reduce((sum, c) => sum + c.total, 0) || 28500000;
     const scaledTotalSales = Math.round(baseClosedSales * periodMultiplier * 100) / 100;
     const baseOrdersCount = Math.max(paidComandas.length, 32);
     const scaledOrdersCount = Math.round(baseOrdersCount * periodMultiplier);
@@ -631,7 +631,7 @@ export const ReportsTab: React.FC = () => {
         csvContent += `"${r.employee.name}";"${r.employee.role}";${r.attributedSales.toFixed(2)};${r.serviceTaxGenerated.toFixed(2)};${r.voluntaryTips.toFixed(2)};${r.commissionRate}%;${r.totalToPay.toFixed(2)};"${r.isPaid ? 'PAGO' : 'PENDENTE'}"\n`;
       });
     } else if (activeSection === 'DRE') {
-      csvContent += 'Linha DRE;Valor R$;Analise Vertical %\n';
+      csvContent += 'Linha DRE;Valor (₲);Analise Vertical %\n';
       csvContent += `(+) RECEITA OPERACIONAL BRUTA;${dreReport.grossRevenue.toFixed(2)};${((dreReport.grossRevenue / dreReport.rol) * 100).toFixed(1)}%\n`;
       csvContent += `(-) DEDUÇÕES E ESTORNOS;${dreReport.totalDeducoes.toFixed(2)};${((dreReport.totalDeducoes / dreReport.rol) * 100).toFixed(1)}%\n`;
       csvContent += `(=) RECEITA OPERACIONAL LÍQUIDA (ROL);${dreReport.rol.toFixed(2)};100.0%\n`;
@@ -642,7 +642,7 @@ export const ReportsTab: React.FC = () => {
       csvContent += `(-) TRIBUTOS E IMPOSTOS (Simples Nacional);${dreReport.impostosSimples.toFixed(2)};${((dreReport.impostosSimples / dreReport.rol) * 100).toFixed(1)}%\n`;
       csvContent += `(=) LUCRO LÍQUIDO DO EXERCÍCIO;${dreReport.lucroLiquido.toFixed(2)};${dreReport.margemLiquidaPct.toFixed(1)}%\n`;
     } else if (activeSection === 'AUDIT') {
-      csvContent += 'Data/Hora;Responsavel;Cargo;Acao;Referencia;Detalhes;Motivo;Impacto Financeiro R$\n';
+      csvContent += 'Data/Hora;Responsavel;Cargo;Acao;Referencia;Detalhes;Motivo;Impacto Financeiro (₲)\n';
       filteredAuditLogs.forEach((l) => {
         csvContent += `"${formatDate(l.timestamp)} ${formatTime(l.timestamp)}";"${l.actorName}";"${l.actorRole}";"${l.actionType}";"${l.targetReference}";"${l.details}";"${l.reason || ''}";${(l.amountImpact || 0).toFixed(2)}\n`;
       });
@@ -730,42 +730,11 @@ export const ReportsTab: React.FC = () => {
 
         {/* Global Toolbar */}
         <div className="flex items-center gap-2 flex-wrap">
-          {/* Currency Switcher (BRL vs Guarani) */}
-          <div className="flex items-center bg-stone-950 border border-stone-800 rounded-xl p-0.5 text-xs">
-            <button
-              onClick={() => {
-                setCurrencyMode('BRL');
-                showToast('Exibindo valores em Reais (R$)', 'info');
-              }}
-              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
-                currencyMode === 'BRL'
-                  ? 'bg-amber-600 text-white shadow-sm'
-                  : 'text-stone-400 hover:text-stone-200'
-              }`}
-            >
-              🇧🇷 R$ Real
-            </button>
-            <button
-              onClick={() => {
-                setCurrencyMode('GUARANI');
-                showToast('Exibindo gráficos e valores em Guaraníes (₲)', 'info');
-              }}
-              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
-                currencyMode === 'GUARANI'
-                  ? 'bg-emerald-600 text-white shadow-sm'
-                  : 'text-stone-400 hover:text-stone-200'
-              }`}
-              title="Cotação de fronteira: 1 R$ = 1.400 ₲ (Guaraníes)"
-            >
-              🇵🇾 ₲ Guaraní
-            </button>
+          {/* Moeda Local Guaraní */}
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-xs font-bold text-emerald-400">
+            <span className="text-sm">🇵🇾</span>
+            <span>Moeda Oficial: Guaraní (₲ / PYG)</span>
           </div>
-
-          {currencyMode === 'GUARANI' && (
-            <span className="text-[10px] font-mono font-bold px-2 py-1 bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 rounded-lg hidden sm:inline-block">
-              1 R$ = 1.400 Gs.
-            </span>
-          )}
 
           {/* Period Selector */}
           <div className="flex items-center gap-1.5 bg-stone-950 border border-stone-800 rounded-xl px-2.5 py-1.5 text-xs">
@@ -1023,11 +992,7 @@ export const ReportsTab: React.FC = () => {
                     <YAxis
                       stroke="#a8a29e"
                       fontSize={10}
-                      tickFormatter={(val) =>
-                        currencyMode === 'GUARANI'
-                          ? `₲ ${Math.round((val * GUARANI_EXCHANGE_RATE) / 1000000)}M`
-                          : `R$ ${Math.round(val / 1000)}k`
-                      }
+                      tickFormatter={(val) => `₲ ${Math.round(val / 1000000)}M`}
                     />
                     <Tooltip
                       contentStyle={{ backgroundColor: '#1c1917', borderColor: '#44403c', borderRadius: 8, fontSize: 12 }}
@@ -1115,7 +1080,7 @@ export const ReportsTab: React.FC = () => {
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-stone-300 flex items-center gap-1.5">
                 <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
-                Curva de Faturamento Diário no Período ({currencyMode === 'GUARANI' ? 'Moeda: Guaraní ₲' : 'Moeda: Real R$'})
+                Curva de Faturamento Diário no Período (Moeda Oficial: Guaraní ₲)
               </span>
               <span className="text-[11px] text-stone-400 font-mono">
                 {dateRangeLabel}
@@ -1136,11 +1101,7 @@ export const ReportsTab: React.FC = () => {
                   <YAxis
                     stroke="#a8a29e"
                     fontSize={10}
-                    tickFormatter={(val) =>
-                      currencyMode === 'GUARANI'
-                        ? `₲ ${Math.round((val * GUARANI_EXCHANGE_RATE) / 1000000)}M`
-                        : `R$ ${Math.round(val / 1000)}k`
-                    }
+                    tickFormatter={(val) => `₲ ${Math.round(val / 1000000)}M`}
                   />
                   <Tooltip
                     contentStyle={{ backgroundColor: '#1c1917', borderColor: '#44403c', borderRadius: 8, fontSize: 12 }}
@@ -1263,7 +1224,7 @@ export const ReportsTab: React.FC = () => {
 
             <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4">
               <div className="text-[11px] font-bold text-stone-400 uppercase tracking-wider">
-                CMV Total (R$)
+                CMV Total (₲)
               </div>
               <div className="text-2xl font-black text-rose-400 mt-1">
                 {formatCurrency(cmvAnalysis.totalAnalysisCost)}
@@ -1297,7 +1258,7 @@ export const ReportsTab: React.FC = () => {
                   Engenharia de Cardápio para Churrascaria Prime
                 </h4>
                 <p className="text-[11px] text-stone-400 mt-0.5">
-                  Carnes nobres (Picanha, Ancho) têm CMV de ~35%, mas geram alto valor absoluto (R$). Chopp Brahma e Sobremesas atingem margens superiores a 72% e equilibram a rentabilidade global.
+                  Carnes nobres (Picanha, Ancho) têm CMV de ~35%, mas geram alto valor absoluto (₲). Chopp Brahma e Sobremesas atingem margens superiores a 72% e equilibram a rentabilidade global.
                 </p>
               </div>
             </div>
@@ -1320,7 +1281,7 @@ export const ReportsTab: React.FC = () => {
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-stone-300 flex items-center gap-1.5">
                 <BarChart3 className="w-3.5 h-3.5 text-amber-500" />
-                Comparativo Recharts: Faturamento x CMV x Lucro Bruto por Categoria ({currencyMode === 'GUARANI' ? '₲ Guaraní' : 'R$ Real'})
+                Comparativo Recharts: Faturamento x CMV x Lucro Bruto por Categoria (Guaraní ₲)
               </span>
               <span className="text-[11px] text-stone-400 font-mono">
                 Engenharia de Custos
@@ -1335,11 +1296,7 @@ export const ReportsTab: React.FC = () => {
                   <YAxis
                     stroke="#a8a29e"
                     fontSize={10}
-                    tickFormatter={(val) =>
-                      currencyMode === 'GUARANI'
-                        ? `₲ ${Math.round((val * GUARANI_EXCHANGE_RATE) / 1000000)}M`
-                        : `R$ ${Math.round(val / 1000)}k`
-                    }
+                    tickFormatter={(val) => `₲ ${Math.round(val / 1000000)}M`}
                   />
                   <Tooltip
                     contentStyle={{ backgroundColor: '#1c1917', borderColor: '#44403c', borderRadius: 8, fontSize: 12 }}
@@ -1390,8 +1347,8 @@ export const ReportsTab: React.FC = () => {
               >
                 <option value="margin_desc">Maior Margem (%)</option>
                 <option value="margin_asc">Menor Margem (%)</option>
-                <option value="sales_desc">Maior Faturamento (R$)</option>
-                <option value="cost_desc">Maior Custo Unitário (R$)</option>
+                <option value="sales_desc">Maior Faturamento (₲)</option>
+                <option value="cost_desc">Maior Custo Unitário (₲)</option>
               </select>
             </div>
 
@@ -1521,7 +1478,7 @@ export const ReportsTab: React.FC = () => {
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-stone-300 flex items-center gap-1.5">
                 <Award className="w-3.5 h-3.5 text-amber-500" />
-                Comissões & Gorjetas Apuradas por Colaborador ({currencyMode === 'GUARANI' ? '₲ Guaraní' : 'R$ Real'})
+                Comissões & Gorjetas Apuradas por Colaborador (Guaraní ₲)
               </span>
               <span className="text-[11px] text-stone-400 font-mono">
                 Fechamento de Folha & Taxa 10%
@@ -1536,11 +1493,7 @@ export const ReportsTab: React.FC = () => {
                   <YAxis
                     stroke="#a8a29e"
                     fontSize={10}
-                    tickFormatter={(val) =>
-                      currencyMode === 'GUARANI'
-                        ? `₲ ${Math.round((val * GUARANI_EXCHANGE_RATE) / 1000)}k`
-                        : `R$ ${val}`
-                    }
+                    tickFormatter={(val) => `₲ ${Math.round(val / 1000000)}M`}
                   />
                   <Tooltip
                     contentStyle={{ backgroundColor: '#1c1917', borderColor: '#44403c', borderRadius: 8, fontSize: 12 }}
@@ -1593,11 +1546,9 @@ export const ReportsTab: React.FC = () => {
                   {staffCommissions.rows.map((row) => (
                     <tr key={row.employee.id} className="hover:bg-stone-800/30 transition">
                       <td className="py-3 px-4 font-bold text-stone-100 flex items-center gap-2.5">
-                        <img
-                          src={row.employee.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
-                          alt={row.employee.name}
-                          className="w-7 h-7 rounded-full object-cover border border-stone-700"
-                        />
+                        <div className="w-7 h-7 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 font-bold text-[10px] flex items-center justify-center shrink-0">
+                          {row.employee.name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()}
+                        </div>
                         <span>{row.employee.name}</span>
                       </td>
                       <td className="py-3 px-4 text-stone-400">
@@ -2004,7 +1955,7 @@ export const ReportsTab: React.FC = () => {
                     <th className="py-3 px-4">Tipo de Ação</th>
                     <th className="py-3 px-4">Alvo / Referência</th>
                     <th className="py-3 px-4">Detalhes & Motivo</th>
-                    <th className="py-3 px-4 text-right">Impacto (R$)</th>
+                    <th className="py-3 px-4 text-right">Impacto (₲)</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-800/60">

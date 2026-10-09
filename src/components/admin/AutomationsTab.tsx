@@ -48,10 +48,10 @@ export const AutomationsTab: React.FC = () => {
   const [adminEmail, setAdminEmail] = useState<string>(settings.adminEmail || 'admin@churrascaria.com');
   const [adminPhone, setAdminPhone] = useState<string>(settings.adminPhone || '(11) 99876-1234');
   const [discountThreshold, setDiscountThreshold] = useState<string>(
-    (settings.discountAlertThreshold || 40).toString()
+    (settings.discountAlertThreshold || 50000).toString()
   );
   const [discrepancyThreshold, setDiscrepancyThreshold] = useState<string>(
-    (settings.cashDiscrepancyThreshold || 10).toString()
+    (settings.cashDiscrepancyThreshold || 20000).toString()
   );
   const [emailEnabled, setEmailEnabled] = useState<boolean>(settings.emailReportsEnabled ?? true);
   const [whatsappEnabled, setWhatsappEnabled] = useState<boolean>(settings.whatsappReportsEnabled ?? true);
@@ -62,8 +62,8 @@ export const AutomationsTab: React.FC = () => {
     updateSettings({
       adminEmail: adminEmail.trim(),
       adminPhone: adminPhone.trim(),
-      discountAlertThreshold: parseFloat(discountThreshold) || 40,
-      cashDiscrepancyThreshold: parseFloat(discrepancyThreshold) || 10,
+      discountAlertThreshold: parseFloat(discountThreshold) || 50000,
+      cashDiscrepancyThreshold: parseFloat(discrepancyThreshold) || 20000,
       emailReportsEnabled: emailEnabled,
       whatsappReportsEnabled: whatsappEnabled,
     });
@@ -524,7 +524,7 @@ _Relatório disparado automaticamente pelo ChurrasGestão._`;
                 Auditoria automática disparada quando um garçom concede desconto &gt; {formatCurrency(settings.discountAlertThreshold || 40)} ou cancela mesas
               </p>
             </div>
-            <span className="text-xs text-amber-400 font-semibold">Gatilho: R$ {settings.discountAlertThreshold || 40}</span>
+            <span className="text-xs text-amber-400 font-semibold">Gatilho: {formatCurrency(settings.discountAlertThreshold || 50000)}</span>
           </div>
 
           <div className="bg-stone-900 border border-stone-800 rounded-2xl overflow-hidden shadow-xl">
@@ -736,11 +736,11 @@ _Relatório disparado automaticamente pelo ChurrasGestão._`;
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-stone-300 font-semibold mb-1">
-                  Limite de Desconto p/ Alerta Anti-Fraude (R$)
+                  Limite de Desconto p/ Alerta Anti-Fraude (₲)
                 </label>
                 <input
                   type="number"
-                  step="5"
+                  step="5000"
                   required
                   value={discountThreshold}
                   onChange={(e) => setDiscountThreshold(e.target.value)}
@@ -753,11 +753,11 @@ _Relatório disparado automaticamente pelo ChurrasGestão._`;
 
               <div>
                 <label className="block text-stone-300 font-semibold mb-1">
-                  Tolerância de Caixa p/ Alerta de Divergência (R$)
+                  Tolerância de Caixa p/ Alerta de Divergência (₲)
                 </label>
                 <input
                   type="number"
-                  step="1"
+                  step="1000"
                   required
                   value={discrepancyThreshold}
                   onChange={(e) => setDiscrepancyThreshold(e.target.value)}

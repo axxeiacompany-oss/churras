@@ -235,11 +235,9 @@ export const WaiterDashboard: React.FC = () => {
       <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4 sm:p-5 shadow-lg">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <img
-              src={currentUser.avatar}
-              alt={currentUser.name}
-              className="w-12 h-12 rounded-xl object-cover border-2 border-amber-500 shadow-md"
-            />
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-600/30 to-stone-900 border-2 border-amber-500/50 text-amber-300 font-bold text-sm flex items-center justify-center shadow-md tracking-wider">
+              {currentUser.name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()}
+            </div>
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-lg font-bold text-white flex items-center gap-1.5">
@@ -743,7 +741,7 @@ export const WaiterDashboard: React.FC = () => {
                     </button>
                   </div>
                   <span className="font-mono text-stone-200">
-                    {activeComanda.includeService ? `+${formatCurrency(activeComanda.serviceFee)}` : 'R$ 0,00'}
+                    {activeComanda.includeService ? `+${formatCurrency(activeComanda.serviceFee)}` : '₲ 0'}
                   </span>
                 </div>
 

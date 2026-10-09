@@ -42,7 +42,14 @@ import {
   BarChart3,
   CheckCircle2,
   AlertCircle,
+  Search,
+  Eye,
+  Activity,
+  CreditCard,
+  Wallet,
+  QrCode,
 } from 'lucide-react';
+import { ReceiptModal } from '../modals/ReceiptModal';
 
 export const DailyMonitoringTab: React.FC = () => {
   const { comandas, employees, tables, settings, showToast } = useChurras();
@@ -51,12 +58,17 @@ export const DailyMonitoringTab: React.FC = () => {
   const [periodFilter, setPeriodFilter] = useState<'HOJE' | '7D' | '30D' | 'MES'>('HOJE');
   const [shiftFilter, setShiftFilter] = useState<'TODOS' | 'ALMOCO' | 'JANTAR'>('TODOS');
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>('TODOS');
-  const [currencyMode, setCurrencyMode] = useState<'BRL' | 'GUARANI'>('BRL');
   const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
   const [hoveredDay, setHoveredDay] = useState<DayMetric | null>(null);
 
+  // Live Transactions Stream states
+  const [liveSearch, setLiveSearch] = useState<string>('');
+  const [liveStatusFilter, setLiveStatusFilter] = useState<'ALL' | 'PAGA' | 'ABERTA' | 'CONTA_SOLICITADA'>('ALL');
+  const [selectedReceiptComanda, setSelectedReceiptComanda] = useState<Comanda | null>(null);
+  const [activeChartMetric, setActiveChartMetric] = useState<'REVENUE' | 'ORDERS' | 'TICKET' | 'PAX'>('REVENUE');
+
   const renderMoney = (amount: number) => {
-    return formatCurrencyDual(amount, currencyMode);
+    return formatCurrency(amount);
   };
 
   const handleRefresh = () => {
@@ -68,6 +80,24 @@ export const DailyMonitoringTab: React.FC = () => {
   const history30Days = useMemo(() => {
     return generate30DayMetrics(comandas);
   }, [comandas]);
+
+  // Live transactions feed
+  const liveFeedComandas = useMemo(() => {
+    return [...comandas]
+      .filter((c) => {
+        if (liveStatusFilter !== 'ALL' && c.status !== liveStatusFilter) return false;
+        if (liveSearch.trim()) {
+          const q = liveSearch.toLowerCase().trim();
+          const matchesCode = c.code.toLowerCase().includes(q);
+          const matchesTable = c.tableLabel.toLowerCase().includes(q);
+          const matchesWaiter = c.waiterName.toLowerCase().includes(q);
+          const matchesCustomer = (c.customerName || '').toLowerCase().includes(q);
+          if (!matchesCode && !matchesTable && !matchesWaiter && !matchesCustomer) return false;
+        }
+        return true;
+      })
+      .sort((a, b) => new Date(b.openedAt).getTime() - new Date(a.openedAt).getTime());
+  }, [comandas, liveStatusFilter, liveSearch]);
 
   // Filtered comandas for the current real-time state
   const filteredComandas = useMemo(() => {
@@ -165,15 +195,15 @@ export const DailyMonitoringTab: React.FC = () => {
     }
 
     return {
-      totalSales: closedSales > 0 ? closedSales : 14670.0, // baseline for a full operational day
+      totalSales: closedSales > 0 ? closedSales : 29250000, // baseline for a full operational day in Guaraní
       closedSales,
       activeEstimatedSales,
-      totalOrders: totalOrders > 0 ? totalOrders : 52,
+      totalOrders: totalOrders > 0 ? totalOrders : 64,
       paidCount,
-      avgTicket: avgTicket > 0 ? avgTicket : 282.11,
-      totalPax: totalPax > 0 ? totalPax : 148,
-      avgPerPerson: avgPerPerson > 0 ? avgPerPerson : 99.12,
-      totalServiceFee: closedSales > 0 ? totalServiceFee : 1467.0,
+      avgTicket: avgTicket > 0 ? avgTicket : 485000,
+      totalPax: totalPax > 0 ? totalPax : 165,
+      avgPerPerson: avgPerPerson > 0 ? avgPerPerson : 177000,
+      totalServiceFee: closedSales > 0 ? totalServiceFee : 2925000,
       occupiedTables,
     };
   }, [filteredComandas, periodFilter, history30Days, tables]);
@@ -187,8 +217,8 @@ export const DailyMonitoringTab: React.FC = () => {
     const lunchPct = Math.round((totalLunch / sum) * 100);
     const dinnerPct = 100 - lunchPct;
 
-    const avgTicketLunch = 245.5;
-    const avgTicketDinner = 312.8;
+    const avgTicketLunch = 420000;
+    const avgTicketDinner = 540000;
 
     return {
       totalLunch,
@@ -208,11 +238,11 @@ export const DailyMonitoringTab: React.FC = () => {
     const weekdayAvgSales =
       weekdays.length > 0
         ? weekdays.reduce((s, d) => s + d.totalSales, 0) / weekdays.length
-        : 13200;
+        : 22500000;
     const weekendAvgSales =
       weekends.length > 0
         ? weekends.reduce((s, d) => s + d.totalSales, 0) / weekends.length
-        : 22800;
+        : 38500000;
 
     const weekdayAvgPax =
       weekdays.length > 0 ? weekdays.reduce((s, d) => s + d.paxCount, 0) / weekdays.length : 110;
@@ -241,8 +271,8 @@ export const DailyMonitoringTab: React.FC = () => {
         const empComandas = comandas.filter((c) => c.waiterId === w.id);
         const paid = empComandas.filter((c) => c.status === 'PAGA');
 
-        // Combined realistic values based on monthly benchmark + today
-        const salesBaseline = [32450.0, 27890.0, 24120.0, 19500.0, 15400.0][index % 5] || 20000;
+        // Combined realistic values based on monthly benchmark in Guaraníes + today
+        const salesBaseline = [48500000, 42000000, 36500000, 29000000, 24000000][index % 5] || 32000000;
         const realSales = paid.reduce((s, c) => s + c.total, 0);
         const totalSales = realSales > 0 ? salesBaseline + realSales : salesBaseline;
 
@@ -671,29 +701,10 @@ export const DailyMonitoringTab: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Currency Mode Switcher */}
-            <div className="flex items-center bg-stone-950 border border-stone-800 rounded-xl p-0.5 text-xs">
-              <button
-                onClick={() => setCurrencyMode('BRL')}
-                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
-                  currencyMode === 'BRL'
-                    ? 'bg-amber-600 text-white shadow-sm'
-                    : 'text-stone-400 hover:text-stone-200'
-                }`}
-              >
-                🇧🇷 R$ Real
-              </button>
-              <button
-                onClick={() => setCurrencyMode('GUARANI')}
-                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
-                  currencyMode === 'GUARANI'
-                    ? 'bg-emerald-600 text-white shadow-sm'
-                    : 'text-stone-400 hover:text-stone-200'
-                }`}
-                title="1 R$ = 1.400 Gs. (₲ Guaraní)"
-              >
-                🇵🇾 ₲ Guaraní
-              </button>
+            {/* Moeda Local Guaraní */}
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-xs font-bold text-emerald-400">
+              <span className="text-sm">🇵🇾</span>
+              <span>Moeda Oficial: Guaraní (₲ / PYG)</span>
             </div>
 
             <div className="flex items-center gap-3 text-xs hidden md:flex">
@@ -728,11 +739,7 @@ export const DailyMonitoringTab: React.FC = () => {
               <YAxis
                 stroke="#a8a29e"
                 fontSize={10}
-                tickFormatter={(val) =>
-                  currencyMode === 'GUARANI'
-                    ? `₲ ${Math.round((val * GUARANI_EXCHANGE_RATE) / 1000000)}M`
-                    : `R$ ${Math.round(val / 1000)}k`
-                }
+                tickFormatter={(val) => `₲ ${Math.round(val / 1000000)}M`}
               />
               <Tooltip
                 contentStyle={{ backgroundColor: '#1c1917', borderColor: '#44403c', borderRadius: 8, fontSize: 12 }}
@@ -774,7 +781,252 @@ export const DailyMonitoringTab: React.FC = () => {
         </div>
       </div>
 
-      {/* 5. Ranking de Garçons (Vendas, Ticket Médio, Gorjetas) */}
+      {/* 5. Feed de Vendas & Comandas em Tempo Real */}
+      <div className="bg-stone-900 border border-stone-800 rounded-2xl p-5 shadow-xl space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="relative flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-extrabold text-stone-100 text-sm tracking-tight">
+                  Feed de Vendas em Tempo Real (Live Transactions)
+                </h3>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 uppercase tracking-wider">
+                  Ao Vivo
+                </span>
+              </div>
+              <p className="text-xs text-stone-400 mt-0.5">
+                Transmissão contínua de pedidos, liquidações e ocupação de mesas no salão
+              </p>
+            </div>
+          </div>
+
+          <div className="text-xs text-stone-400 font-mono">
+            Mostrando <strong className="text-stone-200">{liveFeedComandas.length}</strong> de{' '}
+            <strong className="text-stone-200">{comandas.length}</strong> atendimentos
+          </div>
+        </div>
+
+        {/* Search & Filter Bar */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1">
+          <div className="relative flex-1 max-w-md">
+            <Search className="w-4 h-4 text-stone-500 absolute left-3 top-2.5" />
+            <input
+              type="text"
+              placeholder="Buscar por código, mesa, cliente ou garçom..."
+              value={liveSearch}
+              onChange={(e) => setLiveSearch(e.target.value)}
+              className="w-full bg-stone-950 border border-stone-800 rounded-xl pl-9 pr-3 py-2 text-xs text-stone-200 placeholder-stone-500 focus:outline-none focus:border-emerald-500 transition"
+            />
+          </div>
+
+          <div className="flex items-center gap-1.5 overflow-x-auto bg-stone-950 p-1 rounded-xl border border-stone-800 text-xs">
+            <button
+              onClick={() => setLiveStatusFilter('ALL')}
+              className={`px-3 py-1.5 rounded-lg font-semibold transition cursor-pointer whitespace-nowrap ${
+                liveStatusFilter === 'ALL'
+                  ? 'bg-stone-800 text-stone-100 shadow-sm'
+                  : 'text-stone-400 hover:text-stone-200'
+              }`}
+            >
+              Todas ({comandas.length})
+            </button>
+            <button
+              onClick={() => setLiveStatusFilter('PAGA')}
+              className={`px-3 py-1.5 rounded-lg font-semibold transition cursor-pointer whitespace-nowrap ${
+                liveStatusFilter === 'PAGA'
+                  ? 'bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 shadow-sm'
+                  : 'text-stone-400 hover:text-stone-200'
+              }`}
+            >
+              Pagas / Aprovadas ({comandas.filter((c) => c.status === 'PAGA').length})
+            </button>
+            <button
+              onClick={() => setLiveStatusFilter('ABERTA')}
+              className={`px-3 py-1.5 rounded-lg font-semibold transition cursor-pointer whitespace-nowrap ${
+                liveStatusFilter === 'ABERTA'
+                  ? 'bg-amber-600/30 text-amber-300 border border-amber-500/40 shadow-sm'
+                  : 'text-stone-400 hover:text-stone-200'
+              }`}
+            >
+              Na Mesa ({comandas.filter((c) => c.status === 'ABERTA').length})
+            </button>
+            <button
+              onClick={() => setLiveStatusFilter('CONTA_SOLICITADA')}
+              className={`px-3 py-1.5 rounded-lg font-semibold transition cursor-pointer whitespace-nowrap ${
+                liveStatusFilter === 'CONTA_SOLICITADA'
+                  ? 'bg-blue-600/30 text-blue-300 border border-blue-500/40 shadow-sm'
+                  : 'text-stone-400 hover:text-stone-200'
+              }`}
+            >
+              Fechando ({comandas.filter((c) => c.status === 'CONTA_SOLICITADA').length})
+            </button>
+          </div>
+        </div>
+
+        {/* Live Transactions Table */}
+        <div className="overflow-x-auto rounded-xl border border-stone-800/80 bg-stone-950">
+          <table className="w-full text-left text-xs">
+            <thead>
+              <tr className="border-b border-stone-800 bg-stone-900/60 text-stone-400 uppercase text-[10px] tracking-wider font-mono">
+                <th className="py-3 px-3.5">Comanda / Mesa</th>
+                <th className="py-3 px-3">Cliente / Garçom</th>
+                <th className="py-3 px-3">Horário</th>
+                <th className="py-3 px-3">Itens Consumidos</th>
+                <th className="py-3 px-3">Forma Pgto</th>
+                <th className="py-3 px-3 text-right">Valor Total</th>
+                <th className="py-3 px-3 text-center">Status</th>
+                <th className="py-3 px-3 text-right">Ação</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-stone-800/60">
+              {liveFeedComandas.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="py-8 text-center text-stone-500">
+                    Nenhuma comanda encontrada para os filtros selecionados.
+                  </td>
+                </tr>
+              ) : (
+                liveFeedComandas.map((cmd) => {
+                  const itemsPreview = cmd.items.length > 0
+                    ? cmd.items.map((it) => `${it.quantity}x ${it.name}`).slice(0, 2).join(', ') +
+                      (cmd.items.length > 2 ? ` (+${cmd.items.length - 2})` : '')
+                    : cmd.hasRodizio
+                    ? `${cmd.peopleCount}x Rodízio Prime`
+                    : 'Sem itens lançados';
+
+                  const lastPayment = cmd.payments.length > 0 ? cmd.payments[cmd.payments.length - 1].method : null;
+
+                  return (
+                    <tr key={cmd.id} className="hover:bg-stone-900/40 transition">
+                      <td className="py-3 px-3.5">
+                        <div className="font-mono font-bold text-stone-200 text-xs">
+                          {cmd.code}
+                        </div>
+                        <div className="text-[11px] text-amber-500 font-medium">
+                          {cmd.tableLabel} {cmd.peopleCount > 0 ? `· ${cmd.peopleCount} pax` : ''}
+                        </div>
+                      </td>
+
+                      <td className="py-3 px-3">
+                        <div className="font-medium text-stone-200">
+                          {cmd.customerName || 'Cliente Balcão'}
+                        </div>
+                        <div className="text-[10px] text-stone-400">
+                          Garçom: <strong className="text-stone-300">{cmd.waiterName}</strong>
+                        </div>
+                      </td>
+
+                      <td className="py-3 px-3 text-stone-400 font-mono text-[11px] whitespace-nowrap">
+                        {formatTime(cmd.openedAt)}
+                      </td>
+
+                      <td className="py-3 px-3 text-stone-300 max-w-xs truncate text-[11px]">
+                        {itemsPreview}
+                      </td>
+
+                      <td className="py-3 px-3">
+                        {cmd.status === 'PAGA' && lastPayment ? (
+                          <span
+                            className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                              lastPayment === 'PIX'
+                                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                                : lastPayment === 'CREDITO'
+                                ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                                : lastPayment === 'DEBITO'
+                                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                                : lastPayment === 'DINHEIRO'
+                                ? 'bg-stone-700/50 text-stone-300 border border-stone-600'
+                                : 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                            }`}
+                          >
+                            {lastPayment}
+                          </span>
+                        ) : cmd.status === 'CONTA_SOLICITADA' ? (
+                          <span className="text-[10px] text-amber-400 font-medium italic">
+                            No Caixa...
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-stone-500">
+                            Em Consumo
+                          </span>
+                        )}
+                      </td>
+
+                      <td className="py-3 px-3 text-right font-mono font-bold text-sm whitespace-nowrap">
+                        <span
+                          className={
+                            cmd.status === 'PAGA'
+                              ? 'text-emerald-400'
+                              : cmd.status === 'CONTA_SOLICITADA'
+                              ? 'text-amber-400'
+                              : 'text-stone-200'
+                          }
+                        >
+                          {formatCurrency(cmd.total)}
+                        </span>
+                      </td>
+
+                      <td className="py-3 px-3 text-center whitespace-nowrap">
+                        <span
+                          className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                            cmd.status === 'PAGA'
+                              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                              : cmd.status === 'CONTA_SOLICITADA'
+                              ? 'bg-blue-500/10 text-blue-400 border-blue-500/30'
+                              : 'bg-amber-500/10 text-amber-400 border-amber-500/30'
+                          }`}
+                        >
+                          <span
+                            className={`w-1.5 h-1.5 rounded-full ${
+                              cmd.status === 'PAGA'
+                                ? 'bg-emerald-400'
+                                : cmd.status === 'CONTA_SOLICITADA'
+                                ? 'bg-blue-400'
+                                : 'bg-amber-400'
+                            }`}
+                          />
+                          {cmd.status === 'PAGA'
+                            ? 'Aprovada'
+                            : cmd.status === 'CONTA_SOLICITADA'
+                            ? 'Conta Solicitada'
+                            : 'Aberta'}
+                        </span>
+                      </td>
+
+                      <td className="py-3 px-3 text-right whitespace-nowrap">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedReceiptComanda(cmd)}
+                          className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-300 hover:text-white border border-stone-800 text-[11px] font-medium transition cursor-pointer ml-auto"
+                          title="Visualizar extrato térmico"
+                        >
+                          <Eye className="w-3 h-3 text-amber-500" />
+                          <span>Extrato</span>
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Modal de Extrato Térmico */}
+      {selectedReceiptComanda && (
+        <ReceiptModal
+          comanda={selectedReceiptComanda}
+          settings={settings}
+          onClose={() => setSelectedReceiptComanda(null)}
+        />
+      )}
+
+      {/* 6. Ranking de Garçons (Vendas, Ticket Médio, Gorjetas) */}
       <div className="bg-stone-900 border border-stone-800 rounded-2xl p-5 shadow-xl space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -819,17 +1071,9 @@ export const DailyMonitoringTab: React.FC = () => {
                     </td>
                     <td className="py-3 px-3">
                       <div className="flex items-center gap-2.5">
-                        {row.employee.avatar ? (
-                          <img
-                            src={row.employee.avatar}
-                            alt={row.employee.name}
-                            className="w-8 h-8 rounded-lg object-cover border border-stone-700"
-                          />
-                        ) : (
-                          <div className="w-8 h-8 rounded-lg bg-amber-600 text-white font-bold flex items-center justify-center text-xs">
-                            {row.employee.name.charAt(0)}
-                          </div>
-                        )}
+                        <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center text-xs tracking-wider">
+                          {row.employee.name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()}
+                        </div>
                         <div>
                           <div className="font-bold text-stone-200">{row.employee.name}</div>
                           <div className="text-[10px] text-stone-500 font-mono">
@@ -974,17 +1218,9 @@ export const DailyMonitoringTab: React.FC = () => {
               <div>
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2.5">
-                    {item.emp.avatar ? (
-                      <img
-                        src={item.emp.avatar}
-                        alt={item.emp.name}
-                        className="w-9 h-9 rounded-lg object-cover border border-stone-700"
-                      />
-                    ) : (
-                      <div className="w-9 h-9 rounded-lg bg-amber-600 text-white font-bold flex items-center justify-center text-xs">
-                        {item.emp.name.charAt(0)}
-                      </div>
-                    )}
+                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-600/30 to-stone-900 border border-amber-500/30 text-amber-300 font-bold flex items-center justify-center text-xs tracking-wider">
+                      {item.emp.name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()}
+                    </div>
                     <div>
                       <div className="font-bold text-stone-100 text-xs">{item.emp.name}</div>
                       <div className="text-[10px] text-stone-400">
