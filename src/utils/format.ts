@@ -52,13 +52,13 @@ export const formatDate = (isoString?: string): string => {
 export const getRoleLabel = (role: UserRole): string => {
   switch (role) {
     case 'ADMIN':
-      return 'Administrador (Gerência)';
+      return 'Administrador (Gerencia)';
     case 'CAIXA':
-      return 'Operador de Caixa (Cajero)';
+      return 'Cajero (Operador de Caja)';
     case 'GARCOM':
-      return 'Garçom (Mozo)';
+      return 'Mozo (Salón)';
     case 'COZINHA':
-      return 'Cozinha / Parrillero (KDS)';
+      return 'Cocina / Parrillero (KDS)';
     default:
       return role;
   }
@@ -84,18 +84,18 @@ export const getPaymentMethodLabel = (method: PaymentMethod): string => {
 export const getMeatDonenessLabel = (doneness?: MeatDoneness): string => {
   switch (doneness) {
     case 'SELANTE':
-      return 'Selada (Sellada)';
+      return 'Sellada (Vuelta y vuelta)';
     case 'MAL_PASSADO':
-      return 'Mal Passada (Jugosa)';
+      return 'Jugosa (Poco cocida)';
     case 'AO_PONTO_PARA_MAL':
-      return 'Ao Ponto p/ Mal';
+      return 'A punto jugosa';
     case 'AO_PONTO':
-      return 'Ao Ponto (A punto)';
+      return 'A punto';
     case 'AO_PONTO_PARA_BEM':
-      return 'Ao Ponto p/ Bem';
+      return 'A punto cocida';
     case 'BEM_PASSADO':
-      return 'Bem Passada (Bien cocida)';
+      return 'Bien cocida';
     default:
-      return 'Padrão da Casa';
+      return 'Estándar de la Casa';
   }
 };

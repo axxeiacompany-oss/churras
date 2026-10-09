@@ -129,75 +129,75 @@ export const App: React.FC = () => {
   }> = isAdmin
     ? [
         {
-          title: 'DASHBOARD & VENDAS',
+          title: 'DASHBOARD Y VENTAS',
           items: [
             {
               key: 'DASHBOARD',
-              label: 'Visão Geral Executiva',
+              label: 'Visión General Ejecutiva',
               icon: LayoutDashboard,
             },
           ],
         },
         {
-          title: 'OPERAÇÕES DE SALÃO',
+          title: 'OPERACIONES DE SALÓN',
           items: [
             {
               key: 'TABLES',
-              label: 'Salão & Mesas',
+              label: 'Salón y Mesas',
               icon: UtensilsCrossed,
               badge: occupiedTablesCount > 0 ? `${occupiedTablesCount}/${tables.length}` : undefined,
               badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
             },
             {
               key: 'CASHIER',
-              label: 'Frente de Caixa',
+              label: 'Frente de Caja',
               icon: Wallet,
             },
           ],
         },
         {
-          title: 'PRODUTOS & DOCUMENTOS',
+          title: 'PRODUCTOS Y DOCUMENTOS',
           items: [
             {
               key: 'MENU',
-              label: 'Produtos',
+              label: 'Productos',
               icon: BookOpen,
             },
             {
               key: 'BUY_SELL',
-              label: 'Relatório Diário (PDF)',
+              label: 'Reporte Diario (PDF)',
               icon: FileText,
             },
           ],
         },
         {
-          title: 'GESTÃO & BI',
+          title: 'GESTIÓN Y BI',
           items: [
             {
               key: 'CASH_FLOW',
-              label: 'Fluxo de Caixa & DRE',
+              label: 'Flujo de Caja y DRE',
               icon: DollarSign,
             },
             {
               key: 'REPORTS',
-              label: 'Relatórios & Inteligência',
+              label: 'Reportes e Inteligencia',
               icon: FileSpreadsheet,
             },
           ],
         },
         {
-          title: 'SISTEMA & CONFIGURAÇÃO',
+          title: 'SISTEMA Y CONFIGURACIÓN',
           items: [
             {
               key: 'EMPLOYEES',
-              label: 'Funcionários & Equipe',
+              label: 'Empleados y Equipo',
               icon: Users,
-              badge: employees.length,
+              badge: employees.filter((e) => e.role !== 'ADMIN').length,
               badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
             },
             {
               key: 'SETTINGS',
-              label: 'Configurações & Admin',
+              label: 'Configuraciones y Admin',
               icon: Settings,
             },
           ],
@@ -205,11 +205,11 @@ export const App: React.FC = () => {
       ]
     : [
         {
-          title: 'ATENDIMENTO DE SALÃO',
+          title: 'ATENCIÓN DE SALÓN',
           items: [
             {
               key: 'TABLES',
-              label: 'Salão & Mesas (Anotar Pedidos)',
+              label: 'Salón y Mesas (Tomar Pedidos)',
               icon: UtensilsCrossed,
               badge: occupiedTablesCount > 0 ? `${occupiedTablesCount}/${tables.length}` : undefined,
               badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
@@ -221,25 +221,25 @@ export const App: React.FC = () => {
   const getBreadcrumbTitle = () => {
     switch (activeNav) {
       case 'DASHBOARD':
-        return 'Dashboard / Visão Geral de Vendas';
+        return 'Dashboard / Visión General de Ventas';
       case 'TABLES':
-        return 'Operações / Salão & Anotação de Pedidos';
+        return 'Operaciones / Salón y Toma de Pedidos';
       case 'CASHIER':
-        return 'Operações / Frente de Caixa';
+        return 'Operaciones / Frente de Caja';
       case 'KITCHEN':
-        return 'Operações / Cozinha & KDS Parrilla';
+        return 'Operaciones / Cocina y KDS Parrilla';
       case 'MENU':
-        return 'Gestão / Cadastro de Produtos';
+        return 'Gestión / Registro de Productos';
       case 'BUY_SELL':
-        return 'Gestão / Relatório Diário Oficial (PDF)';
+        return 'Gestión / Reporte Diario Oficial (PDF)';
       case 'EMPLOYEES':
-        return 'Gestão / Cadastro de Funcionários';
+        return 'Gestión / Empleados y Equipo';
       case 'CASH_FLOW':
-        return 'Financeiro / Fluxo de Caixa & DRE';
+        return 'Finanzas / Flujo de Caja y DRE';
       case 'REPORTS':
-        return 'Inteligência / Relatórios & BI';
+        return 'Inteligencia / Reportes y BI';
       case 'SETTINGS':
-        return 'Sistema / Configurações';
+        return 'Sistema / Configuraciones';
       default:
         return 'Dashboard';
     }
@@ -273,7 +273,7 @@ export const App: React.FC = () => {
                     </span>
                   </div>
                   <span className="text-[10px] text-stone-400 font-mono block">
-                    Gestão Integrada
+                    Gestión Integrada
                   </span>
                 </div>
               )}
@@ -296,11 +296,11 @@ export const App: React.FC = () => {
                   <Store className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                   <div className="truncate">
                     <div className="font-semibold text-stone-200 text-[11px] truncate">
-                      Unidade Asunción (PY)
+                      Sucursal Asunción (PY)
                     </div>
                     <div className="text-[10px] text-emerald-400 flex items-center gap-1 font-mono">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      12 Mesas · Guaraní (₲)
+                      {tables.length} Mesas · Guaraní (₲)
                     </div>
                   </div>
                 </div>
@@ -376,9 +376,7 @@ export const App: React.FC = () => {
                     {currentUser.name}
                   </div>
                   <div className="text-[10px] text-amber-400 font-mono flex items-center gap-1">
-                    <span>{currentUser.role}</span>
-                    <span className="text-stone-600">·</span>
-                    <span className="text-stone-400">{currentUser.shift}</span>
+                    <span>{currentUser.role === 'GARCOM' ? 'MOZO' : currentUser.role === 'CAIXA' ? 'CAJERO' : currentUser.role === 'COZINHA' ? 'COCINA' : currentUser.role}</span>
                   </div>
                 </div>
               )}
@@ -386,7 +384,7 @@ export const App: React.FC = () => {
               <button
                 onClick={logout}
                 className="p-1.5 rounded-lg text-stone-400 hover:text-red-400 hover:bg-red-950/20 transition cursor-pointer shrink-0"
-                title="Encerrar sessão"
+                title="Cerrar sesión"
               >
                 <LogOut className="w-4 h-4" />
               </button>
@@ -423,13 +421,13 @@ export const App: React.FC = () => {
                   }
                 }}
                 className="p-2 rounded-xl bg-[#131A2D] border border-[#1E2638] text-stone-400 hover:text-white transition cursor-pointer"
-                title="Alternar Menu Lateral"
+                title="Alternar Menú Lateral"
               >
                 <Menu className="w-4 h-4" />
               </button>
 
               <div className="hidden sm:flex items-center gap-2 text-xs font-medium">
-                <span className="text-stone-400 font-bold">ChurrasGestão</span>
+                <span className="text-stone-400 font-bold">ChurrasGestión</span>
                 <ChevronRight className="w-3.5 h-3.5 text-stone-600" />
                 <span className="text-stone-200 font-semibold">{getBreadcrumbTitle()}</span>
               </div>
@@ -443,22 +441,30 @@ export const App: React.FC = () => {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
                 </span>
-                <span>Transmissão Ativa (PYG ₲)</span>
+                <span>Transmisión Activa (PYG ₲)</span>
               </div>
 
               {/* UTMfy Date Filter Tabs */}
               <div className="hidden lg:flex items-center bg-[#101627] p-1 rounded-xl border border-[#1E2638] text-xs">
-                {(['HOJE', 'ONTEM', '7D', '30D', 'MES'] as const).map((period) => (
+                {(
+                  [
+                    { key: 'HOJE', label: 'HOY' },
+                    { key: 'ONTEM', label: 'AYER' },
+                    { key: '7D', label: '7D' },
+                    { key: '30D', label: '30D' },
+                    { key: 'MES', label: 'MES' },
+                  ] as const
+                ).map((period) => (
                   <button
-                    key={period}
-                    onClick={() => setSelectedPeriod(period)}
+                    key={period.key}
+                    onClick={() => setSelectedPeriod(period.key)}
                     className={`px-2.5 py-1 rounded-lg font-bold text-[11px] transition cursor-pointer ${
-                      selectedPeriod === period
+                      selectedPeriod === period.key
                         ? 'bg-emerald-600 text-white shadow-sm'
                         : 'text-stone-400 hover:text-stone-200'
                     }`}
                   >
-                    {period}
+                    {period.label}
                   </button>
                 ))}
               </div>
@@ -469,8 +475,8 @@ export const App: React.FC = () => {
                   {(
                     [
                       { role: 'ADMIN', label: 'Admin', icon: ShieldCheck },
-                      { role: 'CAIXA', label: 'Caixa', icon: Wallet },
-                      { role: 'GARCOM', label: 'Garçom', icon: UtensilsCrossed },
+                      { role: 'CAIXA', label: 'Cajero', icon: Wallet },
+                      { role: 'GARCOM', label: 'Mozo', icon: UtensilsCrossed },
                     ] as const
                   ).map((r) => {
                     const isCurrent = currentUser.role === r.role;
@@ -485,7 +491,7 @@ export const App: React.FC = () => {
                             ? 'bg-amber-600 text-white shadow-sm'
                             : 'text-stone-400 hover:text-stone-200'
                         }`}
-                        title={`Alternar para perfil de ${r.label}`}
+                        title={`Cambiar a perfil de ${r.label}`}
                       >
                         <Icon className="w-3 h-3" />
                         <span className="hidden sm:inline">{r.label}</span>
@@ -496,7 +502,7 @@ export const App: React.FC = () => {
               ) : (
                 <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold">
                   <UtensilsCrossed className="w-3.5 h-3.5" />
-                  <span>Terminal do Garçom</span>
+                  <span>Terminal del Mozo</span>
                 </div>
               )}
 
@@ -505,7 +511,7 @@ export const App: React.FC = () => {
                 <button
                   onClick={() => setShowNotifications(!showNotifications)}
                   className="p-2 rounded-xl bg-[#131A2D] border border-[#1E2638] text-stone-300 hover:text-white transition cursor-pointer relative"
-                  title="Alertas e Notificações"
+                  title="Alertas y Notificaciones"
                 >
                   <Bell className="w-4 h-4" />
                   {totalAlertsCount > 0 && (
@@ -519,35 +525,35 @@ export const App: React.FC = () => {
                   <div className="absolute right-0 mt-2 w-80 bg-[#0E1424] border border-[#1E2638] rounded-2xl shadow-2xl p-4 z-50 text-xs space-y-3">
                     <div className="flex items-center justify-between border-b border-[#1E2638] pb-2">
                       <span className="font-bold text-white flex items-center gap-1.5">
-                        <Bell className="w-3.5 h-3.5 text-amber-500" /> Alertas Operacionais
+                        <Bell className="w-3.5 h-3.5 text-amber-500" /> Alertas Operacionales
                       </span>
                       <span className="text-[10px] text-stone-400 font-mono">
-                        {totalAlertsCount} pendentes
+                        {totalAlertsCount} pendientes
                       </span>
                     </div>
 
                     <div className="space-y-2 max-h-60 overflow-y-auto">
                       {criticalStockCount > 0 && (
                         <div className="p-2.5 rounded-xl bg-amber-950/20 border border-amber-500/30 text-amber-300 space-y-1">
-                          <div className="font-bold text-[11px]">Estoque Crítico Detectado</div>
+                          <div className="font-bold text-[11px]">Stock Crítico Detectado</div>
                           <div className="text-[10px] text-amber-400/90">
-                            {criticalStockCount} insumo(s) abaixo da margem mínima de segurança.
+                            {criticalStockCount} insumo(s) por debajo del margen mínimo de seguridad.
                           </div>
                         </div>
                       )}
 
                       {pendingBillsCount > 0 && (
                         <div className="p-2.5 rounded-xl bg-red-950/20 border border-red-500/30 text-red-300 space-y-1">
-                          <div className="font-bold text-[11px]">Contas com Vencimento Hoje</div>
+                          <div className="font-bold text-[11px]">Cuentas que Vencen Hoy</div>
                           <div className="text-[10px] text-red-400/90">
-                            {pendingBillsCount} despesa(s) operacional(is) a pagar hoje.
+                            {pendingBillsCount} gasto(s) operacional(es) a pagar hoy.
                           </div>
                         </div>
                       )}
 
                       {totalAlertsCount === 0 && (
                         <div className="py-4 text-center text-stone-500 text-xs">
-                          Tudo sob controle! Nenhum alerta crítico ativo.
+                          ¡Todo bajo control! Ninguna alerta crítica activa.
                         </div>
                       )}
                     </div>

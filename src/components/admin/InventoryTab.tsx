@@ -33,19 +33,19 @@ import {
 const CATEGORY_LABELS: Record<IngredientCategory, string> = {
   CARNES: 'Carnes & Cortes',
   BEBIDAS: 'Bebidas & Chopp',
-  CARVAO_LENHA: 'Carvão & Lenha',
-  HORTIFRUTI: 'Hortifrúti & Saladas',
-  MERCEARIA: 'Mercearia & Secos',
-  SOBREMESAS: 'Sobremesas & Doces',
-  OUTROS: 'Outros Insumos',
+  CARVAO_LENHA: 'Carbón & Leña',
+  HORTIFRUTI: 'Verduras & Ensaladas',
+  MERCEARIA: 'Almacén & Secos',
+  SOBREMESAS: 'Postres & Dulces',
+  OUTROS: 'Otros Insumos',
 };
 
 const WASTE_REASON_LABELS: Record<WasteReason, string> = {
-  VALIDADE_VENCIDA: 'Validade Vencida',
-  QUEIMA_OU_ERRO_PREPARO: 'Queima / Erro de Preparo',
-  LIMPEZA_CORTE_EXCESSIVO: 'Limpeza / Apara Excessiva de Gordura',
-  DANO_AVARIA: 'Dano / Quebra em Transporte',
-  OUTRO: 'Outro Motivo',
+  VALIDADE_VENCIDA: 'Fecha de Vencimiento Expirada',
+  QUEIMA_OU_ERRO_PREPARO: 'Quemado / Error de Preparación',
+  LIMPEZA_CORTE_EXCESSIVO: 'Limpieza / Recorte Excesivo de Grasa',
+  DANO_AVARIA: 'Daño / Avería en Transporte',
+  OUTRO: 'Otro Motivo',
 };
 
 export const InventoryTab: React.FC = () => {
@@ -128,7 +128,7 @@ export const InventoryTab: React.FC = () => {
     setIngUnit('KG');
     setIngCurrentStock('10');
     setIngMinStock('5');
-    setIngCostPerUnit('30');
+    setIngCostPerUnit('30000');
     setIngSupplier('');
     setShowIngredientModal(true);
   };
@@ -192,7 +192,7 @@ export const InventoryTab: React.FC = () => {
 
     const qty = parseFloat(restockQty);
     if (!qty || qty <= 0) {
-      showToast('Digite uma quantidade válida para reposição.', 'warning');
+      showToast('Ingrese una cantidad válida para reposición.', 'warning');
       return;
     }
 
@@ -221,7 +221,7 @@ export const InventoryTab: React.FC = () => {
 
     const qty = parseFloat(wasteQty);
     if (!qty || qty <= 0) {
-      showToast('Digite uma quantidade válida descartada.', 'warning');
+      showToast('Ingrese una cantidad válida descartada.', 'warning');
       return;
     }
 
@@ -253,7 +253,7 @@ export const InventoryTab: React.FC = () => {
             </div>
           </div>
           <div className="text-2xl font-black text-white">{ingredients.length}</div>
-          <div className="text-[11px] text-stone-500 mt-1">Itens monitorados em estoque</div>
+          <div className="text-[11px] text-stone-500 mt-1">Ítems monitoreados en stock</div>
         </div>
 
         <div
@@ -273,7 +273,7 @@ export const InventoryTab: React.FC = () => {
                 lowStockIngredients.length > 0 ? 'text-red-400' : 'text-stone-400'
               }`}
             >
-              Alertas de Estoque Mínimo
+              Alertas de Stock Mínimo
             </span>
             <div
               className={`p-2 rounded-xl ${
@@ -294,14 +294,14 @@ export const InventoryTab: React.FC = () => {
           </div>
           <div className="text-[11px] text-stone-400 mt-1">
             {lowStockIngredients.length > 0
-              ? 'Insumos atingiram nível crítico!'
-              : 'Todos os níveis normais'}
+              ? '¡Insumos alcanzaron nivel crítico!'
+              : 'Todos los niveles normales'}
           </div>
         </div>
 
         <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4 shadow-lg">
           <div className="flex items-center justify-between text-stone-400 mb-2">
-            <span className="text-xs font-semibold">Valor em Estoque</span>
+            <span className="text-xs font-semibold">Valor en Stock</span>
             <div className="p-2 rounded-xl bg-emerald-600/10 text-emerald-500">
               <DollarSign className="w-4 h-4" />
             </div>
@@ -309,12 +309,12 @@ export const InventoryTab: React.FC = () => {
           <div className="text-2xl font-black text-emerald-400 font-mono">
             {formatCurrency(totalStockValue)}
           </div>
-          <div className="text-[11px] text-stone-500 mt-1">Custo total dos ativos físicos</div>
+          <div className="text-[11px] text-stone-500 mt-1">Costo total de los activos físicos</div>
         </div>
 
         <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4 shadow-lg">
           <div className="flex items-center justify-between text-stone-400 mb-2">
-            <span className="text-xs font-semibold">Perdas & Desperdício</span>
+            <span className="text-xs font-semibold">Mermas & Desperdicio</span>
             <div className="p-2 rounded-xl bg-red-600/10 text-red-500">
               <TrendingDown className="w-4 h-4" />
             </div>
@@ -340,7 +340,7 @@ export const InventoryTab: React.FC = () => {
             }`}
           >
             <Package className="w-4 h-4" />
-            <span>Insumos & Estoque ({ingredients.length})</span>
+            <span>Insumos & Stock ({ingredients.length})</span>
             {lowStockIngredients.length > 0 && (
               <span className="px-1.5 py-0.5 text-[10px] bg-red-500 text-white rounded-full font-bold animate-pulse">
                 {lowStockIngredients.length}
@@ -357,7 +357,7 @@ export const InventoryTab: React.FC = () => {
             }`}
           >
             <FileSpreadsheet className="w-4 h-4" />
-            <span>Fichas Técnicas & Baixa Automática</span>
+            <span>Fichas Técnicas & Rebaja Automática</span>
           </button>
 
           <button
@@ -369,7 +369,7 @@ export const InventoryTab: React.FC = () => {
             }`}
           >
             <AlertOctagon className="w-4 h-4" />
-            <span>Perdas & Desperdício ({wasteRecords.length})</span>
+            <span>Mermas & Desperdicio ({wasteRecords.length})</span>
           </button>
 
           <button
@@ -381,7 +381,7 @@ export const InventoryTab: React.FC = () => {
             }`}
           >
             <Clock className="w-4 h-4" />
-            <span>Kardex / Movimentações ({stockMovements.length})</span>
+            <span>Kardex / Movimientos ({stockMovements.length})</span>
           </button>
         </div>
 
@@ -392,7 +392,7 @@ export const InventoryTab: React.FC = () => {
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-950/60 hover:bg-red-900 border border-red-800 text-red-300 hover:text-white text-xs font-bold transition-all shadow-sm"
           >
             <AlertOctagon className="w-3.5 h-3.5" />
-            <span>Registrar Perda</span>
+            <span>Registrar Merma</span>
           </button>
 
           <button
@@ -400,7 +400,7 @@ export const InventoryTab: React.FC = () => {
             className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold transition-all shadow-md"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>Novo Insumo</span>
+            <span>Nuevo Insumo</span>
           </button>
         </div>
       </div>
@@ -414,7 +414,7 @@ export const InventoryTab: React.FC = () => {
               <Search className="w-4 h-4 text-stone-500 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
-                placeholder="Buscar por insumo ou fornecedor..."
+                placeholder="Buscar por insumo o proveedor..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full bg-stone-950 border border-stone-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-amber-500"
@@ -427,13 +427,13 @@ export const InventoryTab: React.FC = () => {
                 onChange={(e) => setSelectedCategory(e.target.value as IngredientCategory | 'ALL')}
                 className="bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-xs text-stone-300 font-semibold"
               >
-                <option value="ALL">Todas as Categorias</option>
+                <option value="ALL">Todas las Categorías</option>
                 <option value="CARNES">Carnes & Cortes</option>
                 <option value="BEBIDAS">Bebidas & Chopp</option>
-                <option value="CARVAO_LENHA">Carvão & Lenha</option>
-                <option value="HORTIFRUTI">Hortifrúti & Saladas</option>
-                <option value="MERCEARIA">Mercearia & Secos</option>
-                <option value="SOBREMESAS">Sobremesas & Doces</option>
+                <option value="CARVAO_LENHA">Carbón & Leña</option>
+                <option value="HORTIFRUTI">Verduras & Ensaladas</option>
+                <option value="MERCEARIA">Almacén & Secos</option>
+                <option value="SOBREMESAS">Postres & Dulces</option>
               </select>
 
               <button
@@ -445,7 +445,7 @@ export const InventoryTab: React.FC = () => {
                 }`}
               >
                 <AlertTriangle className="w-3.5 h-3.5 text-red-400" />
-                <span>Abaixo do Mínimo ({lowStockIngredients.length})</span>
+                <span>Bajo el Mínimo ({lowStockIngredients.length})</span>
               </button>
             </div>
           </div>
@@ -459,7 +459,7 @@ export const InventoryTab: React.FC = () => {
                 </div>
                 <div>
                   <h4 className="text-sm font-bold text-red-100">
-                    Atenção: {lowStockIngredients.length} insumo(s) estão com estoque crítico!
+                    Atención: ¡{lowStockIngredients.length} insumo(s) están con stock crítico!
                   </h4>
                   <p className="text-xs text-red-300/80">
                     {lowStockIngredients.map((i) => `${i.name} (${i.currentStock} ${i.unit})`).join(' • ')}
@@ -481,20 +481,20 @@ export const InventoryTab: React.FC = () => {
               <table className="w-full text-left text-xs">
                 <thead className="bg-stone-950 text-stone-400 uppercase font-semibold text-[10px] border-b border-stone-800">
                   <tr>
-                    <th className="p-3.5">Insumo / Fornecedor</th>
-                    <th className="p-3.5">Categoria</th>
-                    <th className="p-3.5">Estoque Atual vs Mínimo</th>
-                    <th className="p-3.5">Custo Unitário</th>
+                    <th className="p-3.5">Insumo / Proveedor</th>
+                    <th className="p-3.5">Categoría</th>
+                    <th className="p-3.5">Stock Actual vs Mínimo</th>
+                    <th className="p-3.5">Costo Unitario</th>
                     <th className="p-3.5">Valor Total</th>
-                    <th className="p-3.5 text-center">Status</th>
-                    <th className="p-3.5 text-right">Ações</th>
+                    <th className="p-3.5 text-center">Estado</th>
+                    <th className="p-3.5 text-right">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-800/70 text-stone-300">
                   {filteredIngredients.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="p-8 text-center text-stone-500">
-                        Nenhum insumo encontrado para os filtros selecionados.
+                        Ningún insumo encontrado para los filtros seleccionados.
                       </td>
                     </tr>
                   ) : (
@@ -521,7 +521,7 @@ export const InventoryTab: React.FC = () => {
                               )}
                             </div>
                             <div className="text-[11px] text-stone-500">
-                              {ing.supplier ? `Fornecedor: ${ing.supplier}` : 'Sem fornecedor cadastrado'}
+                              {ing.supplier ? `Proveedor: ${ing.supplier}` : 'Sin proveedor registrado'}
                             </div>
                           </td>
 
@@ -534,7 +534,7 @@ export const InventoryTab: React.FC = () => {
                           <td className="p-3.5 min-w-[180px]">
                             <div className="flex items-center justify-between text-xs font-mono font-bold mb-1">
                               <span className={isLowStock ? 'text-red-400' : 'text-stone-200'}>
-                                {ing.currentStock.toFixed( ing.unit === 'KG' ? 2 : 0 )} {ing.unit}
+                                {ing.currentStock.toFixed(ing.unit === 'KG' ? 2 : 0)} {ing.unit}
                               </span>
                               <span className="text-[10px] text-stone-500 font-sans">
                                 Mín: {ing.minStock} {ing.unit}
@@ -565,7 +565,7 @@ export const InventoryTab: React.FC = () => {
                           <td className="p-3.5 text-center">
                             {isLowStock ? (
                               <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-950 text-red-400 border border-red-800 inline-flex items-center gap-1">
-                                <AlertTriangle className="w-3 h-3" /> Repor Imediato
+                                <AlertTriangle className="w-3 h-3" /> Reponer Ya
                               </span>
                             ) : (
                               <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-950/80 text-emerald-400 border border-emerald-800/60 inline-flex items-center gap-1">
@@ -578,7 +578,7 @@ export const InventoryTab: React.FC = () => {
                             <div className="flex items-center justify-end gap-1.5">
                               <button
                                 onClick={() => handleOpenRestock(ing)}
-                                title="Repor / Entrada de Estoque"
+                                title="Reponer / Entrada de Stock"
                                 className="px-2 py-1 rounded-lg bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 hover:text-white font-bold text-[11px] flex items-center gap-1 transition-colors"
                               >
                                 <ArrowUpRight className="w-3 h-3" />
@@ -587,7 +587,7 @@ export const InventoryTab: React.FC = () => {
 
                               <button
                                 onClick={() => handleOpenWasteModal(ing.id)}
-                                title="Registrar Perda / Quebra"
+                                title="Registrar Merma / Pérdida"
                                 className="p-1.5 rounded-lg bg-stone-800 hover:bg-red-950/80 text-stone-400 hover:text-red-400 transition-colors"
                               >
                                 <TrendingDown className="w-3.5 h-3.5" />
@@ -602,12 +602,8 @@ export const InventoryTab: React.FC = () => {
                               </button>
 
                               <button
-                                onClick={() => {
-                                  if (confirm(`Deseja remover o insumo "${ing.name}"?`)) {
-                                    deleteIngredient(ing.id);
-                                  }
-                                }}
-                                title="Excluir Insumo"
+                                onClick={() => deleteIngredient(ing.id)}
+                                title="Eliminar Insumo"
                                 className="p-1.5 rounded-lg bg-stone-800 hover:bg-red-900/60 text-stone-400 hover:text-red-300 transition-colors"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
@@ -631,10 +627,10 @@ export const InventoryTab: React.FC = () => {
           <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4">
             <h3 className="text-sm font-bold text-white flex items-center gap-2">
               <FileSpreadsheet className="w-4 h-4 text-amber-500" />
-              Ficha Técnica Simples & Baixa Automática no Estoque
+              Ficha Técnica Simple & Rebaja Automática en Stock
             </h3>
             <p className="text-xs text-stone-400 mt-1">
-              Cada venda realizada de um prato ou corte desconta automaticamente do estoque os insumos cadastrados abaixo em tempo real.
+              Cada venta realizada de un plato o corte descuenta automáticamente del stock los insumos registrados abajo en tiempo real.
             </p>
           </div>
 
@@ -666,20 +662,20 @@ export const InventoryTab: React.FC = () => {
                         <div className="font-mono font-bold text-amber-400 text-sm">
                           {formatCurrency(item.price)}
                         </div>
-                        <div className="text-[10px] text-stone-500">Preço de Venda</div>
+                        <div className="text-[10px] text-stone-500">Precio de Venta</div>
                       </div>
                     </div>
 
                     {/* Margem e Custo */}
                     <div className="grid grid-cols-2 gap-2 my-3 p-2.5 rounded-xl bg-stone-950 border border-stone-800/80 text-xs">
                       <div>
-                        <span className="text-[10px] text-stone-400 block">Custo de Produção:</span>
+                        <span className="text-[10px] text-stone-400 block">Costo de Producción:</span>
                         <strong className="font-mono text-stone-200">
                           {formatCurrency(item.costPrice || theoreticalCost)}
                         </strong>
                       </div>
                       <div>
-                        <span className="text-[10px] text-stone-400 block">Margem Bruta Estimada:</span>
+                        <span className="text-[10px] text-stone-400 block">Margen Bruto Estimado:</span>
                         <strong
                           className={`font-mono ${
                             profitMargin > 50
@@ -697,11 +693,11 @@ export const InventoryTab: React.FC = () => {
                     {/* Ficha Técnica Insumos */}
                     <div className="space-y-1.5">
                       <div className="text-[11px] font-bold text-stone-400 uppercase tracking-wider">
-                        Insumos que dão Baixa Automática ({recipe.length}):
+                        Insumos con Rebaja Automática ({recipe.length}):
                       </div>
                       {recipe.length === 0 ? (
                         <div className="p-3 bg-stone-950/60 rounded-xl border border-dashed border-stone-800 text-[11px] text-stone-500">
-                          Nenhum insumo vinculado a este item. Edite em Produtos para configurar a ficha técnica.
+                          Ningún insumo vinculado a este ítem. Edite en Productos para configurar la ficha técnica.
                         </div>
                       ) : (
                         <div className="space-y-1">
@@ -746,10 +742,10 @@ export const InventoryTab: React.FC = () => {
             <div>
               <h3 className="text-sm font-bold text-white flex items-center gap-2">
                 <AlertOctagon className="w-4 h-4 text-red-500" />
-                Auditoria de Perdas & Desperdício
+                Auditoría de Mermas & Desperdicio
               </h3>
               <p className="text-xs text-stone-400 mt-1">
-                Acompanhamento rigoroso de quebras, aparas de gordura e produtos vencidos para controle de custo.
+                Seguimiento riguroso de mermas, recortes de grasa y productos vencidos para control de costos.
               </p>
             </div>
             <button
@@ -766,20 +762,20 @@ export const InventoryTab: React.FC = () => {
               <table className="w-full text-left text-xs">
                 <thead className="bg-stone-950 text-stone-400 uppercase font-semibold text-[10px] border-b border-stone-800">
                   <tr>
-                    <th className="p-3.5">Data & Hora</th>
+                    <th className="p-3.5">Fecha & Hora</th>
                     <th className="p-3.5">Insumo Descartado</th>
-                    <th className="p-3.5">Quantidade</th>
-                    <th className="p-3.5">Motivo do Descarte</th>
-                    <th className="p-3.5">Prejuízo Financeiro</th>
-                    <th className="p-3.5">Responsável</th>
-                    <th className="p-3.5">Observações</th>
+                    <th className="p-3.5">Cantidad</th>
+                    <th className="p-3.5">Motivo del Descarte</th>
+                    <th className="p-3.5">Pérdida Financiera</th>
+                    <th className="p-3.5">Responsable</th>
+                    <th className="p-3.5">Observaciones</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-800/70 text-stone-300">
                   {wasteRecords.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="p-8 text-center text-stone-500">
-                        Nenhum registro de desperdício cadastrado até o momento.
+                        Ningún registro de desperdicio registrado hasta el momento.
                       </td>
                     </tr>
                   ) : (
@@ -820,10 +816,10 @@ export const InventoryTab: React.FC = () => {
           <div className="bg-stone-900 border border-stone-800 p-4 rounded-2xl">
             <h3 className="text-sm font-bold text-white flex items-center gap-2">
               <Clock className="w-4 h-4 text-amber-500" />
-              Histórico de Movimentações de Estoque (Kardex)
+              Historial de Movimientos de Stock (Kardex)
             </h3>
             <p className="text-xs text-stone-400 mt-1">
-              Registro completo de todas as entradas de compras, baixas automáticas originadas pelas vendas e descartes registrados.
+              Registro completo de todas las entradas de compras, rebajas automáticas por ventas y descartes registrados.
             </p>
           </div>
 
@@ -832,11 +828,11 @@ export const InventoryTab: React.FC = () => {
               <table className="w-full text-left text-xs">
                 <thead className="bg-stone-950 text-stone-400 uppercase font-semibold text-[10px] border-b border-stone-800">
                   <tr>
-                    <th className="p-3.5">Data / Hora</th>
-                    <th className="p-3.5">Tipo de Movimentação</th>
+                    <th className="p-3.5">Fecha / Hora</th>
+                    <th className="p-3.5">Tipo de Movimiento</th>
                     <th className="p-3.5">Insumo</th>
-                    <th className="p-3.5">Quantidade</th>
-                    <th className="p-3.5">Referência / Origem</th>
+                    <th className="p-3.5">Cantidad</th>
+                    <th className="p-3.5">Referencia / Origen</th>
                     <th className="p-3.5">Operador / Registro</th>
                   </tr>
                 </thead>
@@ -844,7 +840,7 @@ export const InventoryTab: React.FC = () => {
                   {stockMovements.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="p-8 text-center text-stone-500">
-                        Nenhuma movimentação registrada.
+                        Ningún movimiento registrado.
                       </td>
                     </tr>
                   ) : (
@@ -860,11 +856,11 @@ export const InventoryTab: React.FC = () => {
                             </span>
                           ) : mov.type === 'BAIXA_VENDA' ? (
                             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-950 text-amber-400 border border-amber-800 flex items-center gap-1 w-fit">
-                              <ArrowDownRight className="w-3 h-3" /> Baixa por Venda
+                              <ArrowDownRight className="w-3 h-3" /> Rebaja por Venta
                             </span>
                           ) : mov.type === 'PERDA' ? (
                             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-950 text-red-400 border border-red-800 flex items-center gap-1 w-fit">
-                              <TrendingDown className="w-3 h-3" /> Descarte / Perda
+                              <TrendingDown className="w-3 h-3" /> Descarte / Merma
                             </span>
                           ) : (
                             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-stone-800 text-stone-300 w-fit">
@@ -901,7 +897,7 @@ export const InventoryTab: React.FC = () => {
             <div className="flex items-center justify-between pb-3 border-b border-stone-800 mb-4">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
                 <Package className="w-5 h-5 text-amber-500" />
-                {editingIngredient ? 'Editar Insumo de Estoque' : 'Novo Insumo de Estoque'}
+                {editingIngredient ? 'Editar Insumo de Stock' : 'Nuevo Insumo de Stock'}
               </h3>
               <button
                 onClick={() => setShowIngredientModal(false)}
@@ -913,11 +909,11 @@ export const InventoryTab: React.FC = () => {
 
             <form onSubmit={handleSaveIngredient} className="space-y-3 text-xs">
               <div>
-                <label className="block font-semibold text-stone-300 mb-1">Nome do Insumo:</label>
+                <label className="block font-semibold text-stone-300 mb-1">Nombre del Insumo:</label>
                 <input
                   type="text"
                   required
-                  placeholder="Ex: Picanha Angus Certificada"
+                  placeholder="Ej: Picaña Angus Certificada"
                   value={ingName}
                   onChange={(e) => setIngName(e.target.value)}
                   className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white"
@@ -926,7 +922,7 @@ export const InventoryTab: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-stone-300 mb-1">Categoria:</label>
+                  <label className="block font-semibold text-stone-300 mb-1">Categoría:</label>
                   <select
                     value={ingCategory}
                     onChange={(e) => setIngCategory(e.target.value as IngredientCategory)}
@@ -934,24 +930,24 @@ export const InventoryTab: React.FC = () => {
                   >
                     <option value="CARNES">Carnes & Cortes</option>
                     <option value="BEBIDAS">Bebidas & Chopp</option>
-                    <option value="CARVAO_LENHA">Carvão & Lenha</option>
-                    <option value="HORTIFRUTI">Hortifrúti & Saladas</option>
-                    <option value="MERCEARIA">Mercearia & Secos</option>
-                    <option value="SOBREMESAS">Sobremesas & Doces</option>
-                    <option value="OUTROS">Outros</option>
+                    <option value="CARVAO_LENHA">Carbón & Leña</option>
+                    <option value="HORTIFRUTI">Verduras & Ensaladas</option>
+                    <option value="MERCEARIA">Almacén & Secos</option>
+                    <option value="SOBREMESAS">Postres & Dulces</option>
+                    <option value="OUTROS">Otros</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-stone-300 mb-1">Unidade de Medida:</label>
+                  <label className="block font-semibold text-stone-300 mb-1">Unidad de Medida:</label>
                   <select
                     value={ingUnit}
                     onChange={(e) => setIngUnit(e.target.value as StockUnit)}
                     className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white font-mono"
                   >
-                    <option value="KG">Quilogramas (KG)</option>
+                    <option value="KG">Kilogramos (KG)</option>
                     <option value="UN">Unidades (UN)</option>
-                    <option value="PACOTE">Pacote / Fardo</option>
+                    <option value="PACOTE">Paquete / Fardo</option>
                     <option value="L">Litros (L)</option>
                   </select>
                 </div>
@@ -960,7 +956,7 @@ export const InventoryTab: React.FC = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block font-semibold text-stone-300 mb-1">
-                    Estoque Atual ({ingUnit}):
+                    Stock Actual ({ingUnit}):
                   </label>
                   <input
                     type="number"
@@ -975,13 +971,13 @@ export const InventoryTab: React.FC = () => {
 
                 <div>
                   <label className="block font-semibold text-stone-300 mb-1">
-                    Estoque Mínimo (Alerta):
+                    Stock Mínimo (Alerta):
                   </label>
                   <input
                     type="number"
                     step="0.01"
                     required
-                    placeholder="Ex: 10"
+                    placeholder="Ej: 10"
                     value={ingMinStock}
                     onChange={(e) => setIngMinStock(e.target.value)}
                     className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white font-mono"
@@ -992,13 +988,13 @@ export const InventoryTab: React.FC = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block font-semibold text-stone-300 mb-1">
-                    Custo Unitário (R$ / {ingUnit}):
+                    Costo Unitario (₲ / {ingUnit}):
                   </label>
                   <input
                     type="number"
-                    step="0.01"
+                    step="1000"
                     required
-                    placeholder="0.00"
+                    placeholder="0"
                     value={ingCostPerUnit}
                     onChange={(e) => setIngCostPerUnit(e.target.value)}
                     className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white font-mono"
@@ -1006,10 +1002,10 @@ export const InventoryTab: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-stone-300 mb-1">Fornecedor Principal:</label>
+                  <label className="block font-semibold text-stone-300 mb-1">Proveedor Principal:</label>
                   <input
                     type="text"
-                    placeholder="Ex: Frigorífico VPJ"
+                    placeholder="Ej: Frigorífico Neuland"
                     value={ingSupplier}
                     onChange={(e) => setIngSupplier(e.target.value)}
                     className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white"
@@ -1029,7 +1025,7 @@ export const InventoryTab: React.FC = () => {
                   type="submit"
                   className="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold"
                 >
-                  {editingIngredient ? 'Salvar Insumo' : 'Cadastrar Insumo'}
+                  {editingIngredient ? 'Guardar Insumo' : 'Registrar Insumo'}
                 </button>
               </div>
             </form>
@@ -1044,7 +1040,7 @@ export const InventoryTab: React.FC = () => {
             <div className="flex items-center justify-between pb-3 border-b border-stone-800 mb-4">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
                 <ArrowUpRight className="w-5 h-5 text-emerald-500" />
-                Registrar Entrada de Estoque
+                Registrar Entrada de Stock
               </h3>
               <button onClick={() => setShowRestockModal(false)} className="text-stone-400 hover:text-white">
                 <X className="w-5 h-5" />
@@ -1054,21 +1050,21 @@ export const InventoryTab: React.FC = () => {
             <div className="bg-stone-950 p-3 rounded-xl border border-stone-800 mb-4 text-xs">
               <div className="font-bold text-white text-sm">{targetRestockIngredient.name}</div>
               <div className="text-stone-400 mt-1">
-                Estoque Atual: <strong className="text-amber-400">{targetRestockIngredient.currentStock} {targetRestockIngredient.unit}</strong> |
-                Estoque Mínimo: {targetRestockIngredient.minStock} {targetRestockIngredient.unit}
+                Stock Actual: <strong className="text-amber-400">{targetRestockIngredient.currentStock} {targetRestockIngredient.unit}</strong> |
+                Stock Mínimo: {targetRestockIngredient.minStock} {targetRestockIngredient.unit}
               </div>
             </div>
 
             <form onSubmit={handleConfirmRestock} className="space-y-3 text-xs">
               <div>
                 <label className="block font-semibold text-stone-300 mb-1">
-                  Quantidade Recebida ({targetRestockIngredient.unit}):
+                  Cantidad Recibida ({targetRestockIngredient.unit}):
                 </label>
                 <input
                   type="number"
                   step="0.01"
                   required
-                  placeholder="Ex: 25.0"
+                  placeholder="Ej: 25.0"
                   value={restockQty}
                   onChange={(e) => setRestockQty(e.target.value)}
                   className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white font-mono text-base font-bold"
@@ -1077,12 +1073,12 @@ export const InventoryTab: React.FC = () => {
 
               <div>
                 <label className="block font-semibold text-stone-300 mb-1">
-                  Custo Unitário da Nota (R$ / {targetRestockIngredient.unit}):
+                  Costo Unitario de la Factura (₲ / {targetRestockIngredient.unit}):
                 </label>
                 <input
                   type="number"
-                  step="0.01"
-                  placeholder="0.00"
+                  step="1000"
+                  placeholder="0"
                   value={restockCost}
                   onChange={(e) => setRestockCost(e.target.value)}
                   className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white font-mono"
@@ -1090,10 +1086,10 @@ export const InventoryTab: React.FC = () => {
               </div>
 
               <div>
-                <label className="block font-semibold text-stone-300 mb-1">Fornecedor / Nº Nota Fiscal:</label>
+                <label className="block font-semibold text-stone-300 mb-1">Proveedor / Nº Factura:</label>
                 <input
                   type="text"
-                  placeholder="Ex: NF-e 4912 - Distribuidora Ambev"
+                  placeholder="Ej: Factura 4912 - Distribuidora Cervepar"
                   value={restockSupplier}
                   onChange={(e) => setRestockSupplier(e.target.value)}
                   className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white"
@@ -1127,7 +1123,7 @@ export const InventoryTab: React.FC = () => {
             <div className="flex items-center justify-between pb-3 border-b border-stone-800 mb-4">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
                 <AlertOctagon className="w-5 h-5 text-red-500" />
-                Registrar Perda ou Desperdício
+                Registrar Merma o Desperdicio
               </h3>
               <button onClick={() => setShowWasteModal(false)} className="text-stone-400 hover:text-white">
                 <X className="w-5 h-5" />
@@ -1144,7 +1140,7 @@ export const InventoryTab: React.FC = () => {
                 >
                   {ingredients.map((ing) => (
                     <option key={ing.id} value={ing.id}>
-                      {ing.name} (Atual: {ing.currentStock} {ing.unit})
+                      {ing.name} (Actual: {ing.currentStock} {ing.unit})
                     </option>
                   ))}
                 </select>
@@ -1152,13 +1148,13 @@ export const InventoryTab: React.FC = () => {
 
               <div>
                 <label className="block font-semibold text-stone-300 mb-1">
-                  Quantidade Descartada:
+                  Cantidad Descartada:
                 </label>
                 <input
                   type="number"
                   step="0.01"
                   required
-                  placeholder="Ex: 1.5"
+                  placeholder="Ej: 1.5"
                   value={wasteQty}
                   onChange={(e) => setWasteQty(e.target.value)}
                   className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white font-mono text-base font-bold"
@@ -1166,25 +1162,25 @@ export const InventoryTab: React.FC = () => {
               </div>
 
               <div>
-                <label className="block font-semibold text-stone-300 mb-1">Motivo do Descarte:</label>
+                <label className="block font-semibold text-stone-300 mb-1">Motivo del Descarte:</label>
                 <select
                   value={wasteReason}
                   onChange={(e) => setWasteReason(e.target.value as WasteReason)}
                   className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white"
                 >
-                  <option value="LIMPEZA_CORTE_EXCESSIVO">Limpeza / Apara Excessiva de Gordura</option>
-                  <option value="QUEIMA_OU_ERRO_PREPARO">Queima ou Erro de Preparo na Grelha</option>
-                  <option value="VALIDADE_VENCIDA">Validade Vencida</option>
-                  <option value="DANO_AVARIA">Dano / Quebra em Transporte / Armazenagem</option>
-                  <option value="OUTRO">Outro Motivo</option>
+                  <option value="LIMPEZA_CORTE_EXCESSIVO">Limpieza / Recorte Excesivo de Grasa</option>
+                  <option value="QUEIMA_OU_ERRO_PREPARO">Quemado o Error de Preparación en Parrilla</option>
+                  <option value="VALIDADE_VENCIDA">Fecha de Vencimiento Expirada</option>
+                  <option value="DANO_AVARIA">Daño / Avería en Transporte o Almacenaje</option>
+                  <option value="OUTRO">Otro Motivo</option>
                 </select>
               </div>
 
               <div>
-                <label className="block font-semibold text-stone-300 mb-1">Observações / Detalhes:</label>
+                <label className="block font-semibold text-stone-300 mb-1">Observaciones / Detalles:</label>
                 <textarea
                   rows={2}
-                  placeholder="Descreva a causa para auditoria de perdas..."
+                  placeholder="Describa la causa para auditoría de mermas..."
                   value={wasteNotes}
                   onChange={(e) => setWasteNotes(e.target.value)}
                   className="w-full bg-stone-950 border border-stone-700 rounded-xl p-2.5 text-white"
@@ -1203,7 +1199,7 @@ export const InventoryTab: React.FC = () => {
                   type="submit"
                   className="px-5 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold"
                 >
-                  Confirmar Baixa por Perda
+                  Confirmar Baja por Merma
                 </button>
               </div>
             </form>

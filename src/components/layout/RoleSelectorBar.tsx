@@ -22,24 +22,24 @@ export const RoleSelectorBar: React.FC<RoleSelectorBarProps> = () => {
   }> = [
     {
       role: 'ADMIN',
-      label: 'Admin (Dono/Gerente)',
-      description: 'Acesso total: faturamento, equipe, cardápio e fluxo de caixa',
+      label: 'Admin (Dueño/Gerente)',
+      description: 'Acceso total: facturación, equipo, menú y flujo de caja',
       icon: ShieldAlert,
       badge: 'Total',
     },
     {
       role: 'CAIXA',
-      label: 'Caixa (PDV / Fechamento)',
-      description: 'Abre/fecha caixa, recebe pagamentos, sangrias e suprimentos',
+      label: 'Cajero (POS / Cierre)',
+      description: 'Abre/cierra caja, recibe pagos, retiros e ingresos',
       icon: Wallet,
-      badge: 'Operação',
+      badge: 'Operación',
     },
     {
       role: 'GARCOM',
-      label: 'Garçom (Salão & Mesas)',
-      description: 'Abre comandas, lança carnes e pedidos, vê suas mesas',
+      label: 'Mozo (Salón y Mesas)',
+      description: 'Abre comandas, lanza carnes y pedidos, ve sus mesas',
       icon: UtensilsCrossed,
-      badge: 'Atendimento',
+      badge: 'Atención',
     },
   ];
 
@@ -56,7 +56,7 @@ export const RoleSelectorBar: React.FC<RoleSelectorBarProps> = () => {
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
         <div className="flex items-center gap-1.5 text-xs text-stone-400 font-medium">
           <Info className="w-3.5 h-3.5 text-amber-500" />
-          <span>Alterne o perfil para testar as permissões de cada setor:</span>
+          <span>Cambie de perfil para probar los permisos de cada sector:</span>
         </div>
 
         {/* Roles pills / buttons */}

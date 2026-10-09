@@ -194,7 +194,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const handleCopySql = () => {
     navigator.clipboard.writeText(SUPABASE_SQL_SCHEMA);
     setCopiedSql(true);
-    showToast('Script SQL copiado para a área de transferência!', 'success');
+    showToast('¡Script SQL copiado al portapapeles!', 'success');
     setTimeout(() => setCopiedSql(false), 3000);
   };
 
@@ -203,12 +203,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'churrasgestao_schema.sql';
+    a.download = 'churrasgestion_schema.sql';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    showToast('Arquivo churrasgestao_schema.sql baixado com sucesso!', 'success');
+    showToast('¡Archivo churrasgestion_schema.sql descargado con éxito!', 'success');
   };
 
   // Financial calculations
@@ -327,7 +327,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     permKey: keyof EmployeePermissions
   ) => {
     if (emp.role === 'ADMIN') {
-      showToast('Administradores possuem todas as funções liberadas por padrão.', 'info');
+      showToast('Los administradores tienen todas las funciones habilitadas por defecto.', 'info');
       return;
     }
     const currentPerms = getEmployeePermissions(emp);
@@ -384,7 +384,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     setEmpFormError(null);
 
     if (!empFormEmail.trim()) {
-      setEmpFormError('Informe o Gmail/e-mail do colaborador.');
+      setEmpFormError('Ingrese el Gmail/correo del colaborador.');
       return;
     }
 
@@ -437,7 +437,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       });
 
       if (!res.success) {
-        setEmpFormError(res.error || 'Erro ao criar conta.');
+        setEmpFormError(res.error || 'Error al crear la cuenta.');
         return;
       }
       setShowEmployeeModal(false);
@@ -456,7 +456,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     if (!resetTargetEmp) return;
 
     if (newPinInput.trim() && !/^\d{4}$/.test(newPinInput.trim())) {
-      showToast('O novo PIN deve ter exatamente 4 dígitos.', 'warning');
+      showToast('El nuevo PIN debe tener exactamente 4 dígitos.', 'warning');
       return;
     }
 
@@ -545,7 +545,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const handleSaveTable = (e: React.FormEvent) => {
     e.preventDefault();
     if (!tableFormLabel.trim()) {
-      showToast('Nome/número da mesa é obrigatório.', 'error');
+      showToast('El nombre/número de la mesa es obligatorio.', 'error');
       return;
     }
     if (editingTable) {
@@ -580,7 +580,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               }`}
             >
               <TrendingUp className="w-4 h-4" />
-              <span>Visão Geral & Métricas</span>
+              <span>Visión General & Métricas</span>
             </button>
 
             <button
@@ -592,7 +592,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               }`}
             >
               <Users className="w-4 h-4" />
-              <span>Funcionários & Equipe ({employees.filter((e) => e.role !== 'ADMIN').length})</span>
+              <span>Empleados & Equipo ({employees.filter((e) => e.role !== 'ADMIN').length})</span>
             </button>
 
             <button
@@ -604,7 +604,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               }`}
             >
               <UtensilsCrossed className="w-4 h-4" />
-              <span>Produtos ({menuItems.length})</span>
+              <span>Productos ({menuItems.length})</span>
             </button>
 
             <button
@@ -616,7 +616,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               }`}
             >
               <FileText className="w-4 h-4" />
-              <span>Relatório Diário (PDF)</span>
+              <span>Informe Diario (PDF)</span>
             </button>
 
             <button
@@ -628,7 +628,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               }`}
             >
               <Layers className="w-4 h-4" />
-              <span>Mapa do Salão ({tables.length} mesas)</span>
+              <span>Mapa del Salón ({tables.length} mesas)</span>
             </button>
 
             <button
@@ -640,7 +640,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               }`}
             >
               <DollarSign className="w-4 h-4" />
-              <span>Fluxo de Caixa & Auditoria</span>
+              <span>Flujo de Caja & Auditoría</span>
             </button>
 
             <button
@@ -652,7 +652,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               }`}
             >
               <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
-              <span>Relatórios & BI</span>
+              <span>Informes & BI</span>
             </button>
 
             <button
@@ -664,7 +664,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               }`}
             >
               <Settings className="w-4 h-4" />
-              <span>Configurações</span>
+              <span>Configuraciones</span>
             </button>
           </div>
         </div>
@@ -713,10 +713,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-extrabold uppercase tracking-wider text-amber-400">
-                      Admin & Gerência (Separado da Equipe)
+                      Admin & Gerencia (Separado del Equipo)
                     </span>
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800/60">
-                      Acesso Total
+                      Acceso Total
                     </span>
                   </div>
                   <p className="text-xs text-stone-300 mt-0.5">
@@ -731,7 +731,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     className="px-3 py-1.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-amber-300 border border-stone-700 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
                   >
                     <KeyRound className="w-3.5 h-3.5" />
-                    <span>Alterar Senha Admin</span>
+                    <span>Cambiar Contraseña Admin</span>
                   </button>
                 </div>
               )}
@@ -742,10 +742,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <div>
                 <h3 className="text-base font-bold text-white flex items-center gap-2">
                   <Users className="w-5 h-5 text-amber-500" />
-                  Funcionários & Equipe Operacional ({staffEmployeesOnly.length})
+                  Empleados & Equipo Operativo ({staffEmployeesOnly.length})
                 </h3>
                 <p className="text-xs text-stone-400">
-                  Cadastro exclusivo de funcionários e equipe (Garçons, Operadores de Caixa e Cozinha/Churrasqueiro).
+                  Registro exclusivo de empleados y equipo (Mozos, Cajeros y Cocina/Parrillero).
                 </p>
               </div>
               <button
@@ -753,7 +753,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold transition-all shadow-md active:scale-98 cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
-                <span>+ Adicionar Funcionário</span>
+                <span>+ Agregar Empleado</span>
               </button>
             </div>
 
@@ -765,7 +765,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <Search className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
                   <input
                     type="text"
-                    placeholder="Buscar funcionário por nome, Gmail ou C.I...."
+                    placeholder="Buscar empleado por nombre, Gmail o C.I...."
                     value={empSearch}
                     onChange={(e) => {
                       setEmpSearch(e.target.value);
@@ -786,10 +786,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     }}
                     className="w-full bg-transparent text-stone-200 focus:outline-none text-xs"
                   >
-                    <option value="ALL">Todas as Funções da Equipe</option>
-                    <option value="GARCOM">Garçom (Salão)</option>
-                    <option value="CAIXA">Operador de Caixa</option>
-                    <option value="COZINHA">Cozinha / Churrasqueiro</option>
+                    <option value="ALL">Todas las Funciones del Equipo</option>
+                    <option value="GARCOM">Mozo (Salón)</option>
+                    <option value="CAIXA">Cajero (Operador de Caja)</option>
+                    <option value="COZINHA">Cocina / Parrillero</option>
                   </select>
                 </div>
 
@@ -804,9 +804,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     }}
                     className="w-full bg-transparent text-stone-200 focus:outline-none text-xs"
                   >
-                    <option value="ALL">Todos os Status</option>
-                    <option value="ACTIVE">Apenas Ativos</option>
-                    <option value="INACTIVE">Apenas Inativos</option>
+                    <option value="ALL">Todos los Estados</option>
+                    <option value="ACTIVE">Solo Activos</option>
+                    <option value="INACTIVE">Solo Inactivos</option>
                   </select>
                 </div>
               </div>
@@ -816,7 +816,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             {filteredEmployees.length === 0 ? (
               <div className="bg-stone-900 border border-dashed border-stone-800 rounded-2xl p-10 text-center text-xs text-stone-400 space-y-2">
                 <Users className="w-8 h-8 text-stone-600 mx-auto" />
-                <p className="font-semibold text-stone-200">Nenhum funcionário encontrado com os filtros atuais.</p>
+                <p className="font-semibold text-stone-200">No se encontró ningún empleado con los filtros actuales.</p>
                 <button
                   onClick={() => {
                     setEmpSearch('');
@@ -826,7 +826,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   }}
                   className="text-amber-400 underline font-medium"
                 >
-                  Limpar todos os filtros
+                  Limpiar todos los filtros
                 </button>
               </div>
             ) : (
@@ -864,42 +864,42 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               : 'bg-red-950 text-red-400 border border-red-800'
                           }`}
                         >
-                          {emp.active ? 'ATIVO' : 'INATIVO'}
+                          {emp.active ? 'ACTIVO' : 'INACTIVO'}
                         </span>
                       </div>
 
                       {/* Detail Fields Grid */}
                       <div className="p-3 bg-stone-950 rounded-xl border border-stone-800/80 text-xs space-y-1.5">
                         <div className="flex justify-between text-stone-400">
-                          <span>Gmail / E-mail:</span>
+                          <span>Gmail / Correo:</span>
                           <span className="text-amber-300 font-mono text-[11px] font-bold truncate max-w-[170px]">{emp.email}</span>
                         </div>
                         <div className="flex justify-between text-stone-400">
                           <span>C.I. / Doc:</span>
-                          <span className="text-stone-200 font-mono text-[11px] font-semibold">{emp.cpf || 'Não informado'}</span>
+                          <span className="text-stone-200 font-mono text-[11px] font-semibold">{emp.cpf || 'No informado'}</span>
                         </div>
                         <div className="flex justify-between text-stone-400">
-                          <span>Telefone:</span>
-                          <span className="text-stone-200">{emp.phone || 'Não informado'}</span>
+                          <span>Teléfono:</span>
+                          <span className="text-stone-200">{emp.phone || 'No informado'}</span>
                         </div>
                         <div className="flex justify-between text-stone-400">
-                          <span>Admissão:</span>
+                          <span>Ingreso:</span>
                           <span className="text-stone-300">
-                            {emp.admissionDate ? new Date(emp.admissionDate + 'T00:00:00').toLocaleDateString('pt-BR') : '--'}
+                            {emp.admissionDate ? new Date(emp.admissionDate + 'T00:00:00').toLocaleDateString('es-PY') : '--'}
                           </span>
                         </div>
                         <div className="flex justify-between text-stone-400">
-                          <span>Salário Base:</span>
+                          <span>Salario Base:</span>
                           <span className="text-stone-200 font-mono font-semibold">{formatCurrency(emp.baseSalary || 0)}</span>
                         </div>
                         <div className="flex justify-between text-stone-400">
-                          <span>Meta Mensal:</span>
+                          <span>Meta Mensual:</span>
                           <span className="text-emerald-400 font-mono font-semibold">{formatCurrency(emp.monthlyTarget || 0)}</span>
                         </div>
                         <div className="flex justify-between text-stone-400 pt-1 border-t border-stone-900">
-                          <span>Acesso ao Sistema:</span>
+                          <span>Acceso al Sistema:</span>
                           <span className="font-mono text-emerald-400 font-bold bg-emerald-950/60 border border-emerald-800/50 px-2 py-0.5 rounded text-[10px]">
-                            Nome + Gmail + Senha
+                            Nombre + Gmail + Contraseña
                           </span>
                         </div>
                       </div>
@@ -912,7 +912,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           <div className="p-3 bg-stone-950 rounded-xl border border-amber-500/25 space-y-2.5 text-xs">
                             <div className="flex items-center justify-between gap-2">
                               <span className="font-bold text-amber-400 flex items-center gap-1.5 text-[11px] uppercase tracking-wider">
-                                <ShieldCheck className="w-3.5 h-3.5" /> Função Principal:
+                                <ShieldCheck className="w-3.5 h-3.5" /> Función Principal:
                               </span>
                               <select
                                 value={emp.role}
@@ -925,23 +925,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                 }}
                                 className="bg-stone-900 border border-stone-700 rounded-lg px-2.5 py-1 text-xs font-bold text-white focus:outline-none focus:border-amber-500 cursor-pointer"
                               >
-                                <option value="GARCOM">GARÇOM (Salão)</option>
-                                <option value="CAIXA">CAIXA (Operador)</option>
-                                <option value="COZINHA">COZINHA (Churrasqueiro)</option>
+                                <option value="GARCOM">MOZO (Salón)</option>
+                                <option value="CAIXA">CAJERO (Operador)</option>
+                                <option value="COZINHA">COCINA (Parrillero)</option>
                               </select>
                             </div>
 
                             <div className="pt-2 border-t border-stone-800/80 space-y-1.5">
                               <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">
-                                Funções & Permissões Liberadas para {emp.name.split(' ')[0]}:
+                                Funciones & Permisos Habilitados para {emp.name.split(' ')[0]}:
                               </span>
                               <div className="grid grid-cols-1 gap-1">
                                 {[
-                                  { key: 'canCloseBills' as const, label: 'Fechar e receber contas' },
-                                  { key: 'canManageTables' as const, label: 'Transferir / juntar mesas' },
-                                  { key: 'canCancelOrders' as const, label: 'Cancelar itens / pedidos' },
-                                  { key: 'canApplyDiscounts' as const, label: 'Aplicar descontos' },
-                                  { key: 'canAddStock' as const, label: 'Registrar compras (+Estoque)' },
+                                  { key: 'canCloseBills' as const, label: 'Cerrar y cobrar cuentas' },
+                                  { key: 'canManageTables' as const, label: 'Transferir / unir mesas' },
+                                  { key: 'canCancelOrders' as const, label: 'Cancelar ítems / pedidos' },
+                                  { key: 'canApplyDiscounts' as const, label: 'Aplicar descuentos' },
+                                  { key: 'canAddStock' as const, label: 'Registrar compras (+Stock)' },
                                 ].map((permItem) => (
                                   <label
                                     key={permItem.key}
@@ -973,7 +973,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-amber-600/15 hover:bg-amber-600/25 border border-amber-600/40 text-amber-300 text-xs font-bold transition-all"
                       >
                         <TrendingUp className="w-3.5 h-3.5 text-amber-400" />
-                        <span>Ver Histórico de Vendas & Gorjetas</span>
+                        <span>Ver Historial de Ventas & Propinas</span>
                       </button>
 
                       {/* Card Action Controls */}
@@ -986,20 +986,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               : 'bg-emerald-950 hover:bg-emerald-900 text-emerald-400 border border-emerald-800'
                           }`}
                         >
-                          {emp.active ? 'Desativar' : 'Ativar Conta'}
+                          {emp.active ? 'Desactivar' : 'Activar Cuenta'}
                         </button>
 
                         <div className="flex items-center gap-1.5">
                           <button
                             onClick={() => handleOpenResetCredentials(emp)}
-                            title="Redefinir Senha ou PIN de Acesso"
+                            title="Restablecer Contraseña o PIN de Acceso"
                             className="p-1.5 rounded-lg bg-stone-800 hover:bg-amber-950 text-stone-300 hover:text-amber-400 transition-colors"
                           >
                             <KeyRound className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={() => handleOpenEditEmployee(emp)}
-                            title="Editar Dados Cadastrais"
+                            title="Editar Datos de Registro"
                             className="p-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-amber-400 transition-colors"
                           >
                             <Edit2 className="w-3.5 h-3.5" />
@@ -1007,7 +1007,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           {employees.length > 1 && (
                             <button
                               onClick={() => deleteEmployee(emp.id)}
-                              title="Remover Colaborador"
+                              title="Eliminar Colaborador"
                               className="p-1.5 rounded-lg bg-stone-800 hover:bg-red-950 text-stone-400 hover:text-red-400 transition-colors"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -1072,9 +1072,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div>
-              <h3 className="text-base font-bold text-white">Produtos</h3>
+              <h3 className="text-base font-bold text-white">Productos</h3>
               <p className="text-xs text-stone-400">
-                Ajuste preços, pause itens esgotados e adicione novidades ao rodízio ou à la carte.
+                Ajuste precios, pause productos agotados y agregue novedades al rodízio o a la carta.
               </p>
             </div>
             <button
@@ -1082,7 +1082,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold transition-all shadow-md"
             >
               <Plus className="w-4 h-4" />
-              <span>Novo Produto</span>
+              <span>Nuevo Producto</span>
             </button>
           </div>
 
@@ -1092,7 +1092,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <Search className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
               <input
                 type="text"
-                placeholder="Buscar produto..."
+                placeholder="Buscar producto..."
                 value={menuSearch}
                 onChange={(e) => setMenuSearch(e.target.value)}
                 className="w-full bg-stone-900 border border-stone-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-amber-500"
@@ -1104,13 +1104,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               onChange={(e) => setMenuCategoryFilter(e.target.value)}
               className="bg-stone-900 border border-stone-800 rounded-xl px-3 py-2 text-xs text-stone-300 focus:outline-none focus:border-amber-500"
             >
-              <option value="ALL">Todas as Categorias</option>
-              <option value="CORTES_NOBRES">Cortes Nobres</option>
+              <option value="ALL">Todas las Categorías</option>
+              <option value="CORTES_NOBRES">Cortes Nobles</option>
               <option value="RODIZIO">Rodízio</option>
-              <option value="ENTRADAS_GUARNACOES">Guarnições & Entradas</option>
-              <option value="CHOPP_DRINKS">Chopp & Drinks</option>
-              <option value="BEBIDAS">Bebidas Sem Álcool</option>
-              <option value="SOBREMESAS">Sobremesas</option>
+              <option value="ENTRADAS_GUARNACOES">Guarniciones & Entradas</option>
+              <option value="CHOPP_DRINKS">Chopp & Tragos</option>
+              <option value="BEBIDAS">Bebidas Sin Alcohol</option>
+              <option value="SOBREMESAS">Postres</option>
             </select>
           </div>
 
@@ -1120,13 +1120,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <table className="w-full text-left text-xs">
                 <thead className="bg-stone-950 text-stone-400 uppercase font-semibold text-[10px] border-b border-stone-800">
                   <tr>
-                    <th className="p-3.5">Produto / Descrição</th>
-                    <th className="p-3.5">Categoria</th>
-                    <th className="p-3.5">Preço Venda</th>
-                    <th className="p-3.5">Preço Custo</th>
-                    <th className="p-3.5 text-center">Qtd Estoque (p/ venda)</th>
-                    <th className="p-3.5 text-center">Status</th>
-                    <th className="p-3.5 text-right">Ações</th>
+                    <th className="p-3.5">Producto / Descripción</th>
+                    <th className="p-3.5">Categoría</th>
+                    <th className="p-3.5">Precio Venta</th>
+                    <th className="p-3.5">Precio Costo</th>
+                    <th className="p-3.5 text-center">Cant. Stock (p/ venta)</th>
+                    <th className="p-3.5 text-center">Estado</th>
+                    <th className="p-3.5 text-right">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-800/70 text-stone-300">
@@ -1178,7 +1178,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                 : 'bg-red-950/80 text-red-400 border-red-800/60'
                             }`}
                           >
-                            {item.available ? 'Disponível' : 'Pausado'}
+                            {item.available ? 'Disponible' : 'Pausado'}
                           </button>
                         </td>
                         <td className="p-3.5 text-right">
@@ -1186,14 +1186,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             <button
                               onClick={() => handleOpenEditMenuItem(item)}
                               className="p-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white transition cursor-pointer"
-                              title="Editar Produto"
+                              title="Editar Producto"
                             >
                               <Edit2 className="w-3.5 h-3.5" />
                             </button>
                             <button
                               onClick={() => deleteMenuItem(item.id)}
                               className="p-1.5 rounded-lg bg-stone-800 hover:bg-red-900/60 text-stone-400 hover:text-red-300 transition cursor-pointer"
-                              title="Excluir Produto"
+                              title="Eliminar Producto"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
@@ -1216,9 +1216,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h3 className="text-base font-bold text-white">Salão & Mesas</h3>
+              <h3 className="text-base font-bold text-white">Salón & Mesas</h3>
               <p className="text-xs text-stone-400">
-                Gerenciamento exclusivo do Administrador: crie, edite a capacidade e exclua mesas desocupadas.
+                Gestión exclusiva del Administrador: cree, edite la capacidad y elimine mesas desocupadas.
               </p>
             </div>
             <button
@@ -1226,7 +1226,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold transition shadow-md cursor-pointer self-start sm:self-auto"
             >
               <Plus className="w-4 h-4" />
-              <span>Nova Mesa</span>
+              <span>Nueva Mesa</span>
             </button>
           </div>
 
@@ -1262,7 +1262,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           : 'bg-amber-950 text-amber-400'
                       }`}
                     >
-                      {table.status}
+                      {table.status === 'LIVRE' ? 'LIBRE' : table.status === 'CONTA_SOLICITADA' ? 'CUENTA' : table.status}
                     </span>
                   </div>
 
@@ -1287,7 +1287,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <button
                       onClick={() => handleOpenEditTable(table)}
                       className="px-2 py-1 rounded-lg bg-stone-950 hover:bg-stone-800 text-[10px] font-semibold text-stone-300 hover:text-white flex items-center gap-1 transition cursor-pointer"
-                      title="Editar nome e capacidade da mesa"
+                      title="Editar nombre y capacidad de la mesa"
                     >
                       <Edit2 className="w-3 h-3 text-amber-400" />
                       <span>Editar</span>
@@ -1296,7 +1296,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <button
                       onClick={() => {
                         if (isOccupied) {
-                          showToast('Não é possível excluir uma mesa ocupada!', 'error');
+                          showToast('¡No es posible eliminar una mesa ocupada!', 'error');
                         } else {
                           setTableToDelete(table);
                         }
@@ -1307,10 +1307,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           ? 'opacity-30 cursor-not-allowed text-stone-600'
                           : 'bg-stone-950 hover:bg-red-950 text-stone-400 hover:text-red-400'
                       }`}
-                      title={isOccupied ? 'Mesa em atendimento' : 'Excluir esta mesa'}
+                      title={isOccupied ? 'Mesa en atención' : 'Eliminar esta mesa'}
                     >
                       <Trash2 className="w-3 h-3" />
-                      <span>Excluir</span>
+                      <span>Eliminar</span>
                     </button>
                   </div>
                 </div>
@@ -1345,14 +1345,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <div>
                   <div className="flex items-center gap-2">
                     <h2 className="text-lg font-extrabold text-white tracking-tight">
-                      Central Administrativa & Configurações
+                      Central Administrativa & Configuraciones
                     </h2>
                     <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 uppercase">
-                      Admin & Gerência
+                      Admin & Gerencia
                     </span>
                   </div>
                   <p className="text-xs text-stone-400 mt-0.5">
-                    Gerencie a conta do Administrador/Gerente, configure as mesas do salão e adicione produtos ao cardápio.
+                    Gestione la cuenta del Administrador/Gerente, configure las mesas del salón y agregue productos al menú.
                   </p>
                 </div>
               </div>
@@ -1364,14 +1364,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-100 border border-stone-700 text-xs font-semibold transition cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5 text-amber-400" />
-                  <span>+ Nova Mesa</span>
+                  <span>+ Nueva Mesa</span>
                 </button>
                 <button
                   onClick={handleOpenAddMenuItem}
                   className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-100 border border-stone-700 text-xs font-semibold transition cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>+ Novo Produto</span>
+                  <span>+ Nuevo Producto</span>
                 </button>
               </div>
             </div>
@@ -1386,14 +1386,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <div>
                     <div className="flex items-center gap-2">
                       <h3 className="text-sm font-bold text-white">
-                        Gerente & Administrador (Acesso Geral à Parte)
+                        Gerente & Administrador (Acceso General Aparte)
                       </h3>
                       <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-800/60">
-                        Separado da Equipe
+                        Separado del Equipo
                       </span>
                     </div>
                     <p className="text-xs text-stone-400 mt-0.5">
-                      Conta exclusiva da gerência e administração do sistema.
+                      Cuenta exclusiva de la gerencia y administración del sistema.
                     </p>
                   </div>
                 </div>
@@ -1412,7 +1412,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       className="px-3 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-amber-300 border border-stone-700 font-semibold flex items-center gap-1.5 transition cursor-pointer"
                     >
                       <KeyRound className="w-3.5 h-3.5" />
-                      <span>Alterar Senha</span>
+                      <span>Cambiar Contraseña</span>
                     </button>
                   </div>
                 ))}
@@ -1423,12 +1423,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
               <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4 flex items-center justify-between">
                 <div>
-                  <span className="text-[11px] text-stone-400 font-semibold block">Admin / Gerência</span>
+                  <span className="text-[11px] text-stone-400 font-semibold block">Admin / Gerencia</span>
                   <span className="text-2xl font-black text-amber-400 font-mono mt-0.5 block">
                     {adminAccounts.length}
                   </span>
                   <span className="text-[10px] text-stone-400 font-medium">
-                    gestão separada ({activeStaffCount} na aba Funcionários)
+                    gestión separada ({activeStaffCount} en la pestaña Empleados)
                   </span>
                 </div>
                 <div className="p-3 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
@@ -1438,12 +1438,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
               <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4 flex items-center justify-between">
                 <div>
-                  <span className="text-[11px] text-stone-400 font-semibold block">Mesas do Salão</span>
+                  <span className="text-[11px] text-stone-400 font-semibold block">Mesas del Salón</span>
                   <span className="text-2xl font-black text-white font-mono mt-0.5 block">
                     {tables.length}
                   </span>
                   <span className="text-[10px] text-stone-400 font-medium">
-                    {freeTablesCount} livres agora
+                    {freeTablesCount} libres ahora
                   </span>
                 </div>
                 <div className="p-3 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
@@ -1453,12 +1453,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
               <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4 flex items-center justify-between">
                 <div>
-                  <span className="text-[11px] text-stone-400 font-semibold block">Produtos no Cardápio</span>
+                  <span className="text-[11px] text-stone-400 font-semibold block">Productos en el Menú</span>
                   <span className="text-2xl font-black text-white font-mono mt-0.5 block">
                     {menuItems.length}
                   </span>
                   <span className="text-[10px] text-emerald-400 font-medium">
-                    {menuItems.filter((m) => m.available).length} disponíveis p/ venda
+                    {menuItems.filter((m) => m.available).length} disponibles p/ venta
                   </span>
                 </div>
                 <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
@@ -1476,10 +1476,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   </div>
                   <div>
                     <h4 className="text-sm font-bold text-white">
-                      Configuração de Mesas do Salão ({tables.length})
+                      Configuración de Mesas del Salón ({tables.length})
                     </h4>
                     <p className="text-[11px] text-stone-400">
-                      Adicione novas mesas, altere a capacidade de lugares ou remova mesas livres.
+                      Agregue nuevas mesas, cambie la capacidad de lugares o elimine mesas libres.
                     </p>
                   </div>
                 </div>
@@ -1489,7 +1489,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold transition cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  <span>Nova Mesa</span>
+                  <span>Nueva Mesa</span>
                 </button>
               </div>
 
@@ -1513,7 +1513,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               : 'bg-amber-950 text-amber-400'
                           }`}
                         >
-                          {table.status}
+                          {table.status === 'LIVRE' ? 'LIBRE' : table.status}
                         </span>
                       </div>
 
@@ -1527,7 +1527,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         <button
                           onClick={() => {
                             if (isOccupied) {
-                              showToast('Não é possível excluir uma mesa ocupada!', 'error');
+                              showToast('¡No es posible eliminar una mesa ocupada!', 'error');
                             } else {
                               setTableToDelete(table);
                             }
@@ -1537,7 +1537,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             isOccupied ? 'opacity-30 cursor-not-allowed text-stone-600' : 'text-red-400 hover:underline'
                           }`}
                         >
-                          <Trash2 className="w-2.5 h-2.5" /> Excluir
+                          <Trash2 className="w-2.5 h-2.5" /> Eliminar
                         </button>
                       </div>
                     </div>
@@ -1554,10 +1554,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
           <div className="bg-stone-900 border border-stone-700 rounded-2xl max-w-md w-full p-6 shadow-2xl">
             <h3 className="text-lg font-bold text-white mb-1">
-              {editingEmployee ? 'Editar Funcionário da Equipe' : 'Adicionar Funcionário & Equipe'}
+              {editingEmployee ? 'Editar Empleado del Equipo' : 'Agregar Empleado & Equipo'}
             </h3>
             <p className="text-xs text-stone-400 mb-4">
-              Cadastro exclusivo para funcionários e equipe operacional (o Gerente/Admin fica separado).
+              Registro exclusivo para empleados y equipo operativo (el Gerente/Admin queda separado).
             </p>
 
             {empFormError && (
@@ -1569,11 +1569,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
             <form onSubmit={handleSaveEmployee} className="space-y-3.5 text-xs max-h-[75vh] overflow-y-auto pr-1">
               <div>
-                <label className="block font-semibold text-stone-300 mb-1">Nome do Funcionário (para Acesso):</label>
+                <label className="block font-semibold text-stone-300 mb-1">Nombre del Empleado (para Acceso):</label>
                 <input
                   type="text"
                   required
-                  placeholder="Ex: Marcelo"
+                  placeholder="Ej: Marcelo"
                   value={empFormName}
                   onChange={(e) => setEmpFormName(e.target.value)}
                   className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white"
@@ -1581,11 +1581,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </div>
 
               <div>
-                <label className="block font-semibold text-amber-400 mb-1">Gmail de Acesso ao Sistema:</label>
+                <label className="block font-semibold text-amber-400 mb-1">Gmail de Acceso al Sistema:</label>
                 <input
                   type="email"
                   required
-                  placeholder="funcionario@gmail.com"
+                  placeholder="empleado@gmail.com"
                   value={empFormEmail}
                   onChange={(e) => setEmpFormEmail(e.target.value)}
                   className="w-full bg-stone-950 border border-amber-500/50 rounded-xl px-3 py-2 text-white font-mono text-xs"
@@ -1594,18 +1594,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
               <div>
                 <label className="block font-semibold text-amber-400 mb-1">
-                  {editingEmployee ? 'Senha de Acesso (deixe em branco para manter a atual):' : 'Senha de Acesso:'}
+                  {editingEmployee ? 'Contraseña de Acceso (deje en blanco para mantener la actual):' : 'Contraseña de Acceso:'}
                 </label>
                 <input
                   type="text"
                   required={!editingEmployee}
-                  placeholder="Digite a senha do funcionário..."
+                  placeholder="Escriba la contraseña del empleado..."
                   value={empFormPassword}
                   onChange={(e) => setEmpFormPassword(e.target.value)}
                   className="w-full bg-stone-950 border border-amber-500/50 rounded-xl px-3 py-2 text-white font-mono text-xs"
                 />
                 <span className="text-[10px] text-stone-400 mt-1 block">
-                  O funcionário acessará o sistema informando seu Nome, Gmail e esta Senha.
+                  El empleado accederá al sistema informando su Nombre, Gmail y esta Contraseña.
                 </span>
               </div>
 
@@ -1622,10 +1622,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-stone-300 mb-1">Telefone / WhatsApp:</label>
+                  <label className="block font-semibold text-stone-300 mb-1">Teléfono / WhatsApp:</label>
                   <input
                     type="text"
-                    placeholder="(11) 99999-9999"
+                    placeholder="+595 981 000-000"
                     value={empFormPhone}
                     onChange={(e) => setEmpFormPhone(e.target.value)}
                     className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white"
@@ -1637,7 +1637,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <div className="p-3.5 bg-stone-950 border border-amber-500/30 rounded-xl space-y-3">
                 <div>
                   <label className="block font-bold text-amber-400 mb-1 flex items-center gap-1.5">
-                    <ShieldCheck className="w-4 h-4" /> Função na Equipe (Somente Funcionários):
+                    <ShieldCheck className="w-4 h-4" /> Función en el Equipo (Solo Empleados):
                   </label>
                   <select
                     value={empFormRole === 'ADMIN' ? 'GARCOM' : empFormRole}
@@ -1648,42 +1648,42 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     }}
                     className="w-full bg-stone-900 border border-stone-700 rounded-xl px-3 py-2 text-white font-bold"
                   >
-                    <option value="GARCOM">GARÇOM (Atendimento de Salão)</option>
-                    <option value="CAIXA">CAIXA (Operador de Caixa)</option>
-                    <option value="COZINHA">COZINHA / CHURRASQUEIRO (Equipe)</option>
+                    <option value="GARCOM">MOZO (Atención de Salón)</option>
+                    <option value="CAIXA">CAJERO (Operador de Caja)</option>
+                    <option value="COZINHA">COCINA / PARRILLERO (Equipo)</option>
                   </select>
                 </div>
 
                 <div className="pt-2 border-t border-stone-800 space-y-1.5">
                   <span className="block font-bold text-stone-200 text-[11px]">
-                    Decidir quais funções este funcionário terá no sistema:
+                    Decidir qué funciones tendrá este empleado en el sistema:
                   </span>
                   <div className="grid grid-cols-1 gap-1.5">
                     {[
                       {
                         key: 'canCloseBills' as const,
-                        label: 'Fechar e receber contas de mesas',
-                        desc: 'Permite quitar pagamentos diretamente na comanda',
+                        label: 'Cerrar y cobrar cuentas de mesas',
+                        desc: 'Permite liquidar pagos directamente en la comanda',
                       },
                       {
                         key: 'canManageTables' as const,
-                        label: 'Transferir ou juntar mesas no salão',
-                        desc: 'Permite mover itens e unificar comandas',
+                        label: 'Transferir o unir mesas en el salón',
+                        desc: 'Permite mover ítems y unificar comandas',
                       },
                       {
                         key: 'canCancelOrders' as const,
-                        label: 'Cancelar itens ou pedidos lançados',
-                        desc: 'Permite estornar/cancelar itens de comandas abertas',
+                        label: 'Cancelar ítems o pedidos registrados',
+                        desc: 'Permite anular/cancelar ítems de comandas abiertas',
                       },
                       {
                         key: 'canApplyDiscounts' as const,
-                        label: 'Aplicar descontos na conta',
-                        desc: 'Permite conceder desconto comercial no fechamento',
+                        label: 'Aplicar descuentos en la cuenta',
+                        desc: 'Permite otorgar descuento comercial en el cierre',
                       },
                       {
                         key: 'canAddStock' as const,
-                        label: 'Registrar compras e entrada de estoque (+Estoque)',
-                        desc: 'Permite alimentar compras no relatório diário',
+                        label: 'Registrar compras y entrada de stock (+Stock)',
+                        desc: 'Permite cargar compras en el informe diario',
                       },
                     ].map((perm) => {
                       const isChecked = empFormPermissions[perm.key];
@@ -1720,7 +1720,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-stone-300 mb-1">Salário Base (₲):</label>
+                  <label className="block font-semibold text-stone-300 mb-1">Salario Base (₲):</label>
                   <input
                     type="number"
                     step="100000"
@@ -1732,14 +1732,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-stone-300 mb-1">Status da Conta:</label>
+                  <label className="block font-semibold text-stone-300 mb-1">Estado de la Cuenta:</label>
                   <select
                     value={empFormActive ? 'ACTIVE' : 'INACTIVE'}
                     onChange={(e) => setEmpFormActive(e.target.value === 'ACTIVE')}
                     className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white"
                   >
-                    <option value="ACTIVE">Ativo (Permitido Acesso)</option>
-                    <option value="INACTIVE">Inativo (Bloqueado)</option>
+                    <option value="ACTIVE">Activo (Acceso Permitido)</option>
+                    <option value="INACTIVE">Inactivo (Bloqueado)</option>
                   </select>
                 </div>
               </div>
@@ -1756,7 +1756,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   type="submit"
                   className="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold"
                 >
-                  {editingEmployee ? 'Salvar Alterações' : 'Criar Colaborador'}
+                  {editingEmployee ? 'Guardar Cambios' : 'Crear Colaborador'}
                 </button>
               </div>
             </form>
@@ -1773,7 +1773,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <KeyRound className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-white">Redefinir Senha e PIN</h3>
+                <h3 className="text-base font-bold text-white">Restablecer Contraseña y PIN</h3>
                 <p className="text-xs text-stone-400">
                   Colaborador: <strong className="text-stone-200">{resetTargetEmp.name}</strong> ({getRoleLabel(resetTargetEmp.role)})
                 </p>
@@ -1781,17 +1781,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
 
             <p className="text-xs text-stone-400 mb-4 bg-stone-950 p-3 rounded-xl border border-stone-800">
-              Altere a senha de acesso por e-mail ou o PIN numérico rápido de 4 dígitos para terminais de atendimento.
+              Cambie la contraseña de acceso por correo o el PIN numérico rápido de 4 dígitos para terminales de atención.
             </p>
 
             <form onSubmit={handleConfirmResetCredentials} className="space-y-4 text-xs">
               <div>
                 <label className="block font-semibold text-stone-300 mb-1">
-                  Nova Senha de Acesso (E-mail):
+                  Nueva Contraseña de Acceso (Correo):
                 </label>
                 <input
                   type="text"
-                  placeholder="Deixe em branco para manter a atual"
+                  placeholder="Deje en blanco para mantener la actual"
                   value={newPasswordInput}
                   onChange={(e) => setNewPasswordInput(e.target.value)}
                   className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white font-mono"
@@ -1800,19 +1800,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
               <div>
                 <label className="block font-semibold text-stone-300 mb-1">
-                  Novo PIN Numérico (4 Dígitos):
+                  Nuevo PIN Numérico (4 Dígitos):
                 </label>
                 <input
                   type="text"
                   maxLength={4}
                   required
-                  placeholder="Ex: 7788"
+                  placeholder="Ej: 7788"
                   value={newPinInput}
                   onChange={(e) => setNewPinInput(e.target.value.replace(/\D/g, ''))}
                   className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white font-mono text-center tracking-widest text-base font-bold"
                 />
                 <span className="text-[10px] text-stone-500 mt-1 block">
-                  PIN atual deste usuário: <strong className="text-amber-400">{resetTargetEmp.pin}</strong>
+                  PIN actual de este usuario: <strong className="text-amber-400">{resetTargetEmp.pin}</strong>
                 </span>
               </div>
 
@@ -1828,7 +1828,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   type="submit"
                   className="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold"
                 >
-                  Confirmar Redefinição
+                  Confirmar Restablecimiento
                 </button>
               </div>
             </form>
@@ -1842,22 +1842,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <div className="bg-stone-900 border border-stone-700 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
             <div>
               <h3 className="text-base font-bold text-white">
-                {editingMenuItem ? 'Editar Produto' : 'Cadastrar Novo Produto'}
+                {editingMenuItem ? 'Editar Producto' : 'Registrar Nuevo Producto'}
               </h3>
               <p className="text-xs text-stone-400">
-                Cadastre o produto com a quantidade em estoque para venda pelo garçom.
+                Registre el producto con la cantidad en stock para la venta por el mozo.
               </p>
             </div>
 
             <form onSubmit={handleSaveMenuItem} className="space-y-3.5 text-xs">
               <div>
                 <label className="block font-semibold text-stone-300 mb-1">
-                  Nome do Produto:
+                  Nombre del Producto:
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="Ex: Picanha Prime 500g, Chopp 500ml..."
+                  placeholder="Ej: Picaña Prime 500g, Chopp 500ml..."
                   value={menuFormName}
                   onChange={(e) => setMenuFormName(e.target.value)}
                   className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-500"
@@ -1866,24 +1866,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-stone-300 mb-1">Categoria:</label>
+                  <label className="block font-semibold text-stone-300 mb-1">Categoría:</label>
                   <select
                     value={menuFormCategory}
                     onChange={(e) => setMenuFormCategory(e.target.value as MenuCategory)}
                     className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-500"
                   >
-                    <option value="CORTES_NOBRES">Cortes Nobres</option>
+                    <option value="CORTES_NOBRES">Cortes Nobles</option>
                     <option value="RODIZIO">Rodízio</option>
-                    <option value="ENTRADAS_GUARNACOES">Guarnições & Entradas</option>
-                    <option value="CHOPP_DRINKS">Chopp & Drinks</option>
-                    <option value="BEBIDAS">Bebidas Sem Álcool</option>
-                    <option value="SOBREMESAS">Sobremesas</option>
+                    <option value="ENTRADAS_GUARNACOES">Guarniciones & Entradas</option>
+                    <option value="CHOPP_DRINKS">Chopp & Tragos</option>
+                    <option value="BEBIDAS">Bebidas Sin Alcohol</option>
+                    <option value="SOBREMESAS">Postres</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block font-semibold text-stone-300 mb-1">
-                    Preço de Venda (₲ / R$):
+                    Precio de Venta (₲):
                   </label>
                   <input
                     type="number"
@@ -1900,7 +1900,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block font-semibold text-stone-300 mb-1">
-                    Custo / Compra (₲ / R$):
+                    Costo / Compra (₲):
                   </label>
                   <input
                     type="number"
@@ -1914,7 +1914,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                 <div>
                   <label className="block font-semibold text-amber-400 mb-1">
-                    Qtd em Estoque (p/ venda):
+                    Cant. en Stock (p/ venta):
                   </label>
                   <input
                     type="number"
@@ -1929,10 +1929,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </div>
 
               <div>
-                <label className="block font-semibold text-stone-300 mb-1">Descrição (Opcional):</label>
+                <label className="block font-semibold text-stone-300 mb-1">Descripción (Opcional):</label>
                 <textarea
                   rows={2}
-                  placeholder="Detalhes adicionais do produto..."
+                  placeholder="Detalles adicionales del producto..."
                   value={menuFormDesc}
                   onChange={(e) => setMenuFormDesc(e.target.value)}
                   className="w-full bg-stone-950 border border-stone-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-amber-500"
@@ -1951,7 +1951,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   type="submit"
                   className="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold cursor-pointer"
                 >
-                  Salvar Produto
+                  Guardar Producto
                 </button>
               </div>
             </form>
@@ -1965,22 +1965,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <div className="bg-stone-900 border border-stone-700 rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4">
             <div>
               <h3 className="text-base font-bold text-white">
-                {editingTable ? `Editar ${editingTable.label}` : 'Cadastrar Nova Mesa'}
+                {editingTable ? `Editar ${editingTable.label}` : 'Registrar Nueva Mesa'}
               </h3>
               <p className="text-xs text-stone-400">
-                Configure a identificação da mesa e a quantidade de lugares.
+                Configure la identificación de la mesa y la cantidad de lugares.
               </p>
             </div>
 
             <form onSubmit={handleSaveTable} className="space-y-4 text-xs">
               <div>
                 <label className="block font-semibold text-stone-300 mb-1">
-                  Nome / Número da Mesa:
+                  Nombre / Número de la Mesa:
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="Ex: Mesa 15, Camarote VIP..."
+                  placeholder="Ej: Mesa 15, Camarote VIP..."
                   value={tableFormLabel}
                   onChange={(e) => setTableFormLabel(e.target.value)}
                   className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-500"
@@ -1989,7 +1989,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
               <div>
                 <label className="block font-semibold text-stone-300 mb-1">
-                  Capacidade (Lugares):
+                  Capacidad (Lugares):
                 </label>
                 <input
                   type="number"
@@ -2014,7 +2014,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   type="submit"
                   className="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold cursor-pointer"
                 >
-                  {editingTable ? 'Salvar Alterações' : 'Criar Mesa'}
+                  {editingTable ? 'Guardar Cambios' : 'Crear Mesa'}
                 </button>
               </div>
             </form>
@@ -2031,7 +2031,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <Trash2 className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-white">Excluir Mesa?</h3>
+                <h3 className="text-base font-bold text-white">¿Eliminar Mesa?</h3>
                 <p className="text-xs text-stone-400">
                   {tableToDelete.label} ({tableToDelete.capacity} lugares)
                 </p>
@@ -2039,7 +2039,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
 
             <p className="text-xs text-stone-300">
-              Tem certeza que deseja remover esta mesa do salão? Ação exclusiva do administrador.
+              ¿Está seguro de que desea eliminar esta mesa del salón? Acción exclusiva del administrador.
             </p>
 
             <div className="flex justify-end gap-2.5 pt-2 border-t border-stone-800">
@@ -2055,7 +2055,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 onClick={handleConfirmDeleteTable}
                 className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold cursor-pointer"
               >
-                Confirmar Exclusão
+                Confirmar Eliminación
               </button>
             </div>
           </div>

@@ -76,14 +76,14 @@ export const EmployeeHistoryModal: React.FC<EmployeeHistoryModalProps> = ({
                       : 'bg-red-950 text-red-400 border border-red-800'
                   }`}
                 >
-                  {employee.active ? 'ATIVO' : 'INATIVO'}
+                  {employee.active ? 'ACTIVO' : 'INACTIVO'}
                 </span>
               </div>
 
               {/* Employee Metadata Grid */}
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-stone-400 mt-2">
                 <span className="flex items-center gap-1 font-mono text-[11px]">
-                  <FileText className="w-3.5 h-3.5 text-stone-500" /> C.I. / Doc: {employee.cpf || 'Não informado'}
+                  <FileText className="w-3.5 h-3.5 text-stone-500" /> C.I. / Doc: {employee.cpf || 'No informado'}
                 </span>
                 <span className="flex items-center gap-1">
                   <Mail className="w-3.5 h-3.5 text-stone-500" /> {employee.email}
@@ -92,8 +92,8 @@ export const EmployeeHistoryModal: React.FC<EmployeeHistoryModalProps> = ({
                   <Phone className="w-3.5 h-3.5 text-stone-500" /> {employee.phone}
                 </span>
                 <span className="flex items-center gap-1">
-                  <Calendar className="w-3.5 h-3.5 text-stone-500" /> Admissão:{' '}
-                  {employee.admissionDate ? new Date(employee.admissionDate + 'T00:00:00').toLocaleDateString('pt-BR') : 'Não informada'}
+                  <Calendar className="w-3.5 h-3.5 text-stone-500" /> Ingreso:{' '}
+                  {employee.admissionDate ? new Date(employee.admissionDate + 'T00:00:00').toLocaleDateString('es-PY') : 'No informada'}
                 </span>
               </div>
             </div>
@@ -114,7 +114,7 @@ export const EmployeeHistoryModal: React.FC<EmployeeHistoryModalProps> = ({
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="p-3.5 rounded-xl bg-stone-950 border border-stone-800">
               <div className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">
-                Vendas Totais
+                Ventas Totales
               </div>
               <div className="text-xl font-extrabold text-amber-400 font-mono mt-0.5">
                 {formatCurrency(totalSales)}
@@ -126,13 +126,13 @@ export const EmployeeHistoryModal: React.FC<EmployeeHistoryModalProps> = ({
 
             <div className="p-3.5 rounded-xl bg-stone-950 border border-stone-800">
               <div className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">
-                Gorjetas / Comissão
+                Propinas / Comisión
               </div>
               <div className="text-xl font-extrabold text-emerald-400 font-mono mt-0.5">
                 {formatCurrency(totalCommission)}
               </div>
               <div className="text-[10px] text-stone-500 mt-0.5">
-                Taxa de {employee.commissionRate}%
+                Tasa del {employee.commissionRate}%
               </div>
             </div>
 
@@ -150,13 +150,13 @@ export const EmployeeHistoryModal: React.FC<EmployeeHistoryModalProps> = ({
 
             <div className="p-3.5 rounded-xl bg-stone-950 border border-stone-800">
               <div className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">
-                Salário Base
+                Salario Base
               </div>
               <div className="text-xl font-extrabold text-stone-200 font-mono mt-0.5">
                 {formatCurrency(employee.baseSalary || 0)}
               </div>
               <div className="text-[10px] text-stone-500 mt-0.5">
-                Remuneração fixa mensal
+                Remuneración fija mensual
               </div>
             </div>
           </div>
@@ -166,10 +166,10 @@ export const EmployeeHistoryModal: React.FC<EmployeeHistoryModalProps> = ({
             <div className="flex items-center justify-between text-xs">
               <div className="flex items-center gap-1.5 font-bold text-stone-200">
                 <Target className="w-4 h-4 text-amber-500" />
-                <span>Meta Mensal de Vendas: {formatCurrency(target)}</span>
+                <span>Meta Mensual de Ventas: {formatCurrency(target)}</span>
               </div>
               <div className="font-mono text-stone-400">
-                Atingido: <strong className="text-amber-400">{formatCurrency(totalSales)}</strong> ({targetProgress}%)
+                Alcanzado: <strong className="text-amber-400">{formatCurrency(totalSales)}</strong> ({targetProgress}%)
               </div>
             </div>
 
@@ -188,10 +188,10 @@ export const EmployeeHistoryModal: React.FC<EmployeeHistoryModalProps> = ({
             </div>
 
             <div className="flex justify-between text-[11px] text-stone-500">
-              <span>Falta para a meta: {formatCurrency(Math.max(0, target - totalSales))}</span>
+              <span>Falta para la meta: {formatCurrency(Math.max(0, target - totalSales))}</span>
               {targetProgress >= 100 && (
                 <span className="text-emerald-400 font-bold flex items-center gap-1">
-                  <Award className="w-3.5 h-3.5" /> Meta Atingida com Sucesso!
+                  <Award className="w-3.5 h-3.5" /> ¡Meta Alcanzada con Éxito!
                 </span>
               )}
             </div>
@@ -202,16 +202,16 @@ export const EmployeeHistoryModal: React.FC<EmployeeHistoryModalProps> = ({
             <div className="flex items-center justify-between">
               <h4 className="text-xs font-bold text-stone-300 uppercase tracking-wider flex items-center gap-2">
                 <UtensilsCrossed className="w-4 h-4 text-amber-500" />
-                Histórico de Vendas & Mesas Atendidas ({employeeComandas.length})
+                Historial de Ventas & Mesas Atendidas ({employeeComandas.length})
               </h4>
               <span className="text-xs text-stone-500">
-                {activeComandas.length} ativas agora · {paidComandas.length} finalizadas
+                {activeComandas.length} activas ahora · {paidComandas.length} finalizadas
               </span>
             </div>
 
             {employeeComandas.length === 0 ? (
               <div className="text-center py-10 bg-stone-950 rounded-xl border border-stone-800 text-xs text-stone-500">
-                Nenhum histórico de vendas registrado para este colaborador até o momento.
+                Ningún historial de ventas registrado para este colaborador hasta el momento.
               </div>
             ) : (
               <div className="border border-stone-800 rounded-xl overflow-hidden bg-stone-950">
@@ -219,13 +219,13 @@ export const EmployeeHistoryModal: React.FC<EmployeeHistoryModalProps> = ({
                   <table className="w-full text-left text-xs">
                     <thead className="bg-stone-900 text-stone-400 uppercase font-semibold text-[10px] border-b border-stone-800">
                       <tr>
-                        <th className="p-3">Data / Hora</th>
+                        <th className="p-3">Fecha / Hora</th>
                         <th className="p-3">Comanda / Mesa</th>
                         <th className="p-3">Cliente / Pax</th>
-                        <th className="p-3">Total Venda</th>
-                        <th className="p-3">Comissão ({employee.commissionRate}%)</th>
-                        <th className="p-3">Formas de Pagamento</th>
-                        <th className="p-3">Status</th>
+                        <th className="p-3">Total Venta</th>
+                        <th className="p-3">Comisión ({employee.commissionRate}%)</th>
+                        <th className="p-3">Formas de Pago</th>
+                        <th className="p-3">Estado</th>
                         <th className="p-3 text-right">Recibo</th>
                       </tr>
                     </thead>
@@ -257,7 +257,7 @@ export const EmployeeHistoryModal: React.FC<EmployeeHistoryModalProps> = ({
                             <td className="p-3 text-[11px] text-stone-400">
                               {cmd.payments.length > 0
                                 ? cmd.payments.map((p) => getPaymentMethodLabel(p.method)).join(', ')
-                                : 'Em aberto'}
+                                : 'Abierta'}
                             </td>
                             <td className="p-3 whitespace-nowrap">
                               <span
@@ -269,13 +269,13 @@ export const EmployeeHistoryModal: React.FC<EmployeeHistoryModalProps> = ({
                                     : 'bg-amber-950 text-amber-400'
                                 }`}
                               >
-                                {cmd.status}
+                                {cmd.status === 'PAGA' ? 'PAGADA' : cmd.status === 'CONTA_SOLICITADA' ? 'CUENTA SOLICITADA' : 'ABIERTA'}
                               </span>
                             </td>
                             <td className="p-3 text-right">
                               <button
                                 onClick={() => onViewReceipt(cmd)}
-                                title="Visualizar Cupom da Venda"
+                                title="Ver Recibo de la Venta"
                                 className="p-1 rounded bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white transition-colors"
                               >
                                 <Receipt className="w-3.5 h-3.5" />
@@ -298,7 +298,7 @@ export const EmployeeHistoryModal: React.FC<EmployeeHistoryModalProps> = ({
             onClick={onClose}
             className="px-4 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-semibold transition-colors"
           >
-            Fechar Relatório
+            Cerrar Informe
           </button>
         </div>
       </div>

@@ -361,13 +361,13 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
       (e) => e.email.toLowerCase() === email.toLowerCase().trim() && e.password === pass
     );
     if (!found) {
-      return { success: false, error: 'E-mail ou senha incorretos.' };
+      return { success: false, error: 'Correo electrónico o contraseña incorrectos.' };
     }
     if (!found.active) {
-      return { success: false, error: 'Usuário inativo. Contate o administrador.' };
+      return { success: false, error: 'Usuario inactivo. Contacte al administrador.' };
     }
     setCurrentUser(found);
-    showToast(`Bem-vindo(a), ${found.name}!`, 'success');
+    showToast(`¡Bienvenido(a), ${found.name}!`, 'success');
     return { success: true };
   };
 
@@ -385,42 +385,42 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
     }) || employees.find((e) => e.email.toLowerCase().trim() === cleanEmail);
 
     if (!found) {
-      return { success: false, error: 'Funcionário não encontrado com este Gmail/E-mail.' };
+      return { success: false, error: 'Empleado no encontrado con este Gmail/Correo.' };
     }
     if (password !== undefined && found.password && found.password !== password) {
-      return { success: false, error: 'Senha incorreta para este funcionário.' };
+      return { success: false, error: 'Contraseña incorrecta para este empleado.' };
     }
     if (!found.active) {
-      return { success: false, error: 'Conta de funcionário inativa. Contate o administrador.' };
+      return { success: false, error: 'Cuenta de empleado inactiva. Contacte al administrador.' };
     }
     setCurrentUser(found);
-    showToast(`Olá, ${found.name}! Acesso liberado.`, 'success');
+    showToast(`¡Hola, ${found.name}! Acceso liberado.`, 'success');
     return { success: true };
   };
 
   const loginWithPin = (pin: string) => {
     const found = employees.find((e) => e.pin === pin);
     if (!found) {
-      return { success: false, error: 'PIN não encontrado.' };
+      return { success: false, error: 'PIN no encontrado.' };
     }
     if (!found.active) {
-      return { success: false, error: 'Usuário inativo. Contate o administrador.' };
+      return { success: false, error: 'Usuario inactivo. Contacte al administrador.' };
     }
     setCurrentUser(found);
-    showToast(`Olá, ${found.name}! Acesso liberado.`, 'success');
+    showToast(`¡Hola, ${found.name}! Acceso liberado.`, 'success');
     return { success: true };
   };
 
   const logout = () => {
     setCurrentUser(null);
-    showToast('Sessão encerrada com sucesso.', 'info');
+    showToast('Sesión cerrada con éxito.', 'info');
   };
 
   const switchUser = (employeeId: string) => {
     const found = employees.find((e) => e.id === employeeId);
     if (found) {
       setCurrentUser(found);
-      showToast(`Perfil alterado para ${found.name} (${found.role}).`, 'info');
+      showToast(`Perfil cambiado a ${found.name} (${found.role}).`, 'info');
     }
   };
 
@@ -430,7 +430,7 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
       (e) => e.email.toLowerCase() === empData.email.toLowerCase().trim()
     );
     if (emailExists) {
-      return { success: false, error: 'Este Gmail/e-mail já está cadastrado para outro funcionário.' };
+      return { success: false, error: 'Este Gmail/correo ya está registrado para otro empleado.' };
     }
 
     const newEmp: Employee = {
@@ -438,7 +438,7 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
       id: `emp-${Date.now().toString(36)}`,
     };
     setEmployees((prev) => [...prev, newEmp]);
-    showToast(`Colaborador ${newEmp.name} cadastrado com sucesso!`, 'success');
+    showToast(`¡Colaborador ${newEmp.name} registrado con éxito!`, 'success');
     return { success: true };
   };
 
@@ -449,12 +449,12 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
     if (currentUser && currentUser.id === id) {
       setCurrentUser((prev) => (prev ? { ...prev, ...updates } : null));
     }
-    showToast('Dados do colaborador atualizados.', 'success');
+    showToast('Datos del colaborador actualizados.', 'success');
   };
 
   const deleteEmployee = (id: string) => {
     setEmployees((prev) => prev.filter((e) => e.id !== id));
-    showToast('Colaborador removido da equipe.', 'info');
+    showToast('Colaborador eliminado del equipo.', 'info');
   };
 
   const resetCredentials = (id: string, newPin: string, newPassword?: string) => {
@@ -470,7 +470,7 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
         return e;
       })
     );
-    showToast('Credenciais redefinidas com sucesso.', 'success');
+    showToast('Credenciales restablecidas con éxito.', 'success');
   };
 
   // Menu management
@@ -480,14 +480,14 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
       id: `menu-${Date.now().toString(36)}`,
     };
     setMenuItems((prev) => [...prev, newItem]);
-    showToast(`Item "${newItem.name}" adicionado ao cardápio.`, 'success');
+    showToast(`Producto "${newItem.name}" agregado al menú.`, 'success');
   };
 
   const updateMenuItem = (id: string, updates: Partial<MenuItem>) => {
     setMenuItems((prev) =>
       prev.map((m) => (m.id === id ? { ...m, ...updates } : m))
     );
-    showToast('Item do cardápio atualizado.', 'success');
+    showToast('Producto del menú actualizado.', 'success');
   };
 
   const toggleMenuItemAvailability = (id: string) => {
@@ -495,7 +495,7 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
       prev.map((m) => {
         if (m.id === id) {
           const next = !m.available;
-          showToast(`Item ${m.name} marcado como ${next ? 'DISPONÍVEL' : 'ESGOTADO'}.`, 'info');
+          showToast(`Producto ${m.name} marcado como ${next ? 'DISPONIBLE' : 'AGOTADO'}.`, 'info');
           return { ...m, available: next };
         }
         return m;
@@ -505,13 +505,13 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
 
   const deleteMenuItem = (id: string) => {
     setMenuItems((prev) => prev.filter((m) => m.id !== id));
-    showToast('Item removido do cardápio.', 'info');
+    showToast('Producto eliminado del menú.', 'info');
   };
 
   // Settings
   const updateSettings = (updates: Partial<RestaurantSettings>) => {
     setSettings((prev) => ({ ...prev, ...updates }));
-    showToast('Configurações salvas.', 'success');
+    showToast('Configuraciones guardadas.', 'success');
   };
 
   // Tables & Comandas
@@ -571,7 +571,7 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
             tableLabel: table?.label || `Mesa ${tableId}`,
             comandaCode,
             waiterId: waiter?.id || '',
-            waiterName: waiter?.name || 'Garçom',
+            waiterName: waiter?.name || 'Mozo',
           });
         }
       }
@@ -591,7 +591,7 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
             tableLabel: table?.label || `Mesa ${tableId}`,
             comandaCode,
             waiterId: waiter?.id || '',
-            waiterName: waiter?.name || 'Garçom',
+            waiterName: waiter?.name || 'Mozo',
           });
         }
       }
@@ -611,7 +611,7 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
             tableLabel: table?.label || `Mesa ${tableId}`,
             comandaCode,
             waiterId: waiter?.id || '',
-            waiterName: waiter?.name || 'Garçom',
+            waiterName: waiter?.name || 'Mozo',
           });
         }
       }
@@ -626,7 +626,7 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
       tableId,
       tableLabel: table?.label || `Mesa ${tableId}`,
       waiterId: waiter?.id || '',
-      waiterName: waiter?.name || 'Garçom',
+      waiterName: waiter?.name || 'Mozo',
       customerName: details.customerName,
       peopleCount: details.peopleCount,
       hasRodizio: details.hasRodizio,
@@ -667,7 +667,7 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
       )
     );
 
-    showToast(`Comanda ${comandaCode} aberta para ${table?.label}!`, 'success');
+    showToast(`¡Comanda ${comandaCode} abierta para ${table?.label}!`, 'success');
     return comandaId;
   };
 
@@ -687,9 +687,9 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
       code: comandaCode,
       orderType: details.orderType || 'DELIVERY',
       tableId: 0,
-      tableLabel: details.orderType === 'BALCAO' ? 'Balcão / Retirada' : `Delivery (${details.customerName})`,
+      tableLabel: details.orderType === 'BALCAO' ? 'Mostrador / Retiro' : `Delivery (${details.customerName})`,
       waiterId: currentUser?.id || 'emp-caixa',
-      waiterName: currentUser?.name || 'Atendente',
+      waiterName: currentUser?.name || 'Operador',
       customerName: details.customerName,
       customerPhone: details.customerPhone,
       deliveryAddress: details.deliveryAddress,
@@ -711,7 +711,7 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
     };
 
     setComandas((prev) => [newComanda, ...prev]);
-    showToast(`Pedido Delivery ${comandaCode} criado!`, 'success');
+    showToast(`¡Pedido Delivery ${comandaCode} creado!`, 'success');
     return comandaId;
   };
 
@@ -736,7 +736,7 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
       return {
         id: `ord-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
         menuItemId: entry.menuItemId,
-        name: menuItem ? menuItem.name : 'Item',
+        name: menuItem ? menuItem.name : 'Producto',
         price: unitPrice,
         quantity: entry.quantity,
         doneness: entry.doneness,
@@ -812,7 +812,7 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
               quantity: usedQty,
               unit: ingredients.find((i) => i.id === rec.ingredientId)?.unit || 'KG',
               date: new Date().toISOString(),
-              reference: `Venda ${comanda.code}`,
+              reference: `Venta ${comanda.code}`,
               registeredBy: 'Ficha Técnica Automática',
             },
             ...prev,
@@ -821,7 +821,7 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
       }
     });
 
-    showToast(`${newItems.length} item(ns) lançado(s) com sucesso na ${comanda.tableLabel}!`, 'success');
+    showToast(`¡${newItems.length} ítem(s) registrado(s) con éxito en ${comanda.tableLabel}!`, 'success');
   };
 
   const requestBill = (comandaId: string) => {
@@ -839,7 +839,7 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
         )
       );
     }
-    showToast(`Conta solicitada para ${comanda.tableLabel}! Notificação enviada ao Caixa.`, 'info');
+    showToast(`¡Cuenta solicitada para ${comanda.tableLabel}! Notificación enviada a Caja.`, 'info');
   };
 
   const toggleServiceFee = (comandaId: string) => {
@@ -855,8 +855,8 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
           );
           showToast(
             nextInclude
-              ? 'Taxa de serviço (10%) adicionada à comanda.'
-              : 'Taxa de serviço isentada da comanda.',
+              ? 'Tasa de servicio (10%) agregada a la comanda.'
+              : 'Tasa de servicio exenta de la comanda.',
             'info'
           );
           return {
@@ -877,13 +877,13 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
     const targetTable = tables.find((t) => t.id === targetTableId);
 
     if (!sourceTable || !sourceTable.currentComandaId) {
-      return { success: false, error: 'Mesa de origem sem comanda ativa.' };
+      return { success: false, error: 'Mesa de origen sin comanda activa.' };
     }
     if (!targetTable) {
-      return { success: false, error: 'Mesa de destino não encontrada.' };
+      return { success: false, error: 'Mesa de destino no encontrada.' };
     }
     if (targetTable.status !== 'LIVRE') {
-      return { success: false, error: 'Mesa de destino já está ocupada ou reservada.' };
+      return { success: false, error: 'La mesa de destino ya está ocupada o reservada.' };
     }
 
     const comandaId = sourceTable.currentComandaId;
@@ -935,7 +935,7 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
       })
     );
 
-    showToast(`Comanda transferida da ${sourceTable.label} para ${targetTable.label}!`, 'success');
+    showToast(`¡Comanda transferida de ${sourceTable.label} a ${targetTable.label}!`, 'success');
     return { success: true };
   };
 
@@ -945,10 +945,10 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
     itemIds: string[]
   ) => {
     const source = comandas.find((c) => c.id === sourceComandaId);
-    if (!source) return { success: false, error: 'Comanda de origem não encontrada.' };
-    if (!targetComandaId) return { success: false, error: 'Selecione a comanda de destino.' };
+    if (!source) return { success: false, error: 'Comanda de origen no encontrada.' };
+    if (!targetComandaId) return { success: false, error: 'Seleccione la comanda de destino.' };
     const target = comandas.find((c) => c.id === targetComandaId);
-    if (!target) return { success: false, error: 'Comanda de destino não encontrada.' };
+    if (!target) return { success: false, error: 'Comanda de destino no encontrada.' };
 
     const movingItems = source.items.filter((i) => itemIds.includes(i.id)).map((i) => ({
       ...i,
@@ -994,7 +994,7 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
       })
     );
 
-    showToast(`${movingItems.length} item(ns) transferido(s) para ${target.tableLabel}!`, 'success');
+    showToast(`¡${movingItems.length} ítem(s) transferido(s) a ${target.tableLabel}!`, 'success');
     return { success: true };
   };
 
@@ -1002,13 +1002,13 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
     const sourceTable = tables.find((t) => t.id === sourceTableId);
     const targetTable = tables.find((t) => t.id === targetTableId);
     if (!sourceTable?.currentComandaId || !targetTable?.currentComandaId) {
-      return { success: false, error: 'Ambas as mesas precisam ter comandas ativas.' };
+      return { success: false, error: 'Ambas mesas necesitan tener comandas activas.' };
     }
 
     const sourceComanda = comandas.find((c) => c.id === sourceTable.currentComandaId);
     const targetComanda = comandas.find((c) => c.id === targetTable.currentComandaId);
     if (!sourceComanda || !targetComanda) {
-      return { success: false, error: 'Comandas não localizadas.' };
+      return { success: false, error: 'Comandas no localizadas.' };
     }
 
     // Merge items into target comanda
@@ -1066,7 +1066,7 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
       )
     );
 
-    showToast(`Mesas unificadas na ${targetTable.label}!`, 'success');
+    showToast(`¡Mesas unificadas en ${targetTable.label}!`, 'success');
     return { success: true };
   };
 
@@ -1096,7 +1096,7 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
           : t
       )
     );
-    showToast(`Mesa ${tableId} reservada para ${details.customerName} às ${details.time}!`, 'success');
+    showToast(`¡Mesa ${tableId} reservada para ${details.customerName} a las ${details.time}!`, 'success');
   };
 
   const cancelReservation = (tableId: number) => {
@@ -1116,7 +1116,7 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
           : t
       )
     );
-    showToast(`Reserva da Mesa ${tableId} cancelada.`, 'info');
+    showToast(`Reserva de la Mesa ${tableId} cancelada.`, 'info');
   };
 
   const updateOrderItemStatus = (itemId: string, status: OrderItemStatus) => {
@@ -1127,8 +1127,8 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
           actionType: 'CANCELAMENTO_ITEM',
           targetType: 'ITEM',
           targetReference: `${itemToCancel.tableLabel} - ${itemToCancel.name}`,
-          details: `Item ${itemToCancel.name} (qtd ${itemToCancel.quantity}) cancelado`,
-          reason: 'Cancelado pelo operador / salão',
+          details: `Ítem ${itemToCancel.name} (cant. ${itemToCancel.quantity}) cancelado`,
+          reason: 'Cancelado por el operador / salón',
           amountImpact: itemToCancel.price * itemToCancel.quantity,
         });
       }
@@ -1156,8 +1156,8 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
         actionType: 'DESCONTO_CONCEDIDO',
         targetType: 'COMANDA',
         targetReference: `${comanda.code} (${comanda.tableLabel})`,
-        details: `Desconto de R$ ${discountAmount.toFixed(2)} concedido no fechamento`,
-        reason: 'Desconto comercial aplicado no caixa',
+        details: `Descuento de ${formatCurrency(discountAmount)} otorgado en el cierre`,
+        reason: 'Descuento comercial aplicado en caja',
         amountImpact: discountAmount,
       });
     }
@@ -1170,7 +1170,7 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
         'VENDA',
         p.amount,
         p.method,
-        `Venda ${comanda.code} (${comanda.tableLabel})`,
+        `Venta ${comanda.code} (${comanda.tableLabel})`,
         comanda.code
       );
     });
@@ -1208,7 +1208,7 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
       );
     }
 
-    showToast(`Comanda ${comanda.code} liquidada com sucesso! Total: R$ ${totalPaid.toFixed(2)}`, 'success');
+    showToast(`¡Comanda ${comanda.code} liquidada con éxito! Total: ${formatCurrency(totalPaid)}`, 'success');
   };
 
   const cancelComanda = (comandaId: string) => {
@@ -1221,7 +1221,7 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
         'ESTORNO',
         comanda.total,
         primaryMethod,
-        `Estorno de Comanda ${comanda.code} (${comanda.tableLabel})`,
+        `Reembolso de Comanda ${comanda.code} (${comanda.tableLabel})`,
         comanda.code
       );
     }
@@ -1234,8 +1234,8 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
       actionType: 'CANCELAMENTO_COMANDA',
       targetType: 'COMANDA',
       targetReference: `${comanda.code} (${comanda.tableLabel})`,
-      details: `Comanda ${comanda.code} cancelada integralmente`,
-      reason: 'Cancelamento efetuado no sistema',
+      details: `Comanda ${comanda.code} cancelada íntegramente`,
+      reason: 'Cancelación efectuada en el sistema',
       amountImpact: comanda.total,
     });
 
@@ -1257,7 +1257,7 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
       );
     }
 
-    showToast(`Comanda ${comanda.code} cancelada e valor estornado no caixa.`, 'warning');
+    showToast(`Comanda ${comanda.code} cancelada y monto reembolsado en caja.`, 'warning');
   };
 
   const refundComanda = (comandaId: string, reason: string) => {
@@ -1269,7 +1269,7 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
       'ESTORNO',
       comanda.total,
       primaryMethod,
-      `Estorno de Venda ${comanda.code} - Motivo: ${reason}`,
+      `Reembolso de Venta ${comanda.code} - Motivo: ${reason}`,
       comanda.code
     );
 
@@ -1281,12 +1281,12 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
       actionType: 'ESTORNO_PAGAMENTO',
       targetType: 'COMANDA',
       targetReference: `${comanda.code} (${comanda.tableLabel})`,
-      details: `Estorno de venda no valor de R$ ${comanda.total.toFixed(2)}`,
-      reason: reason || 'Solicitação de estorno',
+      details: `Reembolso de venta por valor de ${formatCurrency(comanda.total)}`,
+      reason: reason || 'Solicitud de reembolso',
       amountImpact: comanda.total,
     });
 
-    showToast(`Comanda ${comanda.code} estornada com sucesso. Saída lançada no caixa.`, 'info');
+    showToast(`Comanda ${comanda.code} reembolsada con éxito. Salida registrada en caja.`, 'info');
   };
 
   // Bills and Expenses
@@ -1304,12 +1304,12 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
         'DESPESA',
         newBill.amount,
         newBill.paymentMethod || 'PIX',
-        `Despesa [${newBill.category}]: ${newBill.description}`,
+        `Gasto [${newBill.category}]: ${newBill.description}`,
         newBill.receiptNumber
       );
     }
 
-    showToast(`Despesa "${newBill.description}" cadastrada!`, 'success');
+    showToast(`¡Gasto "${newBill.description}" registrado!`, 'success');
   };
 
   const payExpenseBill = (id: string, paymentMethod: PaymentMethod) => {
@@ -1334,16 +1334,16 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
       'DESPESA',
       bill.amount,
       paymentMethod,
-      `Pagamento de Conta [${bill.category}]: ${bill.description}`,
+      `Pago de Cuenta [${bill.category}]: ${bill.description}`,
       bill.receiptNumber
     );
 
-    showToast(`Conta "${bill.description}" baixada com sucesso no fluxo de caixa!`, 'success');
+    showToast(`¡Cuenta "${bill.description}" liquidada con éxito en el flujo de caja!`, 'success');
   };
 
   const deleteExpenseBill = (id: string) => {
     setBills((prev) => prev.filter((b) => b.id !== id));
-    showToast('Conta a pagar removida.', 'info');
+    showToast('Cuenta por pagar eliminada.', 'info');
   };
 
   // Cash Closing with reconciliation
@@ -1396,10 +1396,10 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
     addAuditLog({
       actionType: isMatched ? 'FECHAMENTO_CAIXA' : 'DIVERGENCIA_CAIXA',
       targetType: 'CAIXA',
-      targetReference: `Fechamento ${data.periodLabel}`,
+      targetReference: `Cierre ${data.periodLabel}`,
       amountImpact: discrepancy,
-      details: `Fechamento de caixa ${data.periodLabel} (${isMatched ? 'Conciliado' : 'Divergente'}). Esperado: ${formatCurrency(cashInDrawerExpected)}, Contado: ${formatCurrency(data.countedCash)}. Diferença: ${formatCurrency(discrepancy)}.`,
-      reason: data.notes || 'Fechamento de caixa de turno',
+      details: `Cierre de caja ${data.periodLabel} (${isMatched ? 'Conciliado' : 'Divergente'}). Esperado: ${formatCurrency(cashInDrawerExpected)}, Contado: ${formatCurrency(data.countedCash)}. Diferencia: ${formatCurrency(discrepancy)}.`,
+      reason: data.notes || 'Cierre de caja de turno',
     });
 
     // Close session
@@ -1407,8 +1407,8 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
 
     showToast(
       isMatched
-        ? `Fechamento ${data.periodLabel} concluído! Caixa 100% conciliado.`
-        : `Fechamento ${data.periodLabel} concluído com divergência de ${formatCurrency(discrepancy)}.`,
+        ? `¡Cierre ${data.periodLabel} completado! Caja 100% conciliada.`
+        : `Cierre ${data.periodLabel} completado con diferencia de ${formatCurrency(discrepancy)}.`,
       isMatched ? 'success' : 'warning'
     );
 
@@ -1421,9 +1421,9 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
       'REPASSE_GORJETA',
       amount,
       'PIX',
-      `Repasse de Taxa de Serviço/Gorjetas: ${description}`
+      `Reparto de Tasa de Servicio/Propinas: ${description}`
     );
-    showToast(`Repasse de ${formatCurrency(amount)} registrado com sucesso!`, 'success');
+    showToast(`¡Reparto de ${formatCurrency(amount)} registrado con éxito!`, 'success');
   };
 
   // Monthly Commissions Calculation & Posting
@@ -1442,12 +1442,12 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
           'COMISSAO',
           commission,
           'PIX',
-          `Comissão Mensal (${monthYear}) - ${waiter.name} (${waiter.commissionRate}%)`
+          `Comisión Mensual (${monthYear}) - ${waiter.name} (${waiter.commissionRate}%)`
         );
       }
     });
 
-    showToast(`Comissões de ${monthYear} apuradas e lançadas no caixa: ${formatCurrency(totalCommissions)}!`, 'success');
+    showToast(`¡Comisiones de ${monthYear} calculadas y registradas en caja: ${formatCurrency(totalCommissions)}!`, 'success');
   };
 
   // Cash Register
@@ -1465,14 +1465,14 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
           type: 'SUPRIMENTO',
           amount: initialCash,
           paymentMethod: 'DINHEIRO',
-          description: 'Fundo de troco inicial de abertura de caixa',
+          description: 'Fondo de cambio inicial de apertura de caja',
           timestamp: new Date().toISOString(),
           operatorName: currentUser?.name || 'Operador',
         },
       ],
     };
     setCashSession(newSession);
-    showToast('Caixa aberto com sucesso!', 'success');
+    showToast('¡Caja abierta con éxito!', 'success');
   };
 
   const closeCashSession = () => {
@@ -1481,7 +1481,7 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
       status: 'FECHADO',
       closedAt: new Date().toISOString(),
     }));
-    showToast('Caixa encerrado com sucesso!', 'info');
+    showToast('¡Caja cerrada con éxito!', 'info');
   };
 
   const addCashMovement = (
@@ -1515,19 +1515,19 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
       id: `ing-${Date.now().toString(36)}`,
     };
     setIngredients((prev) => [...prev, newIng]);
-    showToast(`Insumo "${newIng.name}" adicionado ao estoque.`, 'success');
+    showToast(`Insumo "${newIng.name}" agregado al stock.`, 'success');
   };
 
   const updateIngredient = (id: string, updates: Partial<Ingredient>) => {
     setIngredients((prev) =>
       prev.map((i) => (i.id === id ? { ...i, ...updates } : i))
     );
-    showToast('Insumo atualizado.', 'success');
+    showToast('Insumo actualizado.', 'success');
   };
 
   const deleteIngredient = (id: string) => {
     setIngredients((prev) => prev.filter((i) => i.id !== id));
-    showToast('Insumo removido do estoque.', 'info');
+    showToast('Insumo eliminado del stock.', 'info');
   };
 
   const restockIngredient = (id: string, quantity: number, cost?: number, supplier?: string) => {
@@ -1557,13 +1557,13 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
         quantity,
         unit: ing.unit,
         date: new Date().toISOString(),
-        reference: supplier ? `Entrada - ${supplier}` : 'Entrada manual de estoque',
+        reference: supplier ? `Entrada - ${supplier}` : 'Entrada manual de stock',
         registeredBy: currentUser?.name || 'Administrador',
       },
       ...prev,
     ]);
 
-    showToast(`Reposição de ${quantity} ${ing.unit} registrada para "${ing.name}"!`, 'success');
+    showToast(`¡Reposición de ${quantity} ${ing.unit} registrada para "${ing.name}"!`, 'success');
   };
 
   const registerWaste = (recordData: Omit<WasteRecord, 'id' | 'date'>) => {
@@ -1607,20 +1607,20 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
       actionType: 'AJUSTE_ESTOQUE',
       targetType: 'ESTOQUE',
       targetReference: `${recordData.ingredientName} (${recordData.quantity} ${recordData.unit})`,
-      details: `Desperdício/Descarte de ${recordData.quantity} ${recordData.unit} - Custo: R$ ${recordData.estimatedCost.toFixed(2)}`,
+      details: `Merma/Descarte de ${recordData.quantity} ${recordData.unit} - Costo: ${formatCurrency(recordData.estimatedCost)}`,
       reason: recordData.reason,
       amountImpact: recordData.estimatedCost,
       actorName: recordData.registeredBy,
     });
 
-    showToast(`Perda de ${recordData.quantity} ${recordData.unit} registrada!`, 'warning');
+    showToast(`¡Pérdida de ${recordData.quantity} ${recordData.unit} registrada!`, 'warning');
   };
 
   // Table Management (Admin)
   const addTable = (label: string, capacity: number) => {
     if (!label.trim()) {
-      showToast('Nome/número da mesa é obrigatório.', 'error');
-      return { success: false, error: 'Nome obrigatório' };
+      showToast('El nombre/número de la mesa es obligatorio.', 'error');
+      return { success: false, error: 'Nombre obligatorio' };
     }
     const maxId = tables.reduce((max, t) => Math.max(max, t.id), 0);
     const newTable: Table = {
@@ -1630,14 +1630,14 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
       status: 'LIVRE',
     };
     setTables((prev) => [...prev, newTable]);
-    showToast(`Mesa "${newTable.label}" criada com sucesso!`, 'success');
+    showToast(`¡Mesa "${newTable.label}" creada con éxito!`, 'success');
     return { success: true };
   };
 
   const updateTable = (id: number, updates: { label?: string; capacity?: number }) => {
     const target = tables.find((t) => t.id === id);
     if (!target) {
-      return { success: false, error: 'Mesa não encontrada' };
+      return { success: false, error: 'Mesa no encontrada' };
     }
     setTables((prev) =>
       prev.map((t) =>
@@ -1650,21 +1650,21 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
           : t
       )
     );
-    showToast(`Mesa "${updates.label || target.label}" atualizada!`, 'success');
+    showToast(`¡Mesa "${updates.label || target.label}" actualizada!`, 'success');
     return { success: true };
   };
 
   const deleteTable = (id: number) => {
     const target = tables.find((t) => t.id === id);
     if (!target) {
-      return { success: false, error: 'Mesa não encontrada' };
+      return { success: false, error: 'Mesa no encontrada' };
     }
     if (target.status === 'OCUPADA' || target.status === 'CONTA_SOLICITADA') {
-      showToast('Não é possível excluir uma mesa com comanda ou clientes ativos!', 'error');
+      showToast('¡No es posible eliminar una mesa con comanda o clientes activos!', 'error');
       return { success: false, error: 'Mesa ocupada' };
     }
     setTables((prev) => prev.filter((t) => t.id !== id));
-    showToast(`Mesa "${target.label}" excluída com sucesso.`, 'success');
+    showToast(`Mesa "${target.label}" eliminada con éxito.`, 'success');
     return { success: true };
   };
 
@@ -1699,7 +1699,7 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
           type: 'DESPESA',
           amount: p.totalCost,
           paymentMethod: 'DINHEIRO',
-          description: `Compra de estoque: ${p.quantity}x ${p.productName}`,
+          description: `Compra de stock: ${p.quantity}x ${p.productName}`,
           operatorName: p.registeredBy || currentUser?.name || 'Admin',
           timestamp: new Date().toISOString(),
         },
@@ -1707,7 +1707,7 @@ export const ChurrasProvider: React.FC<{ children: ReactNode }> = ({ children })
       ],
     }));
 
-    showToast(`Compra registrada: +${p.quantity} un de ${p.productName}!`, 'success');
+    showToast(`¡Compra registrada: +${p.quantity} un de ${p.productName}!`, 'success');
   };
 
   const value: ChurrasContextType = {

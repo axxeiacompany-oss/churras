@@ -141,10 +141,10 @@ export const DailyPdfReportTab: React.FC = () => {
               </div>
               <div>
                 <h2 className="text-lg font-black text-white">
-                  Relatório Diário Oficial (PDF)
+                  Informe Diario Oficial (PDF)
                 </h2>
                 <p className="text-xs text-stone-400">
-                  Demonstrativo executivo de fechamento diário e vendas com emissão pronta para PDF
+                  Estado ejecutivo de cierre diario y ventas con emisión lista para PDF
                 </p>
               </div>
             </div>
@@ -166,7 +166,7 @@ export const DailyPdfReportTab: React.FC = () => {
               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs shadow-lg shadow-red-950/40 transition cursor-pointer"
             >
               <Printer className="w-4 h-4" />
-              <span>Exportar Relatório em PDF</span>
+              <span>Exportar Informe en PDF</span>
             </button>
           </div>
         </div>
@@ -178,7 +178,7 @@ export const DailyPdfReportTab: React.FC = () => {
         <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4 shadow-lg flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between text-xs font-semibold text-stone-400">
-              <span>Faturamento Total</span>
+              <span>Facturación Total</span>
               <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                 <DollarSign className="w-4 h-4" />
               </div>
@@ -188,7 +188,7 @@ export const DailyPdfReportTab: React.FC = () => {
             </div>
           </div>
           <div className="mt-3 pt-2.5 border-t border-stone-800/80 text-[11px] text-stone-400 flex items-center justify-between">
-            <span>Data de apuração:</span>
+            <span>Fecha de cierre:</span>
             <span className="font-bold text-white font-mono">{selectedDate}</span>
           </div>
         </div>
@@ -207,9 +207,9 @@ export const DailyPdfReportTab: React.FC = () => {
             </div>
           </div>
           <div className="mt-3 pt-2.5 border-t border-stone-800/80 text-[11px] text-stone-400 flex items-center justify-between">
-            <span>Mesas / Balcão:</span>
+            <span>Mesas / Mostrador:</span>
             <span className="font-bold text-blue-400 font-mono">
-              {dateComandas.filter((c) => c.status === 'PAGA').length} pagas
+              {dateComandas.filter((c) => c.status === 'PAGA').length} pagadas
             </span>
           </div>
         </div>
@@ -218,7 +218,7 @@ export const DailyPdfReportTab: React.FC = () => {
         <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4 shadow-lg flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between text-xs font-semibold text-stone-400">
-              <span>Itens Vendidos</span>
+              <span>Ítems Vendidos</span>
               <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20">
                 <Package className="w-4 h-4" />
               </div>
@@ -228,8 +228,8 @@ export const DailyPdfReportTab: React.FC = () => {
             </div>
           </div>
           <div className="mt-3 pt-2.5 border-t border-stone-800/80 text-[11px] text-stone-400 flex items-center justify-between">
-            <span>Variedades no cardápio:</span>
-            <span className="font-bold text-white font-mono">{dateSales.length} produtos</span>
+            <span>Variedades en el menú:</span>
+            <span className="font-bold text-white font-mono">{dateSales.length} productos</span>
           </div>
         </div>
 
@@ -237,7 +237,7 @@ export const DailyPdfReportTab: React.FC = () => {
         <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4 shadow-lg flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between text-xs font-semibold text-stone-400">
-              <span>Ticket Médio</span>
+              <span>Ticket Promedio</span>
               <div className="p-1.5 rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/20">
                 <TrendingUp className="w-4 h-4" />
               </div>
@@ -247,9 +247,9 @@ export const DailyPdfReportTab: React.FC = () => {
             </div>
           </div>
           <div className="mt-3 pt-2.5 border-t border-stone-800/80 text-[11px] text-stone-400 flex items-center justify-between">
-            <span>Média por comanda:</span>
+            <span>Promedio por comanda:</span>
             <span className="font-bold text-white font-mono">
-              {dateComandas.length > 0 ? `${Math.round(totalQuantitySold / dateComandas.length)} itens/comanda` : '0 itens'}
+              {dateComandas.length > 0 ? `${Math.round(totalQuantitySold / dateComandas.length)} ítems/comanda` : '0 ítems'}
             </span>
           </div>
         </div>
@@ -261,35 +261,35 @@ export const DailyPdfReportTab: React.FC = () => {
           <div className="flex items-center gap-2">
             <CreditCard className="w-4 h-4 text-amber-400" />
             <h3 className="font-bold text-white text-sm">
-              Fechamento por Meios de Pagamento
+              Cierre por Medios de Pago
             </h3>
           </div>
           <span className="text-xs text-stone-400">
-            Total recebido: <strong className="text-emerald-400 font-mono">{formatCurrency(totalSoldToday)}</strong>
+            Total recibido: <strong className="text-emerald-400 font-mono">{formatCurrency(totalSoldToday)}</strong>
           </span>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="bg-stone-950 p-3 rounded-xl border border-stone-800">
-            <div className="text-[11px] text-stone-400">Dinheiro (Efetivo)</div>
+            <div className="text-[11px] text-stone-400">Efectivo (Guaraníes)</div>
             <div className="text-base font-bold text-emerald-400 font-mono mt-1">
               {formatCurrency(paymentBreakdown.DINHEIRO)}
             </div>
           </div>
           <div className="bg-stone-950 p-3 rounded-xl border border-stone-800">
-            <div className="text-[11px] text-stone-400">PIX / Transferência</div>
+            <div className="text-[11px] text-stone-400">Transferencia / QR / PIX</div>
             <div className="text-base font-bold text-sky-400 font-mono mt-1">
               {formatCurrency(paymentBreakdown.PIX)}
             </div>
           </div>
           <div className="bg-stone-950 p-3 rounded-xl border border-stone-800">
-            <div className="text-[11px] text-stone-400">Cartão de Débito</div>
+            <div className="text-[11px] text-stone-400">Tarjeta de Débito</div>
             <div className="text-base font-bold text-amber-400 font-mono mt-1">
               {formatCurrency(paymentBreakdown.CARTAO_DEBITO)}
             </div>
           </div>
           <div className="bg-stone-950 p-3 rounded-xl border border-stone-800">
-            <div className="text-[11px] text-stone-400">Cartão de Crédito</div>
+            <div className="text-[11px] text-stone-400">Tarjeta de Crédito</div>
             <div className="text-base font-bold text-purple-400 font-mono mt-1">
               {formatCurrency(paymentBreakdown.CARTAO_CREDITO)}
             </div>
@@ -305,7 +305,7 @@ export const DailyPdfReportTab: React.FC = () => {
             <div className="flex items-center gap-2">
               <ArrowUpRight className="w-4 h-4 text-emerald-400" />
               <h3 className="font-bold text-white text-sm">
-                Vendas por Produto ({dateSales.length})
+                Ventas por Producto ({dateSales.length})
               </h3>
             </div>
             <span className="font-mono text-xs font-bold text-emerald-400">
@@ -317,17 +317,17 @@ export const DailyPdfReportTab: React.FC = () => {
             <table className="w-full text-left text-xs">
               <thead className="bg-stone-950/70 border-b border-stone-800 text-[10px] uppercase font-bold text-stone-400">
                 <tr>
-                  <th className="py-2.5 px-3">Produto</th>
-                  <th className="py-2.5 px-3 text-center">Qtd</th>
-                  <th className="py-2.5 px-3 text-right">Preço Unit.</th>
-                  <th className="py-2.5 px-3 text-right">Total Faturado</th>
+                  <th className="py-2.5 px-3">Producto</th>
+                  <th className="py-2.5 px-3 text-center">Cant.</th>
+                  <th className="py-2.5 px-3 text-right">Precio Unit.</th>
+                  <th className="py-2.5 px-3 text-right">Total Facturado</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-800/60 font-mono">
                 {dateSales.length === 0 ? (
                   <tr>
                     <td colSpan={4} className="py-8 text-center text-stone-500 font-sans">
-                      Nenhuma venda registrada nesta data.
+                      Ninguna venta registrada en esta fecha.
                     </td>
                   </tr>
                 ) : (
@@ -373,16 +373,16 @@ export const DailyPdfReportTab: React.FC = () => {
                 <tr>
                   <th className="py-2.5 px-3">Comanda</th>
                   <th className="py-2.5 px-3">Mesa/Local</th>
-                  <th className="py-2.5 px-3">Garçom</th>
+                  <th className="py-2.5 px-3">Mozo</th>
                   <th className="py-2.5 px-3 text-right">Total</th>
-                  <th className="py-2.5 px-3 text-center">Status</th>
+                  <th className="py-2.5 px-3 text-center">Estado</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-800/60 font-mono">
                 {dateComandas.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="py-8 text-center text-stone-500 font-sans">
-                      Nenhuma comanda registrada nesta data.
+                      Ninguna comanda registrada en esta fecha.
                     </td>
                   </tr>
                 ) : (
@@ -408,7 +408,7 @@ export const DailyPdfReportTab: React.FC = () => {
                               : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
                           }`}
                         >
-                          {c.status}
+                          {c.status === 'PAGA' ? 'PAGADA' : c.status === 'CONTA_SOLICITADA' ? 'CUENTA' : 'ABIERTA'}
                         </span>
                       </td>
                     </tr>
@@ -428,7 +428,7 @@ export const DailyPdfReportTab: React.FC = () => {
               <div className="flex items-center gap-2">
                 <FileText className="w-5 h-5 text-amber-500" />
                 <h3 className="text-base font-bold text-white">
-                  Relatório Diário Oficial de Vendas & Fechamento (PDF)
+                  Informe Diario Oficial de Ventas & Cierre (PDF)
                 </h3>
               </div>
               <button
@@ -448,7 +448,7 @@ export const DailyPdfReportTab: React.FC = () => {
               <div className="border-b-2 border-stone-900 pb-3 flex justify-between items-start">
                 <div>
                   <h1 className="text-xl font-extrabold tracking-tight uppercase">
-                    {settings.name || 'Brasa & Fogo Churrascaria Prime'}
+                    {settings.name || 'Brasa & Fuego Churrasquería Prime'}
                   </h1>
                   <p className="text-[11px] text-stone-600">
                     {settings.cnpj || 'RUC: 80092345-6'} · {settings.address}
@@ -457,11 +457,11 @@ export const DailyPdfReportTab: React.FC = () => {
                 </div>
                 <div className="text-right">
                   <div className="inline-block px-2.5 py-1 bg-stone-900 text-white font-bold text-[10px] rounded uppercase tracking-wider">
-                    Relatório Diário de Vendas
+                    Informe Diario de Ventas
                   </div>
-                  <p className="text-[11px] font-mono font-bold mt-1">Data: {selectedDate}</p>
+                  <p className="text-[11px] font-mono font-bold mt-1">Fecha: {selectedDate}</p>
                   <p className="text-[10px] text-stone-500">
-                    Gerado por: {currentUser?.name || 'Administrador'}
+                    Generado por: {currentUser?.name || 'Administrador'}
                   </p>
                 </div>
               </div>
@@ -470,12 +470,12 @@ export const DailyPdfReportTab: React.FC = () => {
               <div className="grid grid-cols-4 gap-3 p-3 bg-stone-100 rounded-xl border border-stone-300">
                 <div>
                   <span className="text-[10px] font-bold text-stone-600 uppercase">
-                    Faturamento do Dia:
+                    Facturación del Día:
                   </span>
                   <div className="text-base font-extrabold text-emerald-700 font-mono">
                     {formatCurrency(totalSoldToday)}
                   </div>
-                  <span className="text-[10px] text-stone-500">Receita Bruta</span>
+                  <span className="text-[10px] text-stone-500">Ingresos Brutos</span>
                 </div>
                 <div>
                   <span className="text-[10px] font-bold text-stone-600 uppercase">
@@ -484,20 +484,20 @@ export const DailyPdfReportTab: React.FC = () => {
                   <div className="text-base font-extrabold text-stone-800 font-mono">
                     {dateComandas.length}
                   </div>
-                  <span className="text-[10px] text-stone-500">Atendimentos</span>
+                  <span className="text-[10px] text-stone-500">Atenciones</span>
                 </div>
                 <div>
                   <span className="text-[10px] font-bold text-stone-600 uppercase">
-                    Itens Vendidos:
+                    Ítems Vendidos:
                   </span>
                   <div className="text-base font-extrabold text-stone-800 font-mono">
                     {totalQuantitySold} un
                   </div>
-                  <span className="text-[10px] text-stone-500">Produtos baixados</span>
+                  <span className="text-[10px] text-stone-500">Productos descontados</span>
                 </div>
                 <div>
                   <span className="text-[10px] font-bold text-stone-600 uppercase">
-                    Ticket Médio:
+                    Ticket Promedio:
                   </span>
                   <div className="text-base font-extrabold text-stone-800 font-mono">
                     {formatCurrency(averageTicket)}
@@ -509,29 +509,29 @@ export const DailyPdfReportTab: React.FC = () => {
               {/* Formas de Pagamento no PDF */}
               <div>
                 <h4 className="font-bold text-stone-900 border-b border-stone-300 pb-1 mb-2">
-                  1. Formas de Pagamento Recebidas
+                  1. Formas de Pago Recibidas
                 </h4>
                 <div className="grid grid-cols-4 gap-2 text-center">
                   <div className="p-2 bg-stone-50 border border-stone-200 rounded">
-                    <span className="text-[10px] font-semibold text-stone-600">Dinheiro</span>
+                    <span className="text-[10px] font-semibold text-stone-600">Efectivo</span>
                     <div className="font-mono font-bold text-stone-900 mt-0.5">
                       {formatCurrency(paymentBreakdown.DINHEIRO)}
                     </div>
                   </div>
                   <div className="p-2 bg-stone-50 border border-stone-200 rounded">
-                    <span className="text-[10px] font-semibold text-stone-600">PIX</span>
+                    <span className="text-[10px] font-semibold text-stone-600">Transferencia / QR</span>
                     <div className="font-mono font-bold text-stone-900 mt-0.5">
                       {formatCurrency(paymentBreakdown.PIX)}
                     </div>
                   </div>
                   <div className="p-2 bg-stone-50 border border-stone-200 rounded">
-                    <span className="text-[10px] font-semibold text-stone-600">Cartão Débito</span>
+                    <span className="text-[10px] font-semibold text-stone-600">Tarjeta Débito</span>
                     <div className="font-mono font-bold text-stone-900 mt-0.5">
                       {formatCurrency(paymentBreakdown.CARTAO_DEBITO)}
                     </div>
                   </div>
                   <div className="p-2 bg-stone-50 border border-stone-200 rounded">
-                    <span className="text-[10px] font-semibold text-stone-600">Cartão Crédito</span>
+                    <span className="text-[10px] font-semibold text-stone-600">Tarjeta Crédito</span>
                     <div className="font-mono font-bold text-stone-900 mt-0.5">
                       {formatCurrency(paymentBreakdown.CARTAO_CREDITO)}
                     </div>
@@ -542,22 +542,22 @@ export const DailyPdfReportTab: React.FC = () => {
               {/* Tabela de Produtos Vendidos */}
               <div>
                 <h4 className="font-bold text-stone-900 border-b border-stone-300 pb-1 mb-2">
-                  2. Demonstrativo de Vendas Realizadas ({dateSales.length} itens)
+                  2. Detalle de Ventas Realizadas ({dateSales.length} productos)
                 </h4>
                 <table className="w-full text-left text-[11px] border-collapse">
                   <thead>
                     <tr className="border-b border-stone-400 bg-stone-100 font-bold">
-                      <th className="py-1 px-2">Produto</th>
-                      <th className="py-1 px-2 text-center">Qtd</th>
-                      <th className="py-1 px-2 text-right">Preço Unit.</th>
-                      <th className="py-1 px-2 text-right">Total Faturado</th>
+                      <th className="py-1 px-2">Producto</th>
+                      <th className="py-1 px-2 text-center">Cant.</th>
+                      <th className="py-1 px-2 text-right">Precio Unit.</th>
+                      <th className="py-1 px-2 text-right">Total Facturado</th>
                     </tr>
                   </thead>
                   <tbody>
                     {dateSales.length === 0 ? (
                       <tr>
                         <td colSpan={4} className="py-3 text-center text-stone-500">
-                          Sem vendas registradas nesta data.
+                          Sin ventas registradas en esta fecha.
                         </td>
                       </tr>
                     ) : (
@@ -583,11 +583,11 @@ export const DailyPdfReportTab: React.FC = () => {
               {/* Assinatura */}
               <div className="pt-8 border-t border-stone-300 flex justify-between items-center text-[10px] text-stone-500">
                 <div>
-                  <p>Documento gerado eletronicamente pelo ChurrasGestão</p>
-                  <p>{formatDate(new Date().toISOString())} às {formatTime(new Date().toISOString())}</p>
+                  <p>Documento generado electrónicamente por ChurrasGestión</p>
+                  <p>{formatDate(new Date().toISOString())} a las {formatTime(new Date().toISOString())}</p>
                 </div>
                 <div className="text-center w-48 border-t border-stone-400 pt-1">
-                  <p className="font-bold text-stone-800">Visto da Administração</p>
+                  <p className="font-bold text-stone-800">Firma de la Administración</p>
                 </div>
               </div>
             </div>
@@ -598,14 +598,14 @@ export const DailyPdfReportTab: React.FC = () => {
                 onClick={() => setShowPrintModal(false)}
                 className="px-4 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-semibold cursor-pointer"
               >
-                Voltar
+                Volver
               </button>
               <button
                 onClick={handlePrintPdf}
                 className="flex items-center gap-2 px-5 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs shadow-lg shadow-red-950/40 cursor-pointer"
               >
                 <Printer className="w-4 h-4" />
-                <span>Imprimir / Salvar como PDF</span>
+                <span>Imprimir / Guardar como PDF</span>
               </button>
             </div>
           </div>

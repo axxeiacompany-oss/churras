@@ -25,7 +25,7 @@ export interface HourlyDistribution {
 export function generate30DayMetrics(currentComandas: Comanda[]): DayMetric[] {
   const result: DayMetric[] = [];
   const baseDate = new Date('2026-10-09T12:00:00Z');
-  const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+  const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
   // Calculate today's real closed sales
   const todayPaid = currentComandas.filter((c) => c.status === 'PAGA');
@@ -53,7 +53,7 @@ export function generate30DayMetrics(currentComandas: Comanda[]): DayMetric[] {
     const displayDate = `${day}/${month}`;
     const dayOfWeekIdx = d.getDay();
     const dayOfWeek = dayNames[dayOfWeekIdx];
-    const isWeekend = dayOfWeekIdx === 0 || dayOfWeekIdx === 5 || dayOfWeekIdx === 6; // Sex, Sab, Dom
+    const isWeekend = dayOfWeekIdx === 0 || dayOfWeekIdx === 5 || dayOfWeekIdx === 6; // Vie, Sab, Dom
 
     if (i === 0) {
       // TODAY in Guaraní: include actual real-time paid data or baseline
@@ -65,7 +65,7 @@ export function generate30DayMetrics(currentComandas: Comanda[]): DayMetric[] {
 
       result.push({
         date: dateStr,
-        displayDate: 'Hoje',
+        displayDate: 'Hoy',
         dayOfWeek,
         isWeekend,
         lunchSales: Math.round(baseTodayLunch),
@@ -110,13 +110,13 @@ export function generate30DayMetrics(currentComandas: Comanda[]): DayMetric[] {
 export function getHourlyDistribution(dayMetrics: DayMetric[], comandas: Comanda[]): HourlyDistribution[] {
   const hours = [
     { hourLabel: '11:00 - 12:00', lunch: true, baseOrders: 14, baseRev: 4200000 },
-    { hourLabel: '12:00 - 13:00', lunch: true, baseOrders: 38, baseRev: 14800000, isPeak: true, peakLabel: 'Pico Almoço' },
+    { hourLabel: '12:00 - 13:00', lunch: true, baseOrders: 38, baseRev: 14800000, isPeak: true, peakLabel: 'Pico Almuerzo' },
     { hourLabel: '13:00 - 14:00', lunch: true, baseOrders: 32, baseRev: 11200000 },
     { hourLabel: '14:00 - 15:00', lunch: true, baseOrders: 16, baseRev: 4800000 },
     { hourLabel: '15:00 - 18:00', lunch: false, baseOrders: 8, baseRev: 2500000 },
     { hourLabel: '18:00 - 19:00', lunch: false, baseOrders: 18, baseRev: 6200000 },
     { hourLabel: '19:00 - 20:00', lunch: false, baseOrders: 36, baseRev: 13500000 },
-    { hourLabel: '20:00 - 21:00', lunch: false, baseOrders: 44, baseRev: 18400000, isPeak: true, peakLabel: 'Pico Jantar' },
+    { hourLabel: '20:00 - 21:00', lunch: false, baseOrders: 44, baseRev: 18400000, isPeak: true, peakLabel: 'Pico Cena' },
     { hourLabel: '21:00 - 22:00', lunch: false, baseOrders: 30, baseRev: 10500000 },
     { hourLabel: '22:00 - 23:30', lunch: false, baseOrders: 12, baseRev: 3900000 },
   ];

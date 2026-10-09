@@ -15,7 +15,7 @@ import {
 } from '../types';
 
 export const INITIAL_SETTINGS: RestaurantSettings = {
-  name: 'Brasa & Fogo Churrascaria Prime',
+  name: 'Brasa & Fuego Churrasquería Prime',
   cnpj: 'RUC: 80092345-6',
   address: 'Av. Santa Teresa esq. Herminio Maldonado - Asunción, Paraguay',
   phone: '+595 21 600-1234',
@@ -59,7 +59,7 @@ export const INITIAL_EMPLOYEES: Employee[] = [
   },
   {
     id: 'emp-caixa',
-    name: 'Patrícia Mendonça',
+    name: 'Patricia Mendonça',
     email: 'caixa@churrascaria.com',
     password: 'caixa',
     phone: '+595 982 234-567',
@@ -127,7 +127,7 @@ export const INITIAL_EMPLOYEES: Employee[] = [
   },
   {
     id: 'emp-cozinha',
-    name: 'Tiago "Churrasqueiro"',
+    name: 'Tiago "Parrillero"',
     email: 'cozinha@churrascaria.com',
     password: 'cozinha',
     phone: '+595 986 678-901',
@@ -145,15 +145,15 @@ export const INITIAL_EMPLOYEES: Employee[] = [
 ];
 
 export const INITIAL_MENU_ITEMS: MenuItem[] = [
-  // Rodízio (em Guaraníes ₲)
+  // Rodizio (en Guaraníes ₲)
   {
     id: 'menu-rod-adult',
-    name: 'Rodízio Completo Prime (Adulto)',
+    name: 'Rodizio Completo Prime (Adulto)',
     category: 'RODIZIO',
     price: 220000, // ₲ 220.000
     costPrice: 75000,
     imageUrl: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80',
-    description: 'Mais de 22 cortes nobres servidos na mesa, buffet de frios, sushi e saladas livre.',
+    description: 'Más de 22 cortes nobles servidos en la mesa, buffet de fiambres, sushi y ensaladas libre.',
     prepStation: 'GRELHA',
     available: true,
     allowsDoneness: false,
@@ -168,12 +168,12 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
   },
   {
     id: 'menu-rod-child',
-    name: 'Rodízio Infantil (6 a 10 anos)',
+    name: 'Rodizio Infantil (6 a 10 años)',
     category: 'RODIZIO',
     price: 110000, // ₲ 110.000
     costPrice: 35000,
     imageUrl: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=600&q=80',
-    description: 'Acesso completo ao rodízio de carnes e buffet para crianças de 6 a 10 anos.',
+    description: 'Acceso completo al rodizio de carnes y buffet para niños de 6 a 10 años.',
     prepStation: 'GRELHA',
     available: true,
     allowsDoneness: false,
@@ -185,12 +185,12 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
   },
   {
     id: 'menu-rod-senior',
-    name: 'Rodízio Melhor Idade / Sênior (60+ anos)',
+    name: 'Rodizio Tercera Edad / Senior (60+ años)',
     category: 'RODIZIO',
     price: 160000, // ₲ 160.000
     costPrice: 55000,
     imageUrl: 'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?auto=format&fit=crop&w=600&q=80',
-    description: 'Tarifa especial para maiores de 60 anos com todos os cortes nobres e buffet.',
+    description: 'Tarifa especial para mayores de 60 años con todos los cortes nobles y buffet.',
     prepStation: 'GRELHA',
     available: true,
     allowsDoneness: false,
@@ -203,15 +203,15 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
     ],
   },
 
-  // Buffet por Quilo (Peso)
+  // Buffet por Kilo (Peso)
   {
     id: 'menu-por-quilo',
-    name: 'Buffet de Churrasco & Saladas por Quilo (kg)',
+    name: 'Buffet de Parrilla y Ensaladas por Kilo (kg)',
     category: 'POR_QUILO',
     price: 130000, // ₲ 130.000/kg
     costPrice: 45000,
     imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80',
-    description: 'Pese o prato na balança com carnes grelhadas e buffet livre. Digite o peso exato.',
+    description: 'Pese el plato en la balanza con carnes a la parrilla y buffet libre. Ingrese el peso exacto.',
     prepStation: 'COZINHA',
     available: true,
     allowsDoneness: false,
@@ -225,12 +225,12 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
   },
   {
     id: 'menu-corte-quilo',
-    name: 'Corte Especial Selecionado por Peso (kg)',
+    name: 'Corte Especial Seleccionado por Peso (kg)',
     category: 'POR_QUILO',
     price: 250000, // ₲ 250.000/kg
     costPrice: 85000,
     imageUrl: 'https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&w=600&q=80',
-    description: 'Peça inteira de Prime Rib ou Tomahawk pesada na hora antes de ir à brasa.',
+    description: 'Pieza entera de Prime Rib o Tomahawk pesada en el momento antes de ir a las brasas.',
     prepStation: 'GRELHA',
     available: true,
     allowsDoneness: true,
@@ -241,15 +241,15 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
     ],
   },
 
-  // Pratos à la Carte
+  // Platos a la Carta
   {
     id: 'menu-alacarte-picanha',
-    name: 'Prato Executivo Picanha & Arroz Biro-Biro',
+    name: 'Plato Ejecutivo Picaña y Arroz Biro-Biro',
     category: 'PRATOS_A_LA_CARTE',
     price: 85000, // ₲ 85.000
     costPrice: 28000,
     imageUrl: 'https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&w=600&q=80',
-    description: '300g de picanha grelhada com arroz biro-biro, farofa de ovos e vinagrete.',
+    description: '300g de picaña a la parrilla con arroz biro-biro, farofa de huevos y vinagreta.',
     prepStation: 'GRELHA',
     available: true,
     allowsDoneness: true,
@@ -260,26 +260,26 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
   },
   {
     id: 'menu-alacarte-galeto',
-    name: 'Galeto Desossado na Brasa com Polenta Frita',
+    name: 'Pollo Deshuesado a las Brasas con Polenta Frita',
     category: 'PRATOS_A_LA_CARTE',
     price: 65000, // ₲ 65.000
     costPrice: 22000,
     imageUrl: 'https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?auto=format&fit=crop&w=600&q=80',
-    description: 'Galeto marinado na cerveja e ervas finas, servido com polenta crocante.',
+    description: 'Pollito marinado en cerveza y finas hierbas, servido con polenta crocante.',
     prepStation: 'GRELHA',
     available: true,
     allowsDoneness: false,
   },
 
-  // Cortes Nobres
+  // Cortes Nobles
   {
     id: 'menu-picanha',
-    name: 'Picanha Prime na Brasa (500g)',
+    name: 'Picaña Prime a las Brasas (500g)',
     category: 'CORTES_NOBRES',
     price: 185000, // ₲ 185.000
     costPrice: 65000,
     imageUrl: 'https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&w=600&q=80',
-    description: 'Corte mais nobre com capa de gordura perfeita, flor de sal e chimichurri artesanal.',
+    description: 'Corte más noble con capa de grasa perfecta, flor de sal y chimichurri artesanal.',
     prepStation: 'GRELHA',
     available: true,
     allowsDoneness: true,
@@ -296,7 +296,7 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
     price: 160000, // ₲ 160.000
     costPrice: 55000,
     imageUrl: 'https://images.unsplash.com/photo-1603048588665-791ca8aea617?auto=format&fit=crop&w=600&q=80',
-    description: 'Ojo de bife nobre com alto marmoreio, maciez extrema e suculência.',
+    description: 'Ojo de bife noble con alto marmoleo, extrema terneza y jugosidad.',
     prepStation: 'GRELHA',
     available: true,
     allowsDoneness: true,
@@ -307,12 +307,12 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
   },
   {
     id: 'menu-costela',
-    name: 'Costela Bovina no Bafo 12h (600g)',
+    name: 'Costilla Vacuna a Fuego Lento 12h (600g)',
     category: 'CORTES_NOBRES',
     price: 170000, // ₲ 170.000
     costPrice: 58000,
     imageUrl: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80',
-    description: 'Assada lentamente na brasa e lenha de macieira, desmanchando do osso.',
+    description: 'Asada lentamente a las brasas y leña de manzano, desprendiéndose del hueso.',
     prepStation: 'GRELHA',
     available: true,
     allowsDoneness: false,
@@ -324,24 +324,24 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
   },
   {
     id: 'menu-cupim',
-    name: 'Cupim na Manteiga de Garrafa (450g)',
+    name: 'Cupim a la Manteca (450g)',
     category: 'CORTES_NOBRES',
     price: 140000, // ₲ 140.000
     costPrice: 48000,
     imageUrl: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80',
-    description: 'Textura aveludada, finalizado com manteiga e flor de sal.',
+    description: 'Textura aterciopelada, finalizado con manteca y flor de sal.',
     prepStation: 'GRELHA',
     available: true,
     allowsDoneness: false,
   },
   {
     id: 'menu-fraldinha',
-    name: 'Fraldinha Red Nobre (500g)',
+    name: 'Vacío / Fraldinha Red Noble (500g)',
     category: 'CORTES_NOBRES',
     price: 145000, // ₲ 145.000
     costPrice: 46000,
     imageUrl: 'https://images.unsplash.com/photo-1603048588665-791ca8aea617?auto=format&fit=crop&w=600&q=80',
-    description: 'Fibras longas macias, selada em fogo forte com pasta de alho assado.',
+    description: 'Fibras largas tiernas, sellada a fuego fuerte con pasta de ajo asado.',
     prepStation: 'GRELHA',
     available: true,
     allowsDoneness: true,
@@ -351,24 +351,24 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
   },
   {
     id: 'menu-carre',
-    name: 'Carré de Cordeiro Especial (400g)',
+    name: 'Carré de Cordero Especial (400g)',
     category: 'CORTES_NOBRES',
     price: 195000, // ₲ 195.000
     costPrice: 70000,
     imageUrl: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80',
-    description: 'Costeletas de cordeiro grelhadas com alecrim fresco e geléia de hortelã.',
+    description: 'Chuletas de cordero a la parrilla con romero fresco y jalea de menta.',
     prepStation: 'GRELHA',
     available: true,
     allowsDoneness: true,
   },
   {
     id: 'menu-linguica',
-    name: 'Linguiça Cuiabana com Queijo (350g)',
+    name: 'Chorizo Artesanal Relleno con Queso (350g)',
     category: 'CORTES_NOBRES',
     price: 55000, // ₲ 55.000
     costPrice: 18000,
     imageUrl: 'https://images.unsplash.com/photo-1587593810167-a84920ea0781?auto=format&fit=crop&w=600&q=80',
-    description: 'Carne selecionada, temperos frescos e recheio cremoso de provolone.',
+    description: 'Carne seleccionada, condimentos frescos y relleno cremoso de queso provolone.',
     prepStation: 'GRELHA',
     available: true,
     allowsDoneness: false,
@@ -377,15 +377,15 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
     ],
   },
 
-  // Entradas e Guarnições
+  // Entradas y Guarniciones
   {
     id: 'menu-sopa-paraguaya',
-    name: 'Sopa Paraguaya Tradicional da Casa',
+    name: 'Sopa Paraguaya Tradicional de la Casa',
     category: 'ENTRADAS_GUARNACOES',
     price: 25000, // ₲ 25.000
     costPrice: 8000,
     imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80',
-    description: 'Torta salgada tradicional paraguaia de milho, queijo paraguai e cebola dourada.',
+    description: 'Torta salada tradicional paraguaya de maíz, queso Paraguay y cebolla dorada.',
     prepStation: 'COZINHA',
     available: true,
     allowsDoneness: false,
@@ -393,12 +393,12 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
   },
   {
     id: 'menu-chipa-guasu',
-    name: 'Chipa Guasu Artesanal no Forno',
+    name: 'Chipa Guasu Artesanal al Horno',
     category: 'ENTRADAS_GUARNACOES',
     price: 25000, // ₲ 25.000
     costPrice: 8000,
     imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80',
-    description: 'Soufflé cremoso de milho verde fresco e abundante queijo paraguai derretido.',
+    description: 'Soufflé cremoso de choclo tierno fresco y abundante queso Paraguay derretido.',
     prepStation: 'COZINHA',
     available: true,
     allowsDoneness: false,
@@ -406,24 +406,24 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
   },
   {
     id: 'menu-coalho',
-    name: 'Queijo Coalho Grelhado com Melaço',
+    name: 'Queso Grillado a las Brasas con Miel de Caña',
     category: 'ENTRADAS_GUARNACOES',
     price: 28000, // ₲ 28.000
     costPrice: 9000,
     imageUrl: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=600&q=80',
-    description: 'Espeto duplo tostado na brasa servido com melaço de cana aromático.',
+    description: 'Brocheta doble tostada a las brasas servida con miel de caña aromática.',
     prepStation: 'GRELHA',
     available: true,
     allowsDoneness: false,
   },
   {
     id: 'menu-pao-alho',
-    name: 'Pão de Alho Tradicional Crocante (4 un)',
+    name: 'Pan de Ajo Tradicional Crocante (4 un)',
     category: 'ENTRADAS_GUARNACOES',
     price: 22000, // ₲ 22000
     costPrice: 7000,
     imageUrl: 'https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?auto=format&fit=crop&w=600&q=80',
-    description: 'Baguete artesanal com creme cremoso de alho assado, salsa e queijo derretido.',
+    description: 'Baguette artesanal con crema suave de ajo asado, perejil y queso derretido.',
     prepStation: 'GRELHA',
     available: true,
     allowsDoneness: false,
@@ -435,31 +435,31 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
     price: 35000, // ₲ 35.000
     costPrice: 11000,
     imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80',
-    description: 'Arroz soltinho com ovos mexidos, bacon crocante, batata palha finíssima e salsinha.',
+    description: 'Arroz suelto con huevos revueltos, panceta crocante, papas pay finísimas y perejil.',
     prepStation: 'COZINHA',
     available: true,
     allowsDoneness: false,
   },
   {
     id: 'menu-farofa',
-    name: 'Farofa da Casa com Ovos e Bacon',
+    name: 'Farofa de la Casa con Huevos y Panceta',
     category: 'ENTRADAS_GUARNACOES',
     price: 24000, // ₲ 24.000
     costPrice: 7000,
     imageUrl: 'https://images.unsplash.com/photo-1541544741938-0af808871cc0?auto=format&fit=crop&w=600&q=80',
-    description: 'Farinha de mandioca flocada na manteiga com pedaços crocantes de bacon e ovos caipiras.',
+    description: 'Harina de mandioca tostada a la manteca con trozos crocantes de panceta y huevos caseros.',
     prepStation: 'COZINHA',
     available: true,
     allowsDoneness: false,
   },
   {
     id: 'menu-polenta',
-    name: 'Mandioca Frita com Parmesão & Queijo',
+    name: 'Mandioca Frita con Parmesano y Queso',
     category: 'ENTRADAS_GUARNACOES',
     price: 30000, // ₲ 30.000
     costPrice: 9500,
     imageUrl: 'https://images.unsplash.com/photo-1541544741938-0af808871cc0?auto=format&fit=crop&w=600&q=80',
-    description: 'Mandioca tenra frita crocante, finalizada com queijo ralado na hora.',
+    description: 'Mandioca tierna frita crocante, finalizada con queso rallado al momento.',
     prepStation: 'COZINHA',
     available: true,
     allowsDoneness: false,
@@ -468,45 +468,45 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
     ],
   },
 
-  // Adicionais & Molhos
+  // Adicionales y Salsas
   {
     id: 'menu-adic-farofa',
-    name: 'Farofa Extra na Manteiga',
+    name: 'Farofa Extra a la Manteca',
     category: 'ADICIONAIS',
     price: 15000, // ₲ 15.000
     costPrice: 4000,
     imageUrl: 'https://images.unsplash.com/photo-1541544741938-0af808871cc0?auto=format&fit=crop&w=600&q=80',
-    description: 'Porção individual de farofa crocante dourada na manteiga.',
+    description: 'Porción individual de farofa crocante dorada a la manteca.',
     prepStation: 'COZINHA',
     available: true,
     allowsDoneness: false,
   },
   {
     id: 'menu-adic-vinagrete',
-    name: 'Vinagrete Especial da Casa (Extra)',
+    name: 'Vinagreta Especial de la Casa (Extra)',
     category: 'ADICIONAIS',
     price: 12000, // ₲ 12.000
     costPrice: 3000,
     imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80',
-    description: 'Tomates em cubos, cebola roxa, pimentões e azeite extravirgem.',
+    description: 'Tomates en cubos, cebolla morada, morrones y aceite de oliva extra virgen.',
     prepStation: 'COZINHA',
     available: true,
     allowsDoneness: false,
   },
   {
     id: 'menu-adic-chimichurri',
-    name: 'Molho Chimichurri Parrillero (Pote 100ml)',
+    name: 'Salsa Chimichurri Parrillero (Pote 100ml)',
     category: 'ADICIONAIS',
     price: 15000, // ₲ 15.000
     costPrice: 4000,
     imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80',
-    description: 'Ervas frescas marinadas em azeite de oliva nobre e alho.',
+    description: 'Hierbas frescas marinadas en aceite de oliva noble y ajo.',
     prepStation: 'COZINHA',
     available: true,
     allowsDoneness: false,
   },
 
-  // Bebidas e Bar
+  // Bebidas y Bar
   {
     id: 'menu-chopp-500',
     name: 'Chopp Munich / Pilsen 500ml',
@@ -514,7 +514,7 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
     price: 22000, // ₲ 22.000
     costPrice: 7500,
     imageUrl: 'https://images.unsplash.com/photo-1608270111559-fdfba7c52d0b?auto=format&fit=crop&w=600&q=80',
-    description: 'Servido em caneca ultracongelada a -2°C com colarinho cremoso.',
+    description: 'Servido en manija ultracongelada a -2°C con espuma cremosa.',
     prepStation: 'BAR',
     available: true,
     allowsDoneness: false,
@@ -530,43 +530,43 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
     price: 26000, // ₲ 26.000
     costPrice: 9000,
     imageUrl: 'https://images.unsplash.com/photo-1608270111559-fdfba7c52d0b?auto=format&fit=crop&w=600&q=80',
-    description: 'Puro malte refrescante no cálice oficial da marca.',
+    description: 'Pura malta refrescante en la copa oficial de la marca.',
     prepStation: 'BAR',
     available: true,
     allowsDoneness: false,
   },
   {
     id: 'menu-caipirinha',
-    name: 'Caipirinha Tradicional / Caipirissima',
+    name: 'Caipiriña Tradicional / Caipirísima',
     category: 'CHOPP_DRINKS',
     price: 35000, // ₲ 35.000
     costPrice: 10000,
     imageUrl: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=600&q=80',
-    description: 'Destilado nobre, limão fresco macerado e gelo picado.',
+    description: 'Destilado noble, limón fresco macerado y hielo picado.',
     prepStation: 'BAR',
     available: true,
     allowsDoneness: false,
   },
   {
     id: 'menu-gin',
-    name: 'Gin Tônica Tropical com Frutas',
+    name: 'Gin Tonic Tropical con Frutas',
     category: 'CHOPP_DRINKS',
     price: 45000, // ₲ 45.000
     costPrice: 15000,
     imageUrl: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=600&q=80',
-    description: 'Gin importado, maracujá, alecrim fresco, zimbro e água tônica premium.',
+    description: 'Gin importado, maracuyá, romero fresco, enebro y agua tónica premium.',
     prepStation: 'BAR',
     available: true,
     allowsDoneness: false,
   },
   {
     id: 'menu-refrigerante',
-    name: 'Refrigerante Lata 350ml (Coca / Guaraná / Sprite)',
+    name: 'Gaseosa Lata 350ml (Coca / Guaraná / Sprite)',
     category: 'BEBIDAS',
     price: 12000, // ₲ 12.000
     costPrice: 4000,
     imageUrl: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=600&q=80',
-    description: 'Opções regular e zero açúcar. Acompanha gelo e rodela de limão.',
+    description: 'Opciones regular y sin azúcar. Acompaña hielo y rodaja de limón.',
     prepStation: 'BAR',
     available: true,
     allowsDoneness: false,
@@ -576,12 +576,12 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
   },
   {
     id: 'menu-agua-gas',
-    name: 'Água Mineral com Gás 500ml',
+    name: 'Agua Mineral con Gas 500ml',
     category: 'BEBIDAS',
     price: 8000, // ₲ 8.000
     costPrice: 2500,
     imageUrl: 'https://images.unsplash.com/photo-1548839140-29a749e1bc4e?auto=format&fit=crop&w=600&q=80',
-    description: 'Garrafa gelada com fatia de limão.',
+    description: 'Botella bien fría con rodaja de limón.',
     prepStation: 'BAR',
     available: true,
     allowsDoneness: false,
@@ -591,26 +591,26 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
   },
   {
     id: 'menu-suco',
-    name: 'Suco Natural de Frutas 500ml',
+    name: 'Jugo Natural de Frutas 500ml',
     category: 'BEBIDAS',
     price: 18000, // ₲ 18.000
     costPrice: 5000,
     imageUrl: 'https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=600&q=80',
-    description: 'Feito na hora: Laranja, Abacaxi com Hortelã ou Maracujá.',
+    description: 'Hecho al momento: Naranja, Piña con Menta o Mburucuyá.',
     prepStation: 'BAR',
     available: true,
     allowsDoneness: false,
   },
 
-  // Sobremesas
+  // Postres
   {
     id: 'menu-abacaxi-brasa',
-    name: 'Abacaxi Grelhado com Canela & Sorvete',
+    name: 'Piña Asada con Canela y Helado',
     category: 'SOBREMESAS',
     price: 28000, // ₲ 28.000
     costPrice: 8000,
     imageUrl: 'https://images.unsplash.com/photo-1587314168485-3236d6710814?auto=format&fit=crop&w=600&q=80',
-    description: 'Fatias douradas na brasa caramelizadas com açúcar mascavo e canela, servidas com sorvete de baunilha.',
+    description: 'Rodajas doradas a las brasas caramelizadas con azúcar morena y canela, servidas con helado de vainilla.',
     prepStation: 'GRELHA',
     available: true,
     allowsDoneness: false,
@@ -618,12 +618,12 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
   },
   {
     id: 'menu-pudim',
-    name: 'Pudim de Leite Condensado com Baunilha',
+    name: 'Flan de Leche Condensada con Vainilla',
     category: 'SOBREMESAS',
     price: 25000, // ₲ 25.000
     costPrice: 7000,
     imageUrl: 'https://images.unsplash.com/photo-1587314168485-3236d6710814?auto=format&fit=crop&w=600&q=80',
-    description: 'Pudim lisinho com calda espessa de caramelo e fava de baunilha.',
+    description: 'Flan suave con salsa espesa de caramelo y vaina de vainilla.',
     prepStation: 'COZINHA',
     available: true,
     allowsDoneness: false,
@@ -633,12 +633,12 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
   },
   {
     id: 'menu-petit',
-    name: 'Petit Gateau com Sorvete e Calda',
+    name: 'Petit Gâteau con Helado y Salsa',
     category: 'SOBREMESAS',
     price: 38000, // ₲ 38.000
     costPrice: 12000,
     imageUrl: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=600&q=80',
-    description: 'Bolo quente de chocolate meio amargo com recheio cremoso fluído e sorvete artesanal.',
+    description: 'Volcán caliente de chocolate semiamargo con relleno cremoso fluido y helado artesanal.',
     prepStation: 'COZINHA',
     available: true,
     allowsDoneness: false,
@@ -648,16 +648,16 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
 export const INITIAL_TABLES: Table[] = [
   { id: 1, label: 'Mesa 01', capacity: 4, status: 'OCUPADA', currentComandaId: 'cmd-01', assignedWaiterId: 'emp-garcom-1', customerName: 'Roberto Almeida', peopleCount: 3, openedAt: '2026-10-09T11:45:00.000Z' },
   { id: 2, label: 'Mesa 02', capacity: 2, status: 'CONTA_SOLICITADA', currentComandaId: 'cmd-02', assignedWaiterId: 'emp-garcom-1', customerName: 'Dra. Helena Vaz', peopleCount: 2, openedAt: '2026-10-09T11:30:00.000Z' },
-  { id: 3, label: 'Mesa 03', capacity: 6, status: 'OCUPADA', currentComandaId: 'cmd-03', assignedWaiterId: 'emp-garcom-2', customerName: 'Família Souza', peopleCount: 5, openedAt: '2026-10-09T12:05:00.000Z' },
+  { id: 3, label: 'Mesa 03', capacity: 6, status: 'OCUPADA', currentComandaId: 'cmd-03', assignedWaiterId: 'emp-garcom-2', customerName: 'Familia Souza', peopleCount: 5, openedAt: '2026-10-09T12:05:00.000Z' },
   { id: 4, label: 'Mesa 04', capacity: 4, status: 'LIVRE', peopleCount: 0 },
   { id: 5, label: 'Mesa 05', capacity: 2, status: 'LIVRE', peopleCount: 0 },
-  { id: 6, label: 'Mesa 06', capacity: 8, status: 'RESERVADA', customerName: 'Almoço Diretoria Tech', peopleCount: 8 },
+  { id: 6, label: 'Mesa 06', capacity: 8, status: 'RESERVADA', customerName: 'Almuerzo Directorio Tech', peopleCount: 8 },
   { id: 7, label: 'Mesa 07', capacity: 4, status: 'LIVRE', peopleCount: 0 },
-  { id: 8, label: 'Mesa 08', capacity: 4, status: 'OCUPADA', currentComandaId: 'cmd-04', assignedWaiterId: 'emp-garcom-2', customerName: 'Lucas & Amigos', peopleCount: 4, openedAt: '2026-10-09T12:15:00.000Z' },
-  { id: 9, label: 'Varanda 01', capacity: 4, status: 'LIVRE', peopleCount: 0 },
-  { id: 10, label: 'Varanda 02', capacity: 6, status: 'LIVRE', peopleCount: 0 },
-  { id: 11, label: 'Varanda 03', capacity: 4, status: 'LIVRE', peopleCount: 0 },
-  { id: 12, label: 'Espaço VIP 01', capacity: 10, status: 'LIVRE', peopleCount: 0 },
+  { id: 8, label: 'Mesa 08', capacity: 4, status: 'OCUPADA', currentComandaId: 'cmd-04', assignedWaiterId: 'emp-garcom-2', customerName: 'Lucas y Amigos', peopleCount: 4, openedAt: '2026-10-09T12:15:00.000Z' },
+  { id: 9, label: 'Terraza 01', capacity: 4, status: 'LIVRE', peopleCount: 0 },
+  { id: 10, label: 'Terraza 02', capacity: 6, status: 'LIVRE', peopleCount: 0 },
+  { id: 11, label: 'Terraza 03', capacity: 4, status: 'LIVRE', peopleCount: 0 },
+  { id: 12, label: 'Salón VIP 01', capacity: 10, status: 'LIVRE', peopleCount: 0 },
 ];
 
 export const INITIAL_COMANDAS: Comanda[] = [
@@ -679,7 +679,7 @@ export const INITIAL_COMANDAS: Comanda[] = [
       {
         id: 'ord-item-1',
         menuItemId: 'menu-rod-adult',
-        name: 'Rodízio Completo Prime (Adulto)',
+        name: 'Rodizio Completo Prime (Adulto)',
         price: 220000,
         quantity: 3,
         prepStation: 'GRELHA',
@@ -709,11 +709,11 @@ export const INITIAL_COMANDAS: Comanda[] = [
       {
         id: 'ord-item-3',
         menuItemId: 'menu-picanha',
-        name: 'Picanha Prime na Brasa (500g)',
+        name: 'Picaña Prime a las Brasas (500g)',
         price: 185000,
         quantity: 1,
         doneness: 'AO_PONTO_PARA_MAL',
-        notes: 'Capa de gordura bem dourada, pouco sal.',
+        notes: 'Capa de grasa bien dorada, poca sal.',
         prepStation: 'GRELHA',
         status: 'EM_PREPARO',
         createdAt: '2026-10-09T11:50:00.000Z',
@@ -782,7 +782,7 @@ export const INITIAL_COMANDAS: Comanda[] = [
       {
         id: 'ord-item-6',
         menuItemId: 'menu-pao-alho',
-        name: 'Pão de Alho Tradicional Crocante (4 un)',
+        name: 'Pan de Ajo Tradicional Crocante (4 un)',
         price: 22000,
         quantity: 1,
         prepStation: 'GRELHA',
@@ -812,7 +812,7 @@ export const INITIAL_COMANDAS: Comanda[] = [
     tableLabel: 'Mesa 03',
     waiterId: 'emp-garcom-2',
     waiterName: 'Juliana Santos',
-    customerName: 'Família Souza',
+    customerName: 'Familia Souza',
     peopleCount: 5,
     hasRodizio: true,
     rodizioAdultCount: 4,
@@ -822,7 +822,7 @@ export const INITIAL_COMANDAS: Comanda[] = [
       {
         id: 'ord-item-8',
         menuItemId: 'menu-rod-adult',
-        name: 'Rodízio Completo Prime (Adulto)',
+        name: 'Rodizio Completo Prime (Adulto)',
         price: 220000,
         quantity: 4,
         prepStation: 'GRELHA',
@@ -837,7 +837,7 @@ export const INITIAL_COMANDAS: Comanda[] = [
       {
         id: 'ord-item-9',
         menuItemId: 'menu-rod-child',
-        name: 'Rodízio Infantil (6 a 10 anos)',
+        name: 'Rodizio Infantil (6 a 10 años)',
         price: 110000,
         quantity: 1,
         prepStation: 'GRELHA',
@@ -852,7 +852,7 @@ export const INITIAL_COMANDAS: Comanda[] = [
       {
         id: 'ord-item-10',
         menuItemId: 'menu-refrigerante',
-        name: 'Refrigerante Lata 350ml (Coca / Guaraná / Sprite)',
+        name: 'Gaseosa Lata 350ml (Coca / Guaraná / Sprite)',
         price: 12000,
         quantity: 4,
         notes: '2 Coca Zero, 2 Guaraná normal.',
@@ -883,7 +883,7 @@ export const INITIAL_COMANDAS: Comanda[] = [
     tableLabel: 'Mesa 08',
     waiterId: 'emp-garcom-2',
     waiterName: 'Juliana Santos',
-    customerName: 'Lucas & Amigos',
+    customerName: 'Lucas y Amigos',
     peopleCount: 4,
     hasRodizio: false,
     rodizioAdultCount: 0,
@@ -893,11 +893,11 @@ export const INITIAL_COMANDAS: Comanda[] = [
       {
         id: 'ord-item-11',
         menuItemId: 'menu-picanha',
-        name: 'Picanha Prime na Brasa (500g)',
+        name: 'Picaña Prime a las Brasas (500g)',
         price: 185000,
         quantity: 2,
         doneness: 'MAL_PASSADO',
-        notes: 'Ao ponto p/ mal nas bordas',
+        notes: 'A punto jugosa en los bordes',
         prepStation: 'GRELHA',
         status: 'PENDENTE',
         createdAt: '2026-10-09T12:16:00.000Z',
@@ -925,7 +925,7 @@ export const INITIAL_COMANDAS: Comanda[] = [
       {
         id: 'ord-item-13',
         menuItemId: 'menu-polenta',
-        name: 'Mandioca Frita com Parmesão & Queijo',
+        name: 'Mandioca Frita con Parmesano y Queso',
         price: 30000,
         quantity: 1,
         prepStation: 'COZINHA',
@@ -954,7 +954,7 @@ export const INITIAL_COMANDAS: Comanda[] = [
     tableId: 0,
     tableLabel: 'Delivery #201',
     waiterId: 'emp-caixa',
-    waiterName: 'Patrícia Mendonça',
+    waiterName: 'Patricia Mendonça',
     customerName: 'Mariana Lima',
     customerPhone: '+595 981 887-766',
     deliveryAddress: 'Av. Molas López, 450 - Barrio Carmelitas, Asunción',
@@ -968,11 +968,11 @@ export const INITIAL_COMANDAS: Comanda[] = [
       {
         id: 'ord-item-del-1',
         menuItemId: 'menu-picanha',
-        name: 'Picanha Prime na Brasa (500g)',
+        name: 'Picaña Prime a las Brasas (500g)',
         price: 185000,
         quantity: 1,
         doneness: 'AO_PONTO',
-        notes: 'Embalar bem quente com papel alumínio térmico',
+        notes: 'Empaquetar bien caliente con papel aluminio térmico',
         prepStation: 'GRELHA',
         status: 'PRONTO',
         createdAt: '2026-10-09T12:20:00.000Z',
@@ -980,7 +980,7 @@ export const INITIAL_COMANDAS: Comanda[] = [
         tableLabel: 'Delivery #201',
         comandaCode: 'DEL-201',
         waiterId: 'emp-caixa',
-        waiterName: 'Patrícia Mendonça',
+        waiterName: 'Patricia Mendonça',
       },
       {
         id: 'ord-item-del-2',
@@ -995,7 +995,7 @@ export const INITIAL_COMANDAS: Comanda[] = [
         tableLabel: 'Delivery #201',
         comandaCode: 'DEL-201',
         waiterId: 'emp-caixa',
-        waiterName: 'Patrícia Mendonça',
+        waiterName: 'Patricia Mendonça',
       },
     ],
     status: 'ABERTA',
@@ -1012,9 +1012,9 @@ export const INITIAL_COMANDAS: Comanda[] = [
 export const INITIAL_CASH_SESSION: CashRegisterSession = {
   id: 'session-today',
   operatorId: 'emp-caixa',
-  operatorName: 'Patrícia Mendonça',
+  operatorName: 'Patricia Mendonça',
   openedAt: '2026-10-09T10:00:00.000Z',
-  initialCash: 1000000, // ₲ 1.000.000 (Fundo de troco inicial)
+  initialCash: 1000000, // ₲ 1.000.000 (Fondo de sencillo inicial)
   status: 'ABERTO',
   movements: [
     {
@@ -1022,18 +1022,18 @@ export const INITIAL_CASH_SESSION: CashRegisterSession = {
       type: 'SUPRIMENTO',
       amount: 1000000,
       paymentMethod: 'DINHEIRO',
-      description: 'Fundo de troco inicial de abertura do turno (Guaraníes)',
+      description: 'Fondo de cambio inicial de apertura del turno (Guaraníes)',
       timestamp: '2026-10-09T10:00:00.000Z',
-      operatorName: 'Patrícia Mendonça',
+      operatorName: 'Patricia Mendonça',
     },
     {
       id: 'mov-2',
       type: 'VENDA',
       amount: 480000,
       paymentMethod: 'PIX', // Transferencia / QR
-      description: 'Comanda CMD-098 (Mesa 05) - Almoço Executivo',
+      description: 'Comanda CMD-098 (Mesa 05) - Almuerzo Ejecutivo',
       timestamp: '2026-10-09T11:15:00.000Z',
-      operatorName: 'Patrícia Mendonça',
+      operatorName: 'Patricia Mendonça',
       comandaCode: 'CMD-098',
     },
     {
@@ -1041,9 +1041,9 @@ export const INITIAL_CASH_SESSION: CashRegisterSession = {
       type: 'VENDA',
       amount: 850000,
       paymentMethod: 'CREDITO',
-      description: 'Comanda CMD-099 (Mesa 10) - Rodízio Corporativo',
+      description: 'Comanda CMD-099 (Mesa 10) - Rodizio Corporativo',
       timestamp: '2026-10-09T11:35:00.000Z',
-      operatorName: 'Patrícia Mendonça',
+      operatorName: 'Patricia Mendonça',
       comandaCode: 'CMD-099',
     },
     {
@@ -1051,18 +1051,18 @@ export const INITIAL_CASH_SESSION: CashRegisterSession = {
       type: 'SANGRIA',
       amount: 500000,
       paymentMethod: 'DINHEIRO',
-      description: 'Sangria de segurança para o cofre central',
+      description: 'Retiro de seguridad para la caja fuerte central',
       timestamp: '2026-10-09T11:40:00.000Z',
-      operatorName: 'Patrícia Mendonça',
+      operatorName: 'Patricia Mendonça',
     },
   ],
 };
 
-// 5. Insumos e Estoque Inicial (em Guaraníes ₲)
+// 5. Insumos y Stock Inicial (en Guaraníes ₲)
 export const INITIAL_INGREDIENTS: Ingredient[] = [
   {
     id: 'ing-picanha',
-    name: 'Picanha Angus Certificada',
+    name: 'Picaña Angus Certificada',
     category: 'CARNES',
     unit: 'KG',
     currentStock: 48.5,
@@ -1073,7 +1073,7 @@ export const INITIAL_INGREDIENTS: Ingredient[] = [
   },
   {
     id: 'ing-fraldinha',
-    name: 'Fraldinha Red Nobre',
+    name: 'Vacío / Fraldinha Red Noble',
     category: 'CARNES',
     unit: 'KG',
     currentStock: 34.0,
@@ -1084,7 +1084,7 @@ export const INITIAL_INGREDIENTS: Ingredient[] = [
   },
   {
     id: 'ing-costela',
-    name: 'Costela Janela Bovina 12 Horas',
+    name: 'Costilla Ventana Vacuna 12 Horas',
     category: 'CARNES',
     unit: 'KG',
     currentStock: 55.0,
@@ -1095,21 +1095,21 @@ export const INITIAL_INGREDIENTS: Ingredient[] = [
   },
   {
     id: 'ing-linguica',
-    name: 'Linguiça Colonial Artesanal com Queijo',
+    name: 'Chorizo Colonial Artesanal con Queso',
     category: 'CARNES',
     unit: 'KG',
     currentStock: 19.5,
     minStock: 12.0,
     costPerUnit: 28000, // ₲ 28.000/kg
-    supplier: 'Embutidos Coloniais Chaco',
+    supplier: 'Embutidos Coloniales Chaco',
     lastRestockedAt: '2026-10-08',
   },
   {
     id: 'ing-coracao',
-    name: 'Coração de Frango Temperado',
+    name: 'Corazón de Pollo Condimentado',
     category: 'CARNES',
     unit: 'KG',
-    currentStock: 7.2, // Alerta: abaixo do estoque mínimo
+    currentStock: 7.2, // Alerta: por debajo del stock mínimo
     minStock: 12.0,
     costPerUnit: 22000, // ₲ 22.000/kg
     supplier: 'Granja Avícola La Blanca',
@@ -1117,13 +1117,13 @@ export const INITIAL_INGREDIENTS: Ingredient[] = [
   },
   {
     id: 'ing-carvao',
-    name: 'Carvão Vegetal Quebracho Blanco (10kg)',
+    name: 'Carbón Vegetal Quebracho Blanco (10kg)',
     category: 'CARVAO_LENHA',
     unit: 'PACOTE',
-    currentStock: 8, // Alerta: abaixo do estoque mínimo
+    currentStock: 8, // Alerta: por debajo del stock mínimo
     minStock: 15,
-    costPerUnit: 28000, // ₲ 28.000/pacote
-    supplier: 'Carvoaria Chaco Central',
+    costPerUnit: 28000, // ₲ 28.000/paquete
+    supplier: 'Carbonería Chaco Central',
     lastRestockedAt: '2026-10-04',
   },
   {
@@ -1134,18 +1134,18 @@ export const INITIAL_INGREDIENTS: Ingredient[] = [
     currentStock: 3,
     minStock: 2,
     costPerUnit: 450000, // ₲ 450.000/un
-    supplier: 'Cervepar Distribuição Express',
+    supplier: 'Cervepar Distribución Express',
     lastRestockedAt: '2026-10-08',
   },
   {
     id: 'ing-heineken',
-    name: 'Cerveja Long Neck 330ml (Pilsen / Munich)',
+    name: 'Cerveza Long Neck 330ml (Pilsen / Munich)',
     category: 'BEBIDAS',
     unit: 'UN',
     currentStock: 78,
     minStock: 48,
     costPerUnit: 8500, // ₲ 8.500/un
-    supplier: 'Cervepar Distribuição Express',
+    supplier: 'Cervepar Distribución Express',
     lastRestockedAt: '2026-10-08',
   },
   {
@@ -1153,7 +1153,7 @@ export const INITIAL_INGREDIENTS: Ingredient[] = [
     name: 'Coca-Cola Original 350ml Lata',
     category: 'BEBIDAS',
     unit: 'UN',
-    currentStock: 22, // Alerta: abaixo do estoque mínimo
+    currentStock: 22, // Alerta: por debajo del stock mínimo
     minStock: 36,
     costPerUnit: 4500, // ₲ 4.500/un
     supplier: 'Coca-Cola Paresa Paraguay',
@@ -1161,7 +1161,7 @@ export const INITIAL_INGREDIENTS: Ingredient[] = [
   },
   {
     id: 'ing-agua',
-    name: 'Água Mineral sem Gás 500ml',
+    name: 'Agua Mineral sin Gas 500ml',
     category: 'BEBIDAS',
     unit: 'UN',
     currentStock: 95,
@@ -1172,18 +1172,18 @@ export const INITIAL_INGREDIENTS: Ingredient[] = [
   },
   {
     id: 'ing-pudim',
-    name: 'Pudim de Leite Condensado (Porções)',
+    name: 'Flan de Leche Condensada (Porciones)',
     category: 'SOBREMESAS',
     unit: 'UN',
     currentStock: 18,
     minStock: 10,
     costPerUnit: 7000, // ₲ 7.000/un
-    supplier: 'Confeitaria da Casa',
+    supplier: 'Pastelería de la Casa',
     lastRestockedAt: '2026-10-09',
   },
   {
     id: 'ing-mandioca',
-    name: 'Mandioca Amarela Pré-cozida Selecionada',
+    name: 'Mandioca Amarilla Precocida Seleccionada',
     category: 'HORTIFRUTI',
     unit: 'KG',
     currentStock: 15.0,
@@ -1194,80 +1194,80 @@ export const INITIAL_INGREDIENTS: Ingredient[] = [
   },
 ];
 
-// Registros de Perdas / Desperdício Iniciais
+// Registros de Pérdidas / Desperdicio Iniciales
 export const INITIAL_WASTE_RECORDS: WasteRecord[] = [
   {
     id: 'waste-1',
     ingredientId: 'ing-picanha',
-    ingredientName: 'Picanha Angus Certificada',
+    ingredientName: 'Picaña Angus Certificada',
     quantity: 1.8,
     unit: 'KG',
     reason: 'LIMPEZA_CORTE_EXCESSIVO',
     estimatedCost: 135000, // ₲ 135.000
     date: '2026-10-08T15:20:00.000Z',
-    registeredBy: 'Tiago "Churrasqueiro"',
-    notes: 'Apara de gordura fora do padrão de serviço.',
+    registeredBy: 'Tiago "Parrillero"',
+    notes: 'Recorte de grasa fuera del estándar de servicio.',
   },
   {
     id: 'waste-2',
     ingredientId: 'ing-coracao',
-    ingredientName: 'Coração de Frango Temperado',
+    ingredientName: 'Corazón de Pollo Condimentado',
     quantity: 0.8,
     unit: 'KG',
     reason: 'QUEIMA_OU_ERRO_PREPARO',
     estimatedCost: 17600, // ₲ 17.600
     date: '2026-10-08T21:40:00.000Z',
     registeredBy: 'Carlos Silveira',
-    notes: 'Espeto esquecido próximo à labareda alta da grelha auxiliar.',
+    notes: 'Espeto olvidado cerca de la llama alta de la parrilla auxiliar.',
   },
   {
     id: 'waste-3',
     ingredientId: 'ing-heineken',
-    ingredientName: 'Cerveja Long Neck 330ml',
+    ingredientName: 'Cerveza Long Neck 330ml',
     quantity: 3,
     unit: 'UN',
     reason: 'DANO_AVARIA',
     estimatedCost: 25500, // ₲ 25.500
     date: '2026-10-09T11:15:00.000Z',
-    registeredBy: 'Patrícia Mendonça',
-    notes: 'Queda de garrafa ao descarregar engradado na câmara fria.',
+    registeredBy: 'Patricia Mendonça',
+    notes: 'Caída de botella al descargar cajón en la cámara fría.',
   },
 ];
 
-// Movimentações de Estoque Iniciais (Kardex)
+// Movimientos de Stock Iniciales (Kardex)
 export const INITIAL_STOCK_MOVEMENTS: StockMovement[] = [
   {
     id: 'sm-1',
     ingredientId: 'ing-picanha',
-    ingredientName: 'Picanha Angus Certificada',
+    ingredientName: 'Picaña Angus Certificada',
     type: 'ENTRADA',
     quantity: 30.0,
     unit: 'KG',
     date: '2026-10-07T08:30:00.000Z',
-    reference: 'Fatura 8912 - Neuland',
+    reference: 'Factura 8912 - Neuland',
     registeredBy: 'Carlos Silveira',
   },
   {
     id: 'sm-2',
     ingredientId: 'ing-picanha',
-    ingredientName: 'Picanha Angus Certificada',
+    ingredientName: 'Picaña Angus Certificada',
     type: 'BAIXA_VENDA',
     quantity: 0.8,
     unit: 'KG',
     date: '2026-10-09T11:45:00.000Z',
-    reference: 'Venda CMD-101',
+    reference: 'Venta CMD-101',
     registeredBy: 'Ficha Técnica Automática',
   },
   {
     id: 'sm-3',
     ingredientId: 'ing-picanha',
-    ingredientName: 'Picanha Angus Certificada',
+    ingredientName: 'Picaña Angus Certificada',
     type: 'PERDA',
     quantity: 1.8,
     unit: 'KG',
     date: '2026-10-08T15:20:00.000Z',
-    reference: 'Descarte de Limpeza',
-    registeredBy: 'Tiago "Churrasqueiro"',
+    reference: 'Descarte de Limpieza',
+    registeredBy: 'Tiago "Parrillero"',
   },
   {
     id: 'sm-4',
@@ -1277,41 +1277,41 @@ export const INITIAL_STOCK_MOVEMENTS: StockMovement[] = [
     quantity: 3,
     unit: 'UN',
     date: '2026-10-09T11:45:00.000Z',
-    reference: 'Venda CMD-101',
+    reference: 'Venta CMD-101',
     registeredBy: 'Ficha Técnica Automática',
   },
 ];
 
-// 7. Contas a Pagar e Despesas Operacionais (em Guaraníes ₲)
+// 7. Cuentas por Pagar y Gastos Operacionales (en Guaraníes ₲)
 export const INITIAL_EXPENSE_BILLS: ExpenseBill[] = [
   {
     id: 'exp-1',
-    description: 'Frigorífico Neuland / Chortitzer - Lote Picanhas Angus e Tomahawk',
+    description: 'Frigorífico Neuland / Chortitzer - Lote Picañas Angus y Tomahawk',
     category: 'FORNECEDOR_CARNE',
     amount: 8500000, // ₲ 8.500.000
     dueDate: '2026-10-12',
     status: 'PENDENTE',
     supplier: 'Cooperativa Neuland Paraguay',
-    receiptNumber: 'FAT-8912/1',
+    receiptNumber: 'FAC-8912/1',
     registeredBy: 'Carlos Silveira',
     createdAt: '2026-10-07T08:30:00.000Z',
-    notes: 'Carnes nobres inspecionadas SENACSA Paraguay',
+    notes: 'Carnes nobles inspeccionadas SENACSA Paraguay',
   },
   {
     id: 'exp-2',
-    description: 'Carvoaria Chaco Central - 35 Pacotes Carvão Quebracho e Lenha',
+    description: 'Carbonería Chaco Central - 35 Paquetes Carbón Quebracho y Leña',
     category: 'GAS_CARVAO',
     amount: 980000, // ₲ 980.000
     dueDate: '2026-10-10', // Alerta próximo
     status: 'PENDENTE',
-    supplier: 'Carvoaria Chaco Central',
-    receiptNumber: 'FAT-4410',
+    supplier: 'Carbonería Chaco Central',
+    receiptNumber: 'FAC-4410',
     registeredBy: 'Carlos Silveira',
     createdAt: '2026-10-04T10:00:00.000Z',
   },
   {
     id: 'exp-3',
-    description: 'ANDE - Conta de Energia Elétrica (Câmaras Frias & Climatização)',
+    description: 'ANDE - Factura de Energía Eléctrica (Cámaras Frías y Climatización)',
     category: 'ENERGIA_AGUA',
     amount: 2850000, // ₲ 2.850.000
     dueDate: '2026-10-18',
@@ -1323,21 +1323,21 @@ export const INITIAL_EXPENSE_BILLS: ExpenseBill[] = [
   },
   {
     id: 'exp-4',
-    description: 'Cervepar Distribuição - 4 Barris Chopp e Packs de Bebidas',
+    description: 'Cervepar Distribución - 4 Barriles Chopp y Packs de Bebidas',
     category: 'BEBIDAS_ESTOQUE',
     amount: 3200000, // ₲ 3.200.000
     dueDate: '2026-10-08',
     paymentDate: '2026-10-08',
     status: 'PAGO',
-    paymentMethod: 'PIX', // Transferência bancária
+    paymentMethod: 'PIX', // Transferencia bancaria
     supplier: 'Cervepar S.A.',
-    receiptNumber: 'FAT-77312',
-    registeredBy: 'Patrícia Mendonça',
+    receiptNumber: 'FAC-77312',
+    registeredBy: 'Patricia Mendonça',
     createdAt: '2026-10-05T09:00:00.000Z',
   },
   {
     id: 'exp-5',
-    description: 'Aluguel do Salão Comercial Av. Santa Teresa',
+    description: 'Alquiler del Salón Comercial Av. Santa Teresa',
     category: 'ALUGUEL',
     amount: 12000000, // ₲ 12.000.000
     dueDate: '2026-10-05',
@@ -1351,7 +1351,7 @@ export const INITIAL_EXPENSE_BILLS: ExpenseBill[] = [
   },
   {
     id: 'exp-6',
-    description: 'Tributos Fiscais SET / IVA Mensal',
+    description: 'Tributos Fiscales SET / IVA Mensual',
     category: 'IMPOSTOS',
     amount: 3500000, // ₲ 3.500.000
     dueDate: '2026-10-20',
@@ -1363,29 +1363,29 @@ export const INITIAL_EXPENSE_BILLS: ExpenseBill[] = [
   },
 ];
 
-// 8. Fechamentos Anteriores de Caixa (em Guaraníes ₲)
+// 8. Cierres Anteriores de Caja (en Guaraníes ₲)
 export const INITIAL_CASH_CLOSINGS: CashClosingRecord[] = [
   {
     id: 'close-1',
     type: 'TURNO',
-    periodLabel: 'Turno Jantar - 08/10/2026',
+    periodLabel: 'Turno Cena - 08/10/2026',
     date: '2026-10-08T23:45:00.000Z',
-    operatorName: 'Patrícia Mendonça',
+    operatorName: 'Patricia Mendonça',
     initialCash: 1000000,
     totalEntries: 18500000,
-    totalExits: 14000000, // sangrias para cofre
+    totalExits: 14000000, // retiros para caja fuerte
     expectedCash: 5500000,
     countedCash: 5500000,
     discrepancy: 0,
     status: 'CONCILIADO',
-    notes: 'Conferência exata de cédulas em Guaraníes.',
+    notes: 'Recuento exacto de billetes en Guaraníes.',
   },
   {
     id: 'close-2',
     type: 'TURNO',
-    periodLabel: 'Turno Almoço - 08/10/2026',
+    periodLabel: 'Turno Almuerzo - 08/10/2026',
     date: '2026-10-08T16:10:00.000Z',
-    operatorName: 'Patrícia Mendonça',
+    operatorName: 'Patricia Mendonça',
     initialCash: 1000000,
     totalEntries: 14800000,
     totalExits: 11500000,
@@ -1393,12 +1393,12 @@ export const INITIAL_CASH_CLOSINGS: CashClosingRecord[] = [
     countedCash: 4280000,
     discrepancy: -20000,
     status: 'DIVERGENTE',
-    notes: 'Divergência de ₲ 20.000 em troco de moedas.',
+    notes: 'Diferencia de ₲ 20.000 en cambio de monedas.',
   },
   {
     id: 'close-3',
     type: 'MENSAL',
-    periodLabel: 'Fechamento Mensal - Setembro/2026',
+    periodLabel: 'Cierre Mensual - Septiembre/2026',
     date: '2026-09-30T23:59:00.000Z',
     operatorName: 'Carlos Silveira',
     initialCash: 1000000,
@@ -1408,11 +1408,11 @@ export const INITIAL_CASH_CLOSINGS: CashClosingRecord[] = [
     countedCash: 122000000,
     discrepancy: 0,
     status: 'CONCILIADO',
-    notes: 'Fechamento contábil e apuração de DRE do mês.',
+    notes: 'Cierre contable y liquidación de DRE del mes.',
   },
 ];
 
-// 9. Histórico Inicial de Auditoria Operacional (Prevenção de Perdas)
+// 9. Historial Inicial de Auditoría Operacional (Prevención de Pérdidas)
 export const INITIAL_AUDIT_LOGS: AuditLogEntry[] = [
   {
     id: 'aud-01',
@@ -1423,8 +1423,8 @@ export const INITIAL_AUDIT_LOGS: AuditLogEntry[] = [
     actorRole: 'ADMIN',
     targetType: 'COMANDA',
     targetReference: 'CMD-102 (Mesa 02)',
-    details: 'Concessão de desconto comercial de ₲ 50.000 no fechamento da conta',
-    reason: 'Cortesia VIP - Mesa de comemoração corporativa',
+    details: 'Otorgamiento de descuento comercial de ₲ 50.000 al cierre de la cuenta',
+    reason: 'Cortesía VIP - Mesa de celebración corporativa',
     amountImpact: 50000,
   },
   {
@@ -1436,8 +1436,8 @@ export const INITIAL_AUDIT_LOGS: AuditLogEntry[] = [
     actorRole: 'GARCOM',
     targetType: 'ITEM',
     targetReference: 'Mesa 01 (CMD-101) - Chopp 500ml',
-    details: 'Item cancelado antes da emissão ao bar (duplicidade no tablet)',
-    reason: 'Lançamento duplicado por engano no pedido inicial',
+    details: 'Ítem cancelado antes de emisión al bar (duplicado en la tablet)',
+    reason: 'Carga duplicada por error en el pedido inicial',
     amountImpact: 22000,
   },
   {
@@ -1448,9 +1448,9 @@ export const INITIAL_AUDIT_LOGS: AuditLogEntry[] = [
     actorName: 'Carlos Silveira',
     actorRole: 'ADMIN',
     targetType: 'ESTOQUE',
-    targetReference: 'Costela Janela Bovina (KG)',
-    details: 'Descarte registrado de 2.8 kg de aparas e osso na limpeza',
-    reason: 'Limpeza e padronização técnica de corte para a grelha',
+    targetReference: 'Costilla Ventana Vacuna (KG)',
+    details: 'Descarte registrado de 2.8 kg de recortes y hueso en la limpieza',
+    reason: 'Limpieza y estandarización técnica de corte para la parrilla',
     amountImpact: 126000,
   },
   {
@@ -1458,12 +1458,12 @@ export const INITIAL_AUDIT_LOGS: AuditLogEntry[] = [
     timestamp: '2026-10-08T22:40:15.000Z',
     actionType: 'SANGRIA_CAIXA',
     actorId: 'emp-caixa',
-    actorName: 'Patrícia Mendonça',
+    actorName: 'Patricia Mendonça',
     actorRole: 'CAIXA',
     targetType: 'CAIXA',
-    targetReference: 'Terminal Caixa Principal',
-    details: 'Sangria de segurança no valor de ₲ 8.000.000 enviada ao cofre blindado',
-    reason: 'Limite de retenção física em gaveta atingido no pico do jantar',
+    targetReference: 'Terminal Caja Principal',
+    details: 'Retiro de seguridad por valor de ₲ 8.000.000 enviado a la caja fuerte blindada',
+    reason: 'Límite de retención física en gaveta alcanzado en el pico de la cena',
     amountImpact: 8000000,
   },
   {
@@ -1474,9 +1474,9 @@ export const INITIAL_AUDIT_LOGS: AuditLogEntry[] = [
     actorName: 'Juliana Santos',
     actorRole: 'GARCOM',
     targetType: 'ITEM',
-    targetReference: 'Mesa 08 - Petit Gâteau com Sorvete',
-    details: 'Item cancelado na cozinha após espera solicitada pelo cliente',
-    reason: 'Cliente precisou encerrar a mesa com urgência e dispensou a sobremesa',
+    targetReference: 'Mesa 08 - Petit Gâteau con Helado',
+    details: 'Ítem cancelado en cocina tras demora solicitada por el cliente',
+    reason: 'El cliente necesitó cerrar la mesa con urgencia y prescindió del postre',
     amountImpact: 38000,
   },
   {
@@ -1484,12 +1484,12 @@ export const INITIAL_AUDIT_LOGS: AuditLogEntry[] = [
     timestamp: '2026-10-08T16:10:00.000Z',
     actionType: 'DIFERENCA_FECHAMENTO',
     actorId: 'emp-caixa',
-    actorName: 'Patrícia Mendonça',
+    actorName: 'Patricia Mendonça',
     actorRole: 'CAIXA',
     targetType: 'CAIXA',
-    targetReference: 'Fechamento Turno Almoço 08/10',
-    details: 'Diferença de caixa apurada: ₲ -20.000 (Contado ₲ 4.280.000 vs Esperado ₲ 4.300.000)',
-    reason: 'Quebra de troco em moedas durante o horário de pico das 13h',
+    targetReference: 'Cierre Turno Almuerzo 08/10',
+    details: 'Diferencia de caja detectada: ₲ -20.000 (Contado ₲ 4.280.000 vs Esperado ₲ 4.300.000)',
+    reason: 'Diferencia de sencillo en monedas durante el horario pico de las 13h',
     amountImpact: 20000,
   },
   {
@@ -1500,9 +1500,9 @@ export const INITIAL_AUDIT_LOGS: AuditLogEntry[] = [
     actorName: 'Carlos Silveira',
     actorRole: 'ADMIN',
     targetType: 'PRODUTO',
-    targetReference: 'Picanha Prime na Brasa (500g)',
-    details: 'Reajuste de preço cadastrado de ₲ 175.000 para ₲ 185.000',
-    reason: 'Aumento na cotação do fornecedor Neuland',
+    targetReference: 'Picaña Prime a las Brasas (500g)',
+    details: 'Ajuste de precio registrado de ₲ 175.000 a ₲ 185.000',
+    reason: 'Aumento en la cotización del proveedor Neuland',
     amountImpact: 10000,
   },
   {
@@ -1510,12 +1510,12 @@ export const INITIAL_AUDIT_LOGS: AuditLogEntry[] = [
     timestamp: '2026-10-07T14:20:00.000Z',
     actionType: 'ESTORNO_PAGAMENTO',
     actorId: 'emp-caixa',
-    actorName: 'Patrícia Mendonça',
+    actorName: 'Patricia Mendonça',
     actorRole: 'CAIXA',
     targetType: 'COMANDA',
     targetReference: 'CMD-095 (Mesa 04)',
-    details: 'Estorno de comanda liquidada no valor de ₲ 250.000 via Transferência QR',
-    reason: 'Cobrança duplicada identificada no fechamento do cliente',
+    details: 'Reembolso de comanda liquidada por valor de ₲ 250.000 vía Transferencia QR',
+    reason: 'Cobro duplicado identificado en el cierre del cliente',
     amountImpact: 250000,
   },
   {
@@ -1527,8 +1527,8 @@ export const INITIAL_AUDIT_LOGS: AuditLogEntry[] = [
     actorRole: 'GARCOM',
     targetType: 'COMANDA',
     targetReference: 'CMD-088 (Mesa 05)',
-    details: 'Desconto comercial de ₲ 40.000 concedido no subtotal',
-    reason: 'Atraso no corte Ancho Prime devido a pedido especial',
+    details: 'Descuento comercial de ₲ 40.000 otorgado en el subtotal',
+    reason: 'Demora en el corte Ancho Prime debido a pedido especial',
     amountImpact: 40000,
   },
   {
@@ -1540,8 +1540,8 @@ export const INITIAL_AUDIT_LOGS: AuditLogEntry[] = [
     actorRole: 'ADMIN',
     targetType: 'COMANDA',
     targetReference: 'CMD-079 (Mesa 07)',
-    details: 'Comanda cancelada integralmente antes do consumo de rodízio',
-    reason: 'Mesa desistiu após emergência familiar médica comunicada na chegada',
+    details: 'Comanda cancelada íntegramente antes del consumo de rodizio',
+    reason: 'La mesa se retiró tras emergencia familiar médica comunicada al llegar',
     amountImpact: 0,
   },
 ];
@@ -1550,14 +1550,14 @@ export const INITIAL_PRODUCT_PURCHASES: ProductPurchase[] = [
   {
     id: 'pur-01',
     productId: 'menu-corte-picanha',
-    productName: 'Picanha Prime na Brasa (500g)',
+    productName: 'Picaña Prime a las Brasas (500g)',
     quantity: 25,
     unitCost: 55000,
     totalCost: 1375000,
     date: new Date().toISOString().split('T')[0],
     timestamp: new Date().toISOString(),
-    supplier: 'Frigorífico VPJ Alimentos',
-    notes: 'Lote selecionado maturado',
+    supplier: 'Frigorífico Neuland',
+    notes: 'Lote seleccionado madurado',
     registeredBy: 'Carlos Silveira',
   },
   {
@@ -1569,34 +1569,34 @@ export const INITIAL_PRODUCT_PURCHASES: ProductPurchase[] = [
     totalCost: 450000,
     date: new Date().toISOString().split('T')[0],
     timestamp: new Date().toISOString(),
-    supplier: 'Distribuidora Cervejas SA',
-    notes: 'Barris de 50L',
+    supplier: 'Distribuidora Cervepar SA',
+    notes: 'Barriles de 50L',
     registeredBy: 'Carlos Silveira',
   },
   {
     id: 'pur-03',
     productId: 'menu-pao-alho',
-    productName: 'Pão de Alho Especial Recheado',
+    productName: 'Pan de Ajo Especial Relleno',
     quantity: 40,
     unitCost: 8000,
     totalCost: 320000,
     date: new Date().toISOString().split('T')[0],
     timestamp: new Date().toISOString(),
-    supplier: 'Panificadora Central',
+    supplier: 'Panadería Central',
     notes: 'Entrega matutina',
     registeredBy: 'Carlos Silveira',
   },
   {
     id: 'pur-04',
     productId: 'menu-refrig-lata',
-    productName: 'Refrigerante Lata 350ml',
+    productName: 'Gaseosa Lata 350ml',
     quantity: 80,
     unitCost: 4000,
     totalCost: 320000,
     date: new Date().toISOString().split('T')[0],
     timestamp: new Date().toISOString(),
-    supplier: 'Ambev Distribuição',
-    notes: 'Coca-Cola e Guaraná',
+    supplier: 'Paresa Distribución',
+    notes: 'Coca-Cola y Guaraná',
     registeredBy: 'Carlos Silveira',
   },
 ];

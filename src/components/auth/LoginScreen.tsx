@@ -42,7 +42,7 @@ export const LoginScreen: React.FC = () => {
     setErrorMessage(null);
     const res = loginWithEmail(adminEmail, adminPassword);
     if (!res.success) {
-      setErrorMessage(res.error || 'Credenciais de Administrador inválidas.');
+      setErrorMessage(res.error || 'Credenciales de Administrador inválidas.');
     }
   };
 
@@ -51,12 +51,12 @@ export const LoginScreen: React.FC = () => {
     e.preventDefault();
     setErrorMessage(null);
     if (!staffName.trim() || !staffEmail.trim() || !staffPassword.trim()) {
-      setErrorMessage('Informe seu Nome, Gmail e Senha para acessar o sistema.');
+      setErrorMessage('Ingrese su Nombre, Gmail y Contraseña para acceder al sistema.');
       return;
     }
     const res = loginStaffWithGmail(staffEmail, staffName, staffPassword);
     if (!res.success) {
-      setErrorMessage(res.error || 'Credenciais de funcionário inválidas.');
+      setErrorMessage(res.error || 'Credenciales de empleado inválidas.');
     }
   };
 
@@ -68,7 +68,7 @@ export const LoginScreen: React.FC = () => {
     setTimeout(() => {
       const res = loginStaffWithGmail(empEmail, empName, empPass || '123456');
       if (!res.success) {
-        setErrorMessage(res.error || 'Funcionário não encontrado.');
+        setErrorMessage(res.error || 'Empleado no encontrado.');
       }
     }, 100);
   };
@@ -89,10 +89,10 @@ export const LoginScreen: React.FC = () => {
             <Flame className="w-8 h-8 text-white stroke-[2.2]" />
           </div>
           <h1 className="text-2xl font-black text-white tracking-tight">
-            CHURRASGESTÃO
+            CHURRASGESTIÓN
           </h1>
           <p className="text-xs text-stone-400">
-            Sistema Integrado de Gestão para Churrascaria
+            Sistema Integrado de Gestión para Churrasquería y Parrilla
           </p>
         </div>
 
@@ -129,7 +129,7 @@ export const LoginScreen: React.FC = () => {
               }`}
             >
               <UtensilsCrossed className="w-4 h-4" />
-              <span>Funcionário</span>
+              <span>Empleado / Equipo</span>
             </button>
           </div>
 
@@ -147,17 +147,17 @@ export const LoginScreen: React.FC = () => {
               <div className="bg-stone-950/70 p-3 rounded-xl border border-stone-800 text-xs text-stone-300 space-y-1">
                 <div className="flex items-center gap-1.5 font-bold text-amber-400">
                   <ShieldCheck className="w-4 h-4" />
-                  <span>Acesso de Gestão Total</span>
+                  <span>Acceso de Gestión Total</span>
                 </div>
                 <p className="text-[11px] text-stone-400">
-                  Permissão total para cadastrar produtos com estoque, editar e excluir mesas, e gerar relatórios oficiais em PDF.
+                  Permiso total para registrar productos con stock, editar y eliminar mesas, y generar reportes oficiales en PDF.
                 </p>
               </div>
 
               <form onSubmit={handleAdminSubmit} className="space-y-3.5">
                 <div>
                   <label className="block text-xs font-semibold text-stone-300 mb-1">
-                    E-mail do Administrador:
+                    Correo del Administrador:
                   </label>
                   <div className="relative">
                     <Mail className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
@@ -174,7 +174,7 @@ export const LoginScreen: React.FC = () => {
 
                 <div>
                   <label className="block text-xs font-semibold text-stone-300 mb-1">
-                    Senha de Acesso:
+                    Contraseña de Acceso:
                   </label>
                   <div className="relative">
                     <Lock className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
@@ -201,7 +201,7 @@ export const LoginScreen: React.FC = () => {
                   className="w-full py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold transition shadow-lg shadow-amber-950/40 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Lock className="w-3.5 h-3.5" />
-                  <span>Entrar como Administrador</span>
+                  <span>Ingresar como Administrador</span>
                 </button>
               </form>
             </div>
@@ -213,17 +213,17 @@ export const LoginScreen: React.FC = () => {
               <div className="bg-stone-950/70 p-3 rounded-xl border border-stone-800 text-xs text-stone-300 space-y-1">
                 <div className="flex items-center gap-1.5 font-bold text-amber-400">
                   <UserCheck className="w-4 h-4" />
-                  <span>Acesso de Funcionário</span>
+                  <span>Acceso de Empleado / Equipo</span>
                 </div>
                 <p className="text-[11px] text-stone-400">
-                  Informe seu Nome, Gmail e Senha cadastrados pelo administrador para acessar o sistema.
+                  Ingrese su Nombre, Gmail y Contraseña registrados por el administrador para acceder al sistema.
                 </p>
               </div>
 
               <form onSubmit={handleStaffSubmit} className="space-y-3.5">
                 <div>
                   <label className="block text-xs font-semibold text-stone-300 mb-1">
-                    Nome do Funcionário:
+                    Nombre del Empleado:
                   </label>
                   <div className="relative">
                     <UserCheck className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
@@ -232,7 +232,7 @@ export const LoginScreen: React.FC = () => {
                       required
                       value={staffName}
                       onChange={(e) => setStaffName(e.target.value)}
-                      placeholder="Ex: Marcelo"
+                      placeholder="Ej: Marcelo"
                       className="w-full bg-stone-950 border border-stone-700 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-stone-600 focus:outline-none focus:border-amber-500"
                     />
                   </div>
@@ -240,7 +240,7 @@ export const LoginScreen: React.FC = () => {
 
                 <div>
                   <label className="block text-xs font-semibold text-stone-300 mb-1">
-                    Gmail / E-mail de Acesso:
+                    Gmail / Correo de Acceso:
                   </label>
                   <div className="relative">
                     <Mail className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
@@ -249,7 +249,7 @@ export const LoginScreen: React.FC = () => {
                       required
                       value={staffEmail}
                       onChange={(e) => setStaffEmail(e.target.value)}
-                      placeholder="funcionario@gmail.com"
+                      placeholder="empleado@gmail.com"
                       className="w-full bg-stone-950 border border-stone-700 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-stone-600 focus:outline-none focus:border-amber-500 font-mono"
                     />
                   </div>
@@ -257,7 +257,7 @@ export const LoginScreen: React.FC = () => {
 
                 <div>
                   <label className="block text-xs font-semibold text-stone-300 mb-1">
-                    Senha de Acesso:
+                    Contraseña de Acceso:
                   </label>
                   <div className="relative">
                     <Lock className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
@@ -284,7 +284,7 @@ export const LoginScreen: React.FC = () => {
                   className="w-full py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold transition shadow-lg shadow-amber-950/40 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <UserCheck className="w-4 h-4" />
-                  <span>Entrar no Sistema</span>
+                  <span>Ingresar al Sistema</span>
                 </button>
               </form>
 
@@ -292,7 +292,7 @@ export const LoginScreen: React.FC = () => {
               {activeNonAdminStaff.length > 0 && (
                 <div className="space-y-1.5 pt-2 border-t border-stone-800">
                   <label className="block text-[11px] font-semibold text-stone-400">
-                    Ou selecione seu perfil cadastrado:
+                    O seleccione su perfil registrado:
                   </label>
                   <div className="grid grid-cols-1 gap-2 max-h-40 overflow-y-auto pr-1">
                     {activeNonAdminStaff.map((w) => (
@@ -313,7 +313,7 @@ export const LoginScreen: React.FC = () => {
                           </div>
                         </div>
                         <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded bg-stone-900 text-stone-300 border border-stone-800 shrink-0 ml-2">
-                          {w.role}
+                          {w.role === 'GARCOM' ? 'MOZO' : w.role === 'CAIXA' ? 'CAJERO' : w.role === 'COZINHA' ? 'COCINA' : w.role}
                         </span>
                       </button>
                     ))}
@@ -328,7 +328,7 @@ export const LoginScreen: React.FC = () => {
         <div className="bg-stone-900/60 border border-stone-800/80 rounded-2xl p-3.5 space-y-2">
           <div className="flex items-center gap-1.5 text-[11px] font-bold text-stone-400 uppercase tracking-wider">
             <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            <span>Acesso Rápido de Demonstração:</span>
+            <span>Acceso Rápido de Demostración:</span>
           </div>
 
           <div className="grid grid-cols-2 gap-2 text-xs">
@@ -346,7 +346,7 @@ export const LoginScreen: React.FC = () => {
                 <ShieldCheck className="w-3.5 h-3.5" />
                 <span>Carlos Silveira</span>
               </div>
-              <div className="text-[10px] text-stone-400 mt-0.5">ADMIN (Acesso Total)</div>
+              <div className="text-[10px] text-stone-400 mt-0.5">ADMIN (Acceso Total)</div>
             </button>
 
             <button
@@ -362,7 +362,7 @@ export const LoginScreen: React.FC = () => {
                 <UtensilsCrossed className="w-3.5 h-3.5 text-amber-500" />
                 <span>Marcelo "Gaúcho"</span>
               </div>
-              <div className="text-[10px] text-stone-400 mt-0.5">GARÇOM (Nome + Gmail + Senha)</div>
+              <div className="text-[10px] text-stone-400 mt-0.5">MOZO (Nombre + Gmail + Contraseña)</div>
             </button>
           </div>
         </div>
