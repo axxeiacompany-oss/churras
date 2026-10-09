@@ -1,0 +1,6 @@
+{
+  "name": "ChurrasGestão - Sistema Integrado de Churrascaria",
+  "description": "Sistema completo de gestão para churrascaria com perfis Admin, Caixa, Garçom e Churrasqueiro/KDS, vendas por comanda/mesa e fluxo de caixa automatizado.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
